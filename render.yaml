@@ -4,8 +4,7 @@ previewsExpireAfterDays: 1
 services:
   # App
   - type: web
-    name: django-vue-boilerplate:app
-    env: static
+    name: docbase:app
     rootDir: app/
     buildFilter:
       paths:
@@ -23,8 +22,8 @@ services:
 
   # API
   - type: web
-    name: django-vue-boilerplate:api
-    env: python
+    name: docbase:api
+    runtime: python
     plan: starter
     rootDir: api/
     buildFilter:
@@ -37,7 +36,7 @@ services:
         value: 3.11.4
       - key: DATABASE_URL
         fromDatabase:
-          name: django-vue-boilerplate:db
+          name: docbase:db
           property: connectionString
       - key: DJANGO_SECRET_KEY
         generateValue: true
@@ -46,25 +45,25 @@ services:
       - key: REDIS_HOST
         fromService:
           type: redis
-          name: django-vue-boilerplate:redis
+          name: docbase:redis
           property: host
       - key: REDIS_PORT
         fromService:
           type: redis
-          name: django-vue-boilerplate:redis
+          name: docbase:redis
           property: port
       - key: REDIS_URL
         fromService:
           type: redis
-          name: django-vue-boilerplate:redis
+          name: docbase:redis
           property: connectionString
 
   - type: redis
-    name: django-vue-boilerplate:redis
+    name: docbase:redis
     ipAllowList: []
 
 databases:
-  - name: django-vue-boilerplate:db
-    databaseName: django-vue-boilerplate
+  - name: docbase:db
+    databaseName: docbase
     user: admin
     plan: free
