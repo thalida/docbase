@@ -1,8 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 
 from api.models import BaseModel
 
@@ -160,45 +158,34 @@ class Field(BaseModel):
     label = models.CharField(max_length=255)
     field_type = models.IntegerField(choices=FieldType.choices)
 
-    settings_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    settings_id = models.PositiveIntegerField()
-    settings_object = GenericForeignKey("settings_type", "settings_id")
-
     def __str__(self):
         return self.label
 
-    class Meta:
-        indexes = [
-            models.Index(fields=["settings_type", "settings_id"]),
-        ]
+    @property
+    def config(self):
+        if self.field_type == Field.FieldType.TEXT:
+            return self.text_field_config
 
-    # @property
-    # def settings(self):
-    #   if self.field_type == Field.FieldType.TEXT:
-    #     return self.text_field
+        elif self.field_type == Field.FieldType.NUMBER:
+            return self.number_field_config
 
-    #   elif self.field_type == Field.FieldType.NUMBER:
-    #     return self.number_field
+        elif self.field_type == Field.FieldType.BOOLEAN:
+            return self.boolean_field_config
 
-    #   elif self.field_type == Field.FieldType.BOOLEAN:
-    #     return self.boolean_field
+        elif self.field_type == Field.FieldType.DATE:
+            return self.date_field_config
 
-    #   elif self.field_type == Field.FieldType.DATE:
-    #     return self.date_field
+        elif self.field_type == Field.FieldType.CHECKLIST:
+            return self.checklist_field_config
 
-    #   elif self.field_type == Field.FieldType.CHECKLIST:
-    #     return self.checklist_field
+        elif self.field_type == Field.FieldType.CHOICE:
+            return self.choice_field_config
 
-    #   elif self.field_type == Field.FieldType.CHOICE:
-    #     return self.choice_field
+        elif self.field_type == Field.FieldType.FILE:
+            return self.file_field_config
 
-    #   elif self.field_type == Field.FieldType.FILE:
-    #     return self.file_field
-
-    #   elif self.field_type == Field.FieldType.RELATION:
-    #     return self.relation_field
-
-    #   return None
+        elif self.field_type == Field.FieldType.RELATION:
+            return self.relation_field_config
 
 
 class FieldResponse(BaseModel):
@@ -209,7 +196,7 @@ class FieldResponse(BaseModel):
         abstract = True
 
 
-class TextFieldSettings(BaseModel):
+class TextFieldConfig(BaseModel):
     class TextFormat(models.TextChoices):
         SINGLE_LINE = "single_line", "Single Line"
         MULTI_LINE = "multi_line", "Multi Line"
@@ -218,7 +205,7 @@ class TextFieldSettings(BaseModel):
         PHONE = "phone", "Phone"
         RICH_TEXT = "rich_text", "Rich Text"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="text_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="text_field_config")
     display_format = models.CharField(max_length=255, choices=TextFormat.choices, default=TextFormat.SINGLE_LINE)
 
     class Meta:
@@ -239,14 +226,14 @@ class TextFieldResponse(FieldResponse):
         ]
 
 
-class NumberFieldSettings(BaseModel):
+class NumberFieldConfig(BaseModel):
     class NumberFormat(models.TextChoices):
         DECIMAL = "decimal", "Decimal"
         INTEGER = "integer", "Integer"
         PERCENTAGE = "percentage", "Percentage"
         CURRENCY = "currency", "Currency"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="number_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="number_field_config")
     display_format = models.CharField(max_length=255, choices=NumberFormat.choices, default=NumberFormat.DECIMAL)
 
 
@@ -262,12 +249,12 @@ class NumberFieldResponse(FieldResponse):
         ]
 
 
-class BooleanFieldSettings(BaseModel):
+class BooleanFieldConfig(BaseModel):
     class BooleanFormat(models.TextChoices):
         CHECKBOX = "checkbox", "Checkbox"
         TOGGLE = "toggle", "Toggle"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="boolean_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="boolean_field_config")
     display_format = models.CharField(max_length=255, choices=BooleanFormat.choices, default=BooleanFormat.CHECKBOX)
 
 
@@ -283,13 +270,13 @@ class BooleanFieldResponse(FieldResponse):
         ]
 
 
-class DateFieldSettings(BaseModel):
+class DateFieldConfig(BaseModel):
     class DateFormat(models.TextChoices):
         DATE = "date", "Date"
         DATE_TIME = "datetime", "Date & Time"
         TIME = "time", "Time"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="date_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="date_field_config")
     display_format = models.CharField(max_length=255, choices=DateFormat.choices, default=DateFormat.DATE)
 
 
@@ -306,12 +293,12 @@ class DateFieldResponse(FieldResponse):
         ]
 
 
-class ChecklistFieldSettings(BaseModel):
+class ChecklistFieldConfig(BaseModel):
     class ChecklistStatusFormat(models.TextChoices):
         PROGRESS_BAR = "progress", "Progress"
         PERCENTAGE = "percentage", "Percentage"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="checklist_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="checklist_field_config")
     status_format = models.CharField(
         max_length=255, choices=ChecklistStatusFormat.choices, default=ChecklistStatusFormat.PROGRESS_BAR
     )
@@ -336,19 +323,19 @@ class ChecklistFieldResponse(FieldResponse):
         ]
 
 
-class ChoiceFieldSettings(BaseModel):
+class ChoiceFieldConfig(BaseModel):
     class ChoiceFormat(models.TextChoices):
         DROPDOWN = "dropdown", "Dropdown"
         RADIO = "radio", "Radio"
         CHECKBOX = "checkbox", "Checkbox"
         TAGS = "tags", "Tags"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="choice_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="choice_field_config")
     is_multi_select = models.BooleanField(default=False)
     display_format = models.CharField(max_length=255, choices=ChoiceFormat.choices, default=ChoiceFormat.DROPDOWN)
 
     def clean(self):
-        if self.is_multi_select and self.display_format == ChoiceFieldSettings.ChoiceFormat.RADIO:
+        if self.is_multi_select and self.display_format == ChoiceFieldConfig.ChoiceFormat.RADIO:
             raise ValidationError("Cannot have radio display format when multi select is enabled")
 
         super().clean()
@@ -359,7 +346,7 @@ class ChoiceFieldSettings(BaseModel):
 
 
 class ChoiceFieldOption(BaseModel):
-    field = models.ForeignKey("core.ChoiceFieldSettings", on_delete=models.CASCADE, related_name="options")
+    field = models.ForeignKey("core.ChoiceFieldConfig", on_delete=models.CASCADE, related_name="options")
     label = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
 
@@ -389,7 +376,7 @@ class ChoiceFieldResponse(FieldResponse):
         super().save(*args, **kwargs)
 
 
-class FileFieldSettings(BaseModel):
+class FileFieldConfig(BaseModel):
     class FileTypes(models.TextChoices):
         ALL = "all", "All"
         IMAGE = "image"
@@ -397,19 +384,19 @@ class FileFieldSettings(BaseModel):
         AUDIO = "audio"
         DOCUMENT = "document"
 
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="file_field")
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="file_field_config")
     supported_file_types = ArrayField(models.CharField(max_length=255), blank=True)
     is_multiple = models.BooleanField(default=False)
 
     def clean(self):
         if len(self.supported_file_types) == 0:
-            self.supported_file_types = [FileFieldSettings.FileTypes.ALL]
+            self.supported_file_types = [FileFieldConfig.FileTypes.ALL]
 
-        if FileFieldSettings.FileTypes.ALL in self.supported_file_types and len(self.supported_file_types) > 1:
+        if FileFieldConfig.FileTypes.ALL in self.supported_file_types and len(self.supported_file_types) > 1:
             raise ValidationError("Cannot have other file types when 'all' is selected")
 
         for file_type in self.supported_file_types:
-            if file_type not in FileFieldSettings.FileTypes.values:
+            if file_type not in FileFieldConfig.FileTypes.values:
                 raise ValidationError(f"{file_type} is not a valid file type")
 
         super().clean()
@@ -431,10 +418,12 @@ class FileFieldResponse(FieldResponse):
         ]
 
 
-class RelationFieldSettings(BaseModel):
-    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="relation_field")
+class RelationFieldConfig(BaseModel):
+    field = models.OneToOneField("core.Field", on_delete=models.CASCADE, related_name="relation_field_config")
     database = models.ForeignKey("core.Database", on_delete=models.CASCADE)
-    related_database = models.ForeignKey("core.Database", on_delete=models.CASCADE, related_name="related_fields")
+    related_database = models.ForeignKey(
+        "core.Database", on_delete=models.CASCADE, related_name="related_field_configs"
+    )
 
     def clean(self):
         super().clean()
@@ -443,7 +432,7 @@ class RelationFieldSettings(BaseModel):
         self.full_clean()
         super().save(*args, **kwargs)
 
-        opposite_relation_field = RelationFieldSettings.objects.filter(
+        opposite_relation_field = RelationFieldConfig.objects.filter(
             database=self.related_database, related_database=self.database
         )
         if not opposite_relation_field.exists():
@@ -452,7 +441,7 @@ class RelationFieldSettings(BaseModel):
                 label=f"{self.related_database.name} (Related)",
                 field_type=Field.FieldType.RELATION,
             )
-            RelationFieldSettings.objects.create(
+            RelationFieldConfig.objects.create(
                 field=field,
                 database=self.related_database,
                 related_database=self.database,
