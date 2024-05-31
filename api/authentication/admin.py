@@ -20,10 +20,17 @@ from oauth2_provider.models import (
 )
 from social_django.admin import AssociationOption, NonceOption, UserSocialAuthOption
 from social_django.models import Association, Nonce, UserSocialAuth
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 
 from authentication.models import User
+
+
+class WorkspaceMembershipInline(TabularInline):
+    model = User.workspaces.through
+    extra = 0
+    exclude = ("created_by", "updated_by")
+    fk_name = "user"
 
 
 @admin.register(User)
@@ -42,6 +49,8 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
             },
         ),
     )
+
+    inlines = [WorkspaceMembershipInline]
 
 
 admin.site.unregister(Group)

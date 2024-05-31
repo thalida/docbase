@@ -30,3 +30,14 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+        user_workspaces = self.workspaces.all()
+        if not user_workspaces.exists():
+            self.create_workspace(name="Personal Workspace")
+
+    def create_workspace(self, name: str):
+        from organizations.models import Workspace, WorkspaceMembership
+
+        workspace = Workspace.objects.create(name=name)
+        WorkspaceMembership.objects.create(workspace=workspace, user=self)
+        return workspace

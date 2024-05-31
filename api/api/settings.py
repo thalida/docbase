@@ -100,6 +100,8 @@ INSTALLED_APPS = [
     # local apps
     "authentication",
     "docs",
+    "core",
+    "organizations",
 ]
 
 MIDDLEWARE = [
