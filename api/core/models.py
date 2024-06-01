@@ -1,6 +1,9 @@
-from django.db import models
-from django.core.exceptions import ValidationError
+import json
+
+from dateutil import parser
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.db import models
 
 from api.models import BaseModel
 
@@ -54,16 +57,7 @@ class View(BaseModel):
     description = models.TextField(blank=True)
     view_type = models.IntegerField(choices=ViewType.choices, default=ViewType.TABLE)
     is_default = models.BooleanField(default=False)
-
-    text_fields = models.ForeignKey("core.TextField", on_delete=models.CASCADE, blank=True, null=True)
-    number_fields = models.ForeignKey("core.NumberField", on_delete=models.CASCADE, blank=True, null=True)
-    boolean_fields = models.ForeignKey("core.BooleanField", on_delete=models.CASCADE, blank=True, null=True)
-    date_fields = models.ForeignKey("core.DateField", on_delete=models.CASCADE, blank=True, null=True)
-    checklist_fields = models.ForeignKey("core.ChecklistField", on_delete=models.CASCADE, blank=True, null=True)
-    choice_fields = models.ForeignKey("core.ChoiceField", on_delete=models.CASCADE, blank=True, null=True)
-    file_fields = models.ForeignKey("core.FileField", on_delete=models.CASCADE, blank=True, null=True)
-    relation_fields = models.ForeignKey("core.RelationField", on_delete=models.CASCADE, blank=True, null=True)
-
+    fields = models.ManyToManyField("core.Field", blank=True, related_name="views")
     fields_order = ArrayField(models.UUIDField(), blank=True, default=list)
     sort_by = ArrayField(ArrayField(models.CharField(max_length=255), size=2), blank=True, default=list)
     filter_by = models.TextField(blank=True)
@@ -75,8 +69,20 @@ class View(BaseModel):
         if self.is_default:
             View.objects.filter(database=self.database).exclude(pk=self.pk).update(is_default=False)
 
+        field_ids = set([field.id for field in self.fields.all()])
+        field_order_ids = set([field_id for field_id in self.fields_order])
+        non_overlap = field_ids.symmetric_difference(field_order_ids)
+        if len(non_overlap) > 0:
+            raise ValidationError("Fields and fields_order must be the same")
+
         if hasattr(self, "sort_by") and self.sort_by is not None and len(self.sort_by) > 0:
             for sort in self.sort_by:
+                if len(sort) != 2:
+                    raise ValidationError("Sort order must be a list of two items")
+
+                if sort[0] not in field_ids:
+                    raise ValidationError("Sort field must be in fields")
+
                 if sort[1] not in ["asc", "desc"]:
                     raise ValidationError("Sort order must be 'asc' or 'desc'")
 
@@ -139,132 +145,181 @@ class Attachment(BaseModel):
 
 
 class Field(BaseModel):
-    class FieldType(models.IntegerChoices):
-        TEXT = 0
-        NUMBER = 10
-        DATE = 20
-        BOOLEAN = 30
-        CHOICE = 40
-        CHECKLIST = 50
-        FILE = 60
-        RELATION = 100
+    class FieldType(models.TextChoices):
+        BOOLEAN = "boolean", "Boolean"
+        CHECKLIST = "checklist", "Checklist"
+        CHOICE = "choice", "Choice"
+        DATE = "date", "Date"
+        FILE = "file", "File"
+        NUMBER = "number", "Number"
+        RELATION = "relation", "Relation"
+        TEXT = "text", "Text"
+
+    _config_field_map = {
+        FieldType.BOOLEAN: "boolean_config",
+        FieldType.CHECKLIST: "checklist_config",
+        FieldType.CHOICE: "choice_config",
+        FieldType.DATE: "date_config",
+        FieldType.FILE: "file_config",
+        FieldType.NUMBER: "number_config",
+        FieldType.RELATION: "relation_config",
+        FieldType.TEXT: "text_config",
+    }
 
     database = models.ForeignKey("core.Database", on_delete=models.CASCADE)
     label = models.CharField(max_length=255)
-    field_type = models.IntegerField(choices=FieldType.choices)
+    field_type = models.CharField(max_length=32, choices=FieldType.choices)
 
-    class Meta:
-        abstract = True
+    boolean_config = models.OneToOneField("core.BooleanFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
+    checklist_config = models.OneToOneField(
+        "core.ChecklistFieldConfig", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    choice_config = models.OneToOneField("core.ChoiceFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
+    date_config = models.OneToOneField("core.DateFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
+    file_config = models.OneToOneField("core.FileFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
+    number_config = models.OneToOneField("core.NumberFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
+    relation_config = models.OneToOneField(
+        "core.RelationFieldConfig", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    text_config = models.OneToOneField("core.TextFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
 
+    @property
+    def config_field_name(self):
+        field_type_enum = Field.FieldType(self.field_type)
+        return self._config_field_map[field_type_enum]
 
-class FieldResponse(BaseModel):
-    page = models.ForeignKey("core.Page", on_delete=models.CASCADE)
+    @property
+    def config(self):
+        return getattr(self, self.config_field_name)
 
-    class Meta:
-        abstract = True
+    @property
+    def config_model(self):
+        return self.config.__class__
 
-
-class TextField(Field):
-    class TextFormat(models.TextChoices):
-        SINGLE_LINE = "single_line", "Single Line"
-        MULTI_LINE = "multi_line", "Multi Line"
-        EMAIL = "email", "Email"
-        URL = "url", "URL"
-        PHONE = "phone", "Phone"
-        RICH_TEXT = "rich_text", "Rich Text"
-
-    field_type = Field.FieldType.TEXT
-    display_format = models.CharField(max_length=255, choices=TextFormat.choices, default=TextFormat.SINGLE_LINE)
-
-
-class TextFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.TextField", on_delete=models.CASCADE)
-    value = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.value
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_text_field_response"),
-        ]
-
-
-class NumberField(Field):
-    class NumberFormat(models.TextChoices):
-        DECIMAL = "decimal", "Decimal"
-        INTEGER = "integer", "Integer"
-        PERCENTAGE = "percentage", "Percentage"
-        CURRENCY = "currency", "Currency"
-
-    display_format = models.CharField(max_length=255, choices=NumberFormat.choices, default=NumberFormat.DECIMAL)
-
-
-class NumberFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.NumberField", on_delete=models.CASCADE)
-    value = models.FloatField()
+    def create_default_config(self):
+        config = self.config_model.create_default(field=self)
+        setattr(self, self.config_field_name, config)
 
     def __str__(self):
-        return str(self.value)
+        return self.label
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_number_field_response"),
-        ]
+    def clean(self):
+        has_config = getattr(self, self.config_field_name) is not None
+        if not has_config:
+            raise ValidationError(f"{self.config_field_name} is required for field type {self.field_type}")
+
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        if self.config is None:
+            self.create_default_config()
+
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+        if self.field_type == Field.FieldType.RELATION:
+            self.create_opposite_relation()
+
+    def create_opposite_relation(self):
+        if self.field_type != Field.FieldType.RELATION:
+            return
+
+        has_opposite = self.config.target_field.source_relations.filter(target_field=self).exists()
+        if has_opposite:
+            return
+
+        Field.objects.create(
+            database=self.config.target_field.database,
+            label=f"{self.label} (Reverse)",
+            field_type=Field.FieldType.RELATION,
+            relation_config=RelationFieldConfig.objects.create(
+                source_field=self.config.target_field, target_field=self
+            ),
+        )
 
 
-class BooleanField(Field):
-    class BooleanFormat(models.TextChoices):
+class BooleanFieldConfig(BaseModel):
+    class DisplayFormat(models.TextChoices):
         CHECKBOX = "checkbox", "Checkbox"
         TOGGLE = "toggle", "Toggle"
 
-    display_format = models.CharField(max_length=255, choices=BooleanFormat.choices, default=BooleanFormat.CHECKBOX)
+    display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.CHECKBOX)
+
+    def create_default(self, field):
+        return BooleanFieldConfig.objects.create()
+
+    def validate_response_data(self, data):
+        if not isinstance(data, bool):
+            raise ValidationError("Value must be a boolean")
+
+    def deserialize_response_data(self, data):
+        if isinstance(data, str):
+            return data.lower().strip() in ["true", "1", "yes"]
+
+        return bool(data)
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+        return json.dumps(obj)
 
 
-class BooleanFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.BooleanField", on_delete=models.CASCADE)
-    value = models.BooleanField()
+class ChecklistFieldConfig(BaseModel):
+    class DisplayFormat(models.TextChoices):
+        CHECKBOX = "checkbox", "Checkbox"
+        SWITCH = "switch", "Switch"
 
-    def __str__(self):
-        return str(self.value)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_boolean_field_response"),
-        ]
-
-
-class DateField(Field):
-    class DateFormat(models.TextChoices):
-        DATE = "date", "Date"
-        DATE_TIME = "datetime", "Date & Time"
-        TIME = "time", "Time"
-
-    display_format = models.CharField(max_length=255, choices=DateFormat.choices, default=DateFormat.DATE)
-
-
-class DateFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.DateField", on_delete=models.CASCADE)
-    value = models.DateTimeField()
-    timezone = models.CharField(max_length=255, blank=True)
-
-    def __str__(self):
-        return str(self.value)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_date_field_response"),
-        ]
-
-
-class ChecklistField(Field):
-    class ChecklistStatusFormat(models.TextChoices):
+    class StatusFormat(models.TextChoices):
         PROGRESS_BAR = "progress", "Progress"
         PERCENTAGE = "percentage", "Percentage"
 
-    status_format = models.CharField(
-        max_length=255, choices=ChecklistStatusFormat.choices, default=ChecklistStatusFormat.PROGRESS_BAR
-    )
+    display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.CHECKBOX)
+    status_format = models.CharField(max_length=255, choices=StatusFormat.choices, default=StatusFormat.PROGRESS_BAR)
+
+    def create_default(self, field):
+        return ChecklistFieldConfig.objects.create()
+
+    def validate_response_data(self, data):
+        if not isinstance(data, list):
+            raise ValidationError("Value must be a list")
+
+        for item in data:
+            if not isinstance(item, dict):
+                raise ValidationError("Value must be a list of dictionaries")
+
+            if "value" not in item:
+                raise ValidationError("Value must have a key 'value'")
+
+            if "is_checked" not in item:
+                raise ValidationError("Value must have a key 'is_checked'")
+
+            if "is_checked" in item and not isinstance(item["is_checked"], bool):
+                raise ValidationError("is_checked must be a boolean")
+
+    def deserialize_response_data(self, data):
+        if not isinstance(data, list):
+            data = [data]
+
+        for item in data:
+            if not isinstance(item, dict):
+                item = {"value": item, "is_checked": False}
+
+            if "value" not in item:
+                item["value"] = ""
+
+            if "is_checked" not in item:
+                item["is_checked"] = False
+
+            if not isinstance(item["value"], str):
+                item["value"] = str(item["value"])
+
+            if not isinstance(item["is_checked"], bool):
+                item["is_checked"] = bool(item["is_checked"])
+
+        return data
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+        return json.dumps(obj)
 
     def clean(self):
         super().clean()
@@ -274,31 +329,65 @@ class ChecklistField(Field):
         super().save(*args, **kwargs)
 
 
-class ChecklistFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.ChecklistField", on_delete=models.CASCADE)
-    value = ArrayField(ArrayField(models.CharField(max_length=255), size=2))
-
-    def __str__(self):
-        return self.value
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_checklist_field_response"),
-        ]
-
-
-class ChoiceField(Field):
-    class ChoiceFormat(models.TextChoices):
+class ChoiceFieldConfig(BaseModel):
+    class DisplayFormat(models.TextChoices):
         DROPDOWN = "dropdown", "Dropdown"
         RADIO = "radio", "Radio"
         CHECKBOX = "checkbox", "Checkbox"
         TAGS = "tags", "Tags"
 
     is_multi_select = models.BooleanField(default=False)
-    display_format = models.CharField(max_length=255, choices=ChoiceFormat.choices, default=ChoiceFormat.DROPDOWN)
+    display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DROPDOWN)
+
+    def create_default(self, field):
+        return ChoiceFieldConfig.objects.create()
+
+    def validate_response_data(self, data):
+        if not isinstance(data, list):
+            raise ValidationError("Value must be a list")
+
+        for item in data:
+            if not isinstance(item, str):
+                raise ValidationError("Value must be a list of strings")
+
+            choice = ChoiceFieldOption.objects.filter(field_config=self, pk=item)
+            if not choice.exists():
+                raise ValidationError("Value must be a list of choice IDs")
+
+            found_choice = choice.first()
+            if found_choice and found_choice.field_config != self:
+                raise ValidationError("Choice must belong to the field config")
+
+        if not self.is_multi_select and len(data) > 1:
+            raise ValidationError("Cannot have multiple values when multi select is disabled")
+
+    def deserialize_response_data(self, data):
+        if not isinstance(data, list):
+            data = [data]
+
+        for item in data:
+            if not isinstance(item, str):
+                item = str(item)
+
+            item_model = ChoiceFieldOption.objects.filter(field_config=self, pk=item)
+            if item_model.exists():
+                item = item_model.first()
+            else:
+                item = None
+
+        return data
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+
+        for item in obj:
+            if item is not None:
+                item = item.pk
+
+        return json.dumps(obj)
 
     def clean(self):
-        if self.is_multi_select and self.display_format == ChoiceField.ChoiceFormat.RADIO:
+        if self.is_multi_select and self.display_format == ChoiceFieldConfig.DisplayFormat.RADIO:
             raise ValidationError("Cannot have radio display format when multi select is enabled")
 
         super().clean()
@@ -309,7 +398,7 @@ class ChoiceField(Field):
 
 
 class ChoiceFieldOption(BaseModel):
-    field = models.ForeignKey("core.ChoiceField", on_delete=models.CASCADE, related_name="options")
+    field_config = models.ForeignKey("core.ChoiceFieldConfig", on_delete=models.CASCADE, related_name="options")
     label = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
 
@@ -317,31 +406,32 @@ class ChoiceFieldOption(BaseModel):
         return self.label
 
 
-class ChoiceFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.ChoiceField", on_delete=models.CASCADE)
-    values = models.ManyToManyField("core.ChoiceFieldOption", related_name="responses")
+class DateFieldConfig(BaseModel):
+    class DisplayFormat(models.TextChoices):
+        DATE = "date", "Date"
+        DATE_TIME = "datetime", "Date & Time"
+        TIME = "time", "Time"
 
-    def __str__(self):
-        return self.value
+    display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DATE)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_choice_field_response"),
-        ]
+    def create_default(self, field):
+        return DateFieldConfig.objects.create()
 
-    def clean(self):
-        if self.field.is_multi_select and self.values.count() > 1:
-            raise ValidationError("Cannot have multiple values when multi select is enabled")
+    def validate_response_data(self, data):
+        if not isinstance(data, str):
+            raise ValidationError("Value must be a string")
 
-        super().clean()
+    def deserialize_response_data(self, data):
+        return parser.parse(data)
 
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+        iso_date = obj.isoformat()
+        return json.dumps(iso_date)
 
 
-class FileField(Field):
-    class FileTypes(models.TextChoices):
+class FileFieldConfig(BaseModel):
+    class FileType(models.TextChoices):
         ALL = "all", "All"
         IMAGE = "image"
         VIDEO = "video"
@@ -351,15 +441,55 @@ class FileField(Field):
     supported_file_types = ArrayField(models.CharField(max_length=255), blank=True)
     is_multiple = models.BooleanField(default=False)
 
+    def create_default(self, field):
+        return FileFieldConfig.objects.create()
+
+    def valiate_response_data(self, data):
+        if not isinstance(data, list):
+            raise ValidationError("Value must be a list")
+
+        for item in data:
+            if not isinstance(item, str):
+                raise ValidationError("Value must be a list of strings")
+
+            attachment = Attachment.objects.filter(pk=item)
+            if not attachment.exists():
+                raise ValidationError("Value must be a list of attachment IDs")
+
+    def deserialize_response_data(self, data):
+        if not isinstance(data, list):
+            data = [data]
+
+        for item in data:
+            if not isinstance(item, str):
+                item = str(item)
+
+            attachment = Attachment.objects.filter(pk=item)
+            if attachment.exists():
+                item = attachment.first()
+            else:
+                item = None
+
+        return data
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+
+        for item in obj:
+            if item is not None:
+                item = item.pk
+
+        return json.dumps(obj)
+
     def clean(self):
         if len(self.supported_file_types) == 0:
-            self.supported_file_types = [FileField.FileTypes.ALL]
+            self.supported_file_types = [FileFieldConfig.FileType.ALL]
 
-        if FileField.FileTypes.ALL in self.supported_file_types and len(self.supported_file_types) > 1:
+        if FileFieldConfig.FileType.ALL in self.supported_file_types and len(self.supported_file_types) > 1:
             raise ValidationError("Cannot have other file types when 'all' is selected")
 
         for file_type in self.supported_file_types:
-            if file_type not in FileField.FileTypes.values:
+            if file_type not in FileFieldConfig.FileType.values:
                 raise ValidationError(f"{file_type} is not a valid file type")
 
         super().clean()
@@ -369,22 +499,89 @@ class FileField(Field):
         super().save(*args, **kwargs)
 
 
-class FileFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.FileField", on_delete=models.CASCADE)
-    attachments = models.ManyToManyField("core.Attachment", related_name="responses")
+class NumberFieldConfig(BaseModel):
+    class DisplayFormat(models.TextChoices):
+        DECIMAL = "decimal", "Decimal"
+        INTEGER = "integer", "Integer"
+        PERCENTAGE = "percentage", "Percentage"
+        CURRENCY = "currency", "Currency"
 
-    def __str__(self):
-        return self.file.name
+    display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DECIMAL)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_file_field_response"),
-        ]
+    def create_default(self, field):
+        return NumberFieldConfig.objects.create()
+
+    def validate_response_data(self, data):
+        if not isinstance(data, (int, float)):
+            raise ValidationError("Value must be a number")
+
+    def deserialize_response_data(self, data):
+        if self.display_format == NumberFieldConfig.DisplayFormat.INTEGER:
+            return int(data)
+
+        if self.display_format == NumberFieldConfig.DisplayFormat.PERCENTAGE and isinstance(data, str):
+            return float(data.strip("%")) / 100
+
+        if self.display_format == NumberFieldConfig.DisplayFormat.CURRENCY and isinstance(data, str):
+            return float(data.strip("$").replace(",", ""))
+
+        return float(data)
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+        return json.dumps(obj)
 
 
-class RelationField(Field):
-    database = models.ForeignKey("core.Database", on_delete=models.CASCADE)
-    related_database = models.ForeignKey("core.Database", on_delete=models.CASCADE, related_name="related_field")
+class RelationFieldConfig(BaseModel):
+    source_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="source_relations")
+    target_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="target_relations")
+
+    def create_default(self, field):
+        return RelationFieldConfig.objects.create(
+            source_field=field,
+            target_field=field,
+        )
+
+    def validate_response_data(self, data):
+        if not isinstance(data, list):
+            raise ValidationError("Value must be a list")
+
+        for item in data:
+            if not isinstance(item, str):
+                raise ValidationError("Value must be a list of strings")
+
+            page = Page.objects.filter(pk=item)
+            if not page.exists():
+                raise ValidationError("Value must be a list of page IDs")
+
+            found_page = page.first()
+            if found_page and found_page.database != self.target_field.database:
+                raise ValidationError("Page must belong to the target database")
+
+    def deserialize_response_data(self, data):
+        if not isinstance(data, list):
+            data = [data]
+
+        for item in data:
+            if not isinstance(item, str):
+                item = str(item)
+
+            page = Page.objects.filter(pk=item)
+            if page.exists():
+                item = page.first()
+            else:
+                item = None
+
+        return data
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+
+        for item in obj:
+            if item is not None:
+                item = item.pk
+
+        return json.dumps(obj)
 
     def clean(self):
         super().clean()
@@ -393,35 +590,59 @@ class RelationField(Field):
         self.full_clean()
         super().save(*args, **kwargs)
 
-        opposite_relation_field = RelationField.objects.filter(
-            database=self.related_database, related_database=self.database
-        )
-        if not opposite_relation_field.exists():
-            RelationField.objects.create(
-                database=self.related_database,
-                related_database=self.database,
-                label=f"{self.label} (Related)",
-            )
+
+class TextFieldConfig(BaseModel):
+    class DisplayFormat(models.TextChoices):
+        SINGLE_LINE = "single_line", "Single Line"
+        MULTI_LINE = "multi_line", "Multi Line"
+        EMAIL = "email", "Email"
+        URL = "url", "URL"
+        PHONE = "phone", "Phone"
+        RICH_TEXT = "rich_text", "Rich Text"
+
+    display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.SINGLE_LINE)
+
+    def create_default(self, field):
+        return TextFieldConfig.objects.create()
+
+    def validate_response_data(self, data):
+        if not isinstance(data, str):
+            raise ValidationError("Value must be a string")
+
+    def deserialize_response_data(self, data):
+        return str(data)
+
+    def serialize_response_data(self, data):
+        obj = self.deserialize_response_data(data)
+        return json.dumps(obj)
 
 
-class RelationFieldResponse(FieldResponse):
-    field = models.ForeignKey("core.RelationField", on_delete=models.CASCADE)
-    related_pages = models.ManyToManyField("core.Page", related_name="related_fields")
-
-    def __str__(self):
-        return self.related_page.title
+class FieldResponse(BaseModel):
+    page = models.ForeignKey("core.Page", on_delete=models.CASCADE)
+    field = models.ForeignKey("core.Field", on_delete=models.CASCADE)
+    data = models.JSONField(default=dict)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["page", "field"], name="unique_relation_field_response"),
+            models.UniqueConstraint(fields=["page", "field"], name="unique_field_response"),
         ]
 
+    def __str__(self):
+        return f"{self.page} - {self.field}"
+
     def clean(self):
-        if self.field.related_database != self.related_page.database:
-            raise ValidationError("Related page must be in the related database")
+        has_value_key = "value" in self.data
+        has_other_keys = len(self.data.keys()) > 1
+
+        if not has_value_key or has_other_keys:
+            raise ValidationError("Value must have a single key 'data'")
 
         super().clean()
 
     def save(self, *args, **kwargs):
+        validate_fn = getattr(self.field.config, "validate_response_data", None)
+        if validate_fn is not None:
+            validate_fn(self.data)
+
         self.full_clean()
         super().save(*args, **kwargs)

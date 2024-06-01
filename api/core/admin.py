@@ -3,110 +3,97 @@ from unfold.admin import ModelAdmin, StackedInline
 
 from core.models import (
     Attachment,
-    BooleanField,
-    ChecklistField,
-    ChoiceField,
+    BooleanFieldConfig,
+    ChecklistFieldConfig,
+    ChoiceFieldConfig,
+    ChoiceFieldOption,
     Database,
-    DateField,
-    FileField,
+    DateFieldConfig,
+    Field,
+    FileFieldConfig,
     Folder,
-    NumberField,
+    NumberFieldConfig,
     Page,
-    RelationField,
-    TextField,
+    RelationFieldConfig,
+    TextFieldConfig,
     View,
 )
 
 
-class BaseFieldInline(StackedInline):
+class FieldInline(StackedInline):
+    model = Field
     extra = 0
     exclude = ("created_by", "updated_by")
 
 
-class TextFieldInline(BaseFieldInline):
-    model = TextField
+@admin.register(Field)
+class FieldAdmin(ModelAdmin):
+    list_display = ("label", "database", "created_at", "updated_at")
+    search_fields = ("label",)
+    list_filter = ("database",)
+    exclude = ("created_by", "updated_by")
 
 
-class NumberFieldInline(BaseFieldInline):
-    model = NumberField
-
-
-class BooleanFieldInline(BaseFieldInline):
-    model = BooleanField
-
-
-class DateFieldInline(BaseFieldInline):
-    model = DateField
-
-
-class ChecklistFieldInline(BaseFieldInline):
-    model = ChecklistField
-
-
-class ChoiceFieldInline(BaseFieldInline):
-    model = ChoiceField
-
-
-class FileFieldInline(BaseFieldInline):
-    model = FileField
-
-
-class RelationFieldInline(BaseFieldInline):
-    model = RelationField
-    fk_name = "database"
-
-
-@admin.register(TextField)
-class TextFieldAdmin(ModelAdmin):
+@admin.register(BooleanFieldConfig)
+class BooleanFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
 
 
-@admin.register(NumberField)
-class NumberFieldAdmin(ModelAdmin):
+@admin.register(ChecklistFieldConfig)
+class ChecklistFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
 
 
-@admin.register(BooleanField)
-class BooleanFieldAdmin(ModelAdmin):
+class ChoiceOptionInline(StackedInline):
+    model = ChoiceFieldOption
+    extra = 0
+    exclude = ("created_by", "updated_by")
+
+
+@admin.register(ChoiceFieldConfig)
+class ChoiceFieldConfigAdmin(ModelAdmin):
+    list_display = ("created_at", "updated_at")
+    search_fields = ()
+    exclude = ("created_by", "updated_by")
+    inlines = [
+        ChoiceOptionInline,
+    ]
+
+
+@admin.register(DateFieldConfig)
+class DateFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
 
 
-@admin.register(DateField)
-class DateFieldAdmin(ModelAdmin):
+@admin.register(FileFieldConfig)
+class FileFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
 
 
-@admin.register(ChecklistField)
-class ChecklistFieldAdmin(ModelAdmin):
+@admin.register(NumberFieldConfig)
+class NumberFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
 
 
-@admin.register(ChoiceField)
-class ChoiceFieldAdmin(ModelAdmin):
+@admin.register(RelationFieldConfig)
+class RelationFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
 
 
-@admin.register(FileField)
-class FileFieldAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
-
-
-@admin.register(RelationField)
-class RelationFieldAdmin(ModelAdmin):
+@admin.register(TextFieldConfig)
+class TextFieldConfigAdmin(ModelAdmin):
     list_display = ("created_at", "updated_at")
     search_fields = ()
     exclude = ("created_by", "updated_by")
@@ -126,15 +113,7 @@ class DatabaseAdmin(ModelAdmin):
     exclude = ("created_by", "updated_by")
 
     inlines = [
-        ViewInline,
-        TextFieldInline,
-        NumberFieldInline,
-        BooleanFieldInline,
-        DateFieldInline,
-        ChecklistFieldInline,
-        ChoiceFieldInline,
-        FileFieldInline,
-        RelationFieldInline,
+        FieldInline,
     ]
 
 
@@ -144,17 +123,6 @@ class ViewAdmin(ModelAdmin):
     search_fields = ("label",)
     list_filter = ("database",)
     exclude = ("created_by", "updated_by")
-
-    # inlines = [
-    #     TextFieldInline,
-    #     NumberFieldInline,
-    #     BooleanFieldInline,
-    #     DateFieldInline,
-    #     ChecklistFieldInline,
-    #     ChoiceFieldInline,
-    #     FileFieldInline,
-    #     RelationFieldInline,
-    # ]
 
 
 @admin.register(Folder)
