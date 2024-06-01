@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 import dj_database_url
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
@@ -206,6 +208,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -233,7 +238,9 @@ UNFOLD = {
     "LOGIN": {
         "redirect_after": lambda r: reverse_lazy("admin:index"),
     },
-    "STYLES": [],
+    "STYLES": [
+        lambda request: static("css/admin-styles.css"),
+    ],
     "SCRIPTS": [],
     "SIDEBAR": {
         "show_search": True,
@@ -286,6 +293,11 @@ UNFOLD = {
                         "link": reverse_lazy("admin:core_field_changelist"),
                     },
                     {
+                        "title": _("Field Configs"),
+                        "icon": "page_info",
+                        "link": reverse_lazy("admin:core_booleanfieldconfig_changelist"),
+                    },
+                    {
                         "title": _("Pages"),
                         "icon": "description",
                         "link": reverse_lazy("admin:core_page_changelist"),
@@ -318,6 +330,52 @@ UNFOLD = {
                 {
                     "title": _("All Social Accounts"),
                     "link": reverse_lazy("admin:social_django_usersocialauth_changelist"),
+                },
+            ],
+        },
+        {
+            "models": [
+                "core.booleanfieldconfig",
+                "core.checklistfieldconfig",
+                "core.choicefieldconfig",
+                "core.datefieldconfig",
+                "core.filefieldconfig",
+                "core.numberfieldconfig",
+                "core.relationfieldconfig",
+                "core.textfieldconfig",
+            ],
+            "items": [
+                {
+                    "title": _("Boolean Field Configs"),
+                    "link": reverse_lazy("admin:core_booleanfieldconfig_changelist"),
+                },
+                {
+                    "title": _("Checklist Field Configs"),
+                    "link": reverse_lazy("admin:core_checklistfieldconfig_changelist"),
+                },
+                {
+                    "title": _("Choice Field Configs"),
+                    "link": reverse_lazy("admin:core_choicefieldconfig_changelist"),
+                },
+                {
+                    "title": _("Date Field Configs"),
+                    "link": reverse_lazy("admin:core_datefieldconfig_changelist"),
+                },
+                {
+                    "title": _("File Field Configs"),
+                    "link": reverse_lazy("admin:core_filefieldconfig_changelist"),
+                },
+                {
+                    "title": _("Number Field Configs"),
+                    "link": reverse_lazy("admin:core_numberfieldconfig_changelist"),
+                },
+                {
+                    "title": _("Relation Field Configs"),
+                    "link": reverse_lazy("admin:core_relationfieldconfig_changelist"),
+                },
+                {
+                    "title": _("Text Field Configs"),
+                    "link": reverse_lazy("admin:core_textfieldconfig_changelist"),
                 },
             ],
         },

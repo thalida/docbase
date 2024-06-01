@@ -1,7 +1,10 @@
 from typing import Any
 
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, StackedInline
+from unfold.decorators import display
 
 from core.models import (
     Attachment,
@@ -72,18 +75,46 @@ class FieldAdmin(ModelAdmin):
         return form
 
 
-@admin.register(BooleanFieldConfig)
-class BooleanFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
+class BaseFieldConfigAdmin(ModelAdmin):
+    list_display = ()
+    exclude = ("created_by", "updated_by", "created_at", "updated_at")
     search_fields = ()
-    exclude = ("created_by", "updated_by")
+    readonly_fields = ("field",)
+
+    @display(description="Field")
+    def display_field_link(self, obj):
+        print(obj.field.id)
+        return mark_safe(
+            f"""
+            <a
+                href="{reverse("admin:core_field_change", args=[obj.field.id])}"
+                class="flex items-center justify-between bg-white border px-2 py-2 max-w-48 rounded shadow-sm text-gray-400 hover:text-gray-700 focus:outline-none dark:bg-gray-900 dark:border-gray-700 dark:text-gray-500 dark:hover:text-gray-200"
+            >
+                <span>{obj.field.label}</span>
+                <span class="material-symbols-outlined md-18">chevron_right</span>
+            </a>
+            """
+        )
+
+    def get_list_display(self, request):
+        list_display = [field.name for field in self.model._meta.get_fields() if field.name not in self.exclude]
+        list_display.insert(0, list_display.pop(list_display.index("id")))
+
+        # replace field with "get_field_display" method
+        if "field" in list_display:
+            list_display[list_display.index("field")] = "display_field_link"
+        print(list_display)
+        return list_display
+
+
+@admin.register(BooleanFieldConfig)
+class BooleanFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 @admin.register(ChecklistFieldConfig)
-class ChecklistFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class ChecklistFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 class ChoiceOptionInline(StackedInline):
@@ -93,48 +124,38 @@ class ChoiceOptionInline(StackedInline):
 
 
 @admin.register(ChoiceFieldConfig)
-class ChoiceFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class ChoiceFieldConfigAdmin(BaseFieldConfigAdmin):
     inlines = [
         ChoiceOptionInline,
     ]
 
+    def options(self, obj):
+        return ", ".join([option.label for option in obj.options.all()])
+
 
 @admin.register(DateFieldConfig)
-class DateFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class DateFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 @admin.register(FileFieldConfig)
-class FileFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class FileFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 @admin.register(NumberFieldConfig)
-class NumberFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class NumberFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 @admin.register(RelationFieldConfig)
-class RelationFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class RelationFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 @admin.register(TextFieldConfig)
-class TextFieldConfigAdmin(ModelAdmin):
-    list_display = ("created_at", "updated_at")
-    search_fields = ()
-    exclude = ("created_by", "updated_by")
+class TextFieldConfigAdmin(BaseFieldConfigAdmin):
+    pass
 
 
 class ViewInline(StackedInline):

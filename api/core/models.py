@@ -190,9 +190,12 @@ class Field(BaseModel):
 
     @property
     def config_model(self):
-        return self.config.__class__
+        return self._meta.get_field(self.config_field_name).related_model
 
     def create_default_config(self):
+        if self.config_model is None:
+            return
+
         config = self.config_model.create_default(field=self)
         setattr(self, self.config_field_name, config)
 
@@ -200,30 +203,29 @@ class Field(BaseModel):
         return self.label
 
     def clean(self):
-        has_config = getattr(self, self.config_field_name) is not None
-        if not has_config:
-            raise ValidationError(f"{self.config_field_name} is required for field type {self.field_type}")
+        if self.field_type != Field.FieldType.RELATION:
+            if self.config is None:
+                self.create_default_config()
+
+            has_config = getattr(self, self.config_field_name) is not None
+            if not has_config:
+                raise ValidationError(f"{self.config_field_name} is required for field type {self.field_type}")
 
         super().clean()
 
     def save(self, *args, **kwargs):
-        if self.config is None:
-            self.create_default_config()
-
         self.full_clean()
         super().save(*args, **kwargs)
 
         if self.field_type == Field.FieldType.RELATION:
-            self.create_opposite_relation()
+            if self.config is None:
+                self.create_default_config()
+
+            has_opposite = self.config.target_field.source_relations.filter(target_field=self).exists()
+            if not has_opposite:
+                self.create_opposite_relation()
 
     def create_opposite_relation(self):
-        if self.field_type != Field.FieldType.RELATION:
-            return
-
-        has_opposite = self.config.target_field.source_relations.filter(target_field=self).exists()
-        if has_opposite:
-            return
-
         Field.objects.create(
             database=self.config.target_field.database,
             label=f"{self.label} (Reverse)",
@@ -241,7 +243,8 @@ class BooleanFieldConfig(BaseModel):
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.CHECKBOX)
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return BooleanFieldConfig.objects.create()
 
     def validate_response_data(self, data):
@@ -271,7 +274,8 @@ class ChecklistFieldConfig(BaseModel):
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.CHECKBOX)
     status_format = models.CharField(max_length=255, choices=StatusFormat.choices, default=StatusFormat.PROGRESS_BAR)
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return ChecklistFieldConfig.objects.create()
 
     def validate_response_data(self, data):
@@ -335,7 +339,8 @@ class ChoiceFieldConfig(BaseModel):
     is_multi_select = models.BooleanField(default=False)
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DROPDOWN)
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return ChoiceFieldConfig.objects.create()
 
     def validate_response_data(self, data):
@@ -410,7 +415,8 @@ class DateFieldConfig(BaseModel):
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DATE)
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return DateFieldConfig.objects.create()
 
     def validate_response_data(self, data):
@@ -434,11 +440,14 @@ class FileFieldConfig(BaseModel):
         AUDIO = "audio"
         DOCUMENT = "document"
 
-    supported_file_types = ArrayField(models.CharField(max_length=255), blank=True)
+    supported_file_types = ArrayField(models.CharField(max_length=255), blank=True, default=list)
     is_multiple = models.BooleanField(default=False)
 
-    def create_default(self, field):
-        return FileFieldConfig.objects.create()
+    @classmethod
+    def create_default(cls, field):
+        return FileFieldConfig.objects.create(
+            supported_file_types=[FileFieldConfig.FileType.ALL],
+        )
 
     def valiate_response_data(self, data):
         if not isinstance(data, list):
@@ -504,7 +513,8 @@ class NumberFieldConfig(BaseModel):
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DECIMAL)
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return NumberFieldConfig.objects.create()
 
     def validate_response_data(self, data):
@@ -532,7 +542,8 @@ class RelationFieldConfig(BaseModel):
     source_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="source_relations")
     target_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="target_relations")
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return RelationFieldConfig.objects.create(
             source_field=field,
             target_field=field,
@@ -598,7 +609,8 @@ class TextFieldConfig(BaseModel):
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.SINGLE_LINE)
 
-    def create_default(self, field):
+    @classmethod
+    def create_default(cls, field):
         return TextFieldConfig.objects.create()
 
     def validate_response_data(self, data):
