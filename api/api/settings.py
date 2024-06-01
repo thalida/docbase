@@ -16,6 +16,7 @@ import dj_database_url
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
+
 from docs.utils import read_file
 
 load_dotenv()
@@ -250,9 +251,14 @@ UNFOLD = {
                 ],
             },
             {
-                "title": _("Users & Groups"),
-                "separator": True,
+                "title": _("Organizations"),
+                "separator": False,
                 "items": [
+                    {
+                        "title": _("Workspaces"),
+                        "icon": "workspaces",
+                        "link": reverse_lazy("admin:organizations_workspace_changelist"),
+                    },
                     {
                         "title": _("Users"),
                         "icon": "person",
@@ -262,6 +268,37 @@ UNFOLD = {
                         "title": _("Groups"),
                         "icon": "admin_panel_settings",
                         "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Core"),
+                "separator": False,
+                "items": [
+                    {
+                        "title": _("Databases"),
+                        "icon": "table",
+                        "link": reverse_lazy("admin:core_database_changelist"),
+                    },
+                    {
+                        "title": _("Fields"),
+                        "icon": "variable_add",
+                        "link": reverse_lazy("admin:core_field_changelist"),
+                    },
+                    {
+                        "title": _("Pages"),
+                        "icon": "description",
+                        "link": reverse_lazy("admin:core_page_changelist"),
+                    },
+                    {
+                        "title": _("Folders"),
+                        "icon": "folder",
+                        "link": reverse_lazy("admin:core_folder_changelist"),
+                    },
+                    {
+                        "title": _("Views"),
+                        "icon": "frame_inspect",
+                        "link": reverse_lazy("admin:core_view_changelist"),
                     },
                 ],
             },

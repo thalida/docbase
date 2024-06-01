@@ -28,17 +28,16 @@ class Database(BaseModel):
         if not has_views:
             View.objects.create(
                 database=self,
-                label="Table",
-                view_type=View.ViewType.TABLE,
-                is_default=True,
+                label="META_ADMIN",
+                view_type=View.ViewType.META_ADMIN,
             )
 
-        has_page_view = View.objects.filter(database=self, view_type=View.ViewType.PAGE).exists()
+        has_page_view = View.objects.filter(database=self, view_type=View.ViewType.META_PAGE).exists()
         if not has_page_view:
             View.objects.create(
                 database=self,
-                label="Page",
-                view_type=View.ViewType.PAGE,
+                label="META_PAGE",
+                view_type=View.ViewType.META_PAGE,
             )
 
 
@@ -49,14 +48,14 @@ class View(BaseModel):
         LIST = 20
         KANBAN = 30
         CALENDAR = 40
-        PAGE = 100
+        META_ADMIN = 100
+        META_PAGE = 101
 
     database = models.ForeignKey("core.Database", on_delete=models.CASCADE, related_name="views")
 
     label = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     view_type = models.IntegerField(choices=ViewType.choices, default=ViewType.TABLE)
-    is_default = models.BooleanField(default=False)
     fields = models.ManyToManyField("core.Field", blank=True, related_name="views")
     fields_order = ArrayField(models.UUIDField(), blank=True, default=list)
     sort_by = ArrayField(ArrayField(models.CharField(max_length=255), size=2), blank=True, default=list)
@@ -66,9 +65,6 @@ class View(BaseModel):
         return self.label
 
     def clean(self):
-        if self.is_default:
-            View.objects.filter(database=self.database).exclude(pk=self.pk).update(is_default=False)
-
         field_ids = set([field.id for field in self.fields.all()])
         field_order_ids = set([field_id for field_id in self.fields_order])
         non_overlap = field_ids.symmetric_difference(field_order_ids)
@@ -168,7 +164,7 @@ class Field(BaseModel):
 
     database = models.ForeignKey("core.Database", on_delete=models.CASCADE)
     label = models.CharField(max_length=255)
-    field_type = models.CharField(max_length=32, choices=FieldType.choices)
+    field_type = models.CharField(max_length=32, choices=FieldType.choices, default=FieldType.TEXT)
 
     boolean_config = models.OneToOneField("core.BooleanFieldConfig", on_delete=models.SET_NULL, blank=True, null=True)
     checklist_config = models.OneToOneField(

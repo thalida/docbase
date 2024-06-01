@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import admin
 from unfold.admin import ModelAdmin, StackedInline
 
@@ -10,6 +12,7 @@ from core.models import (
     Database,
     DateFieldConfig,
     Field,
+    FieldResponse,
     FileFieldConfig,
     Folder,
     NumberFieldConfig,
@@ -32,6 +35,23 @@ class FieldAdmin(ModelAdmin):
     search_fields = ("label",)
     list_filter = ("database",)
     exclude = ("created_by", "updated_by")
+
+    class Media:
+        js = ("core/js/admin_fields.js",)
+
+    def get_form(self, request, obj=None, change=False, **kwargs) -> Any:
+        form = super().get_form(request, obj, change, **kwargs)
+
+        form.base_fields["field_type"].widget.attrs["data-config-field-controller"] = True
+
+        inverse_config_field_map = {value: key for key, value in Field._config_field_map.items()}
+        for field in form.base_fields:
+            if not str(field).endswith("_config"):
+                continue
+
+            form.base_fields[field].widget.attrs["data-config-field-type"] = inverse_config_field_map[field]
+
+        return form
 
 
 @admin.register(BooleanFieldConfig)
@@ -133,12 +153,21 @@ class FolderAdmin(ModelAdmin):
     exclude = ("created_by", "updated_by")
 
 
+class FieldResponseInline(StackedInline):
+    model = FieldResponse
+    extra = 0
+    exclude = ("created_by", "updated_by")
+
+
 @admin.register(Page)
 class PageAdmin(ModelAdmin):
     list_display = ("title", "database", "created_at", "updated_at")
     search_fields = ("title",)
     list_filter = ("database",)
     exclude = ("created_by", "updated_by")
+    inlines = [
+        FieldResponseInline,
+    ]
 
 
 @admin.register(Attachment)
