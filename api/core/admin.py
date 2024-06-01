@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.contrib import admin
+from django.db.models.fields import Field
 from unfold.admin import ModelAdmin, StackedInline
 
 from core.models import (
@@ -11,7 +12,6 @@ from core.models import (
     ChoiceFieldOption,
     Database,
     DateFieldConfig,
-    Field,
     FieldResponse,
     FileFieldConfig,
     Folder,
@@ -27,6 +27,28 @@ class FieldInline(StackedInline):
     model = Field
     extra = 0
     exclude = ("created_by", "updated_by")
+
+    class Media:
+        js = ("core/js/admin_fields.js",)
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+
+        if field is None:
+            return field
+
+        if db_field.name.endswith("_config"):
+            inverse_config_field_map = {value: key for key, value in Field._config_field_map.items()}
+            field.widget.attrs["data-config-field-type"] = inverse_config_field_map[db_field.name]
+
+        if db_field.name == "field_type":
+            field.widget.attrs["data-config-field-controller"] = True
+
+        return field
+
+    # def formfield_for_foreignkey(self, db_field, request, **kwargs: Any):
+
+    #     return field
 
 
 @admin.register(Field)
