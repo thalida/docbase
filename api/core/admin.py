@@ -1,7 +1,6 @@
 from typing import Any
 
 from django.contrib import admin
-from django.db.models.fields import Field
 from unfold.admin import ModelAdmin, StackedInline
 
 from core.models import (
@@ -12,6 +11,7 @@ from core.models import (
     ChoiceFieldOption,
     Database,
     DateFieldConfig,
+    Field,
     FieldResponse,
     FileFieldConfig,
     Folder,
@@ -45,10 +45,6 @@ class FieldInline(StackedInline):
             field.widget.attrs["data-config-field-controller"] = True
 
         return field
-
-    # def formfield_for_foreignkey(self, db_field, request, **kwargs: Any):
-
-    #     return field
 
 
 @admin.register(Field)
