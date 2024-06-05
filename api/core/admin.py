@@ -83,7 +83,6 @@ class BaseFieldConfigAdmin(ModelAdmin):
 
     @display(description="Field")
     def display_field_link(self, obj):
-        print(obj.field.id)
         return mark_safe(
             f"""
             <a
@@ -103,7 +102,6 @@ class BaseFieldConfigAdmin(ModelAdmin):
         # replace field with "get_field_display" method
         if "field" in list_display:
             list_display[list_display.index("field")] = "display_field_link"
-        print(list_display)
         return list_display
 
 

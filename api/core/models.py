@@ -65,12 +65,9 @@ class View(BaseModel):
         return self.label
 
     def clean(self):
-        # print(self.fields, self.fields.all())
-
         # field_ids = set([field.id for field in self.fields.all()])
         # field_order_ids = set([field_id for field_id in self.fields_order])
         # non_overlap = field_ids.symmetric_difference(field_order_ids)
-        # print(field_ids, field_order_ids, non_overlap)
         # if len(non_overlap) > 0:
         #     raise ValidationError(
         #         {
