@@ -182,6 +182,7 @@ class ViewAdmin(ModelAdmin):
     search_fields = ("label",)
     list_filter = ("database",)
     exclude = ("created_by", "updated_by")
+    filter_horizontal = ("fields",)
 
 
 @admin.register(Folder)

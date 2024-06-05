@@ -65,22 +65,32 @@ class View(BaseModel):
         return self.label
 
     def clean(self):
-        field_ids = set([field.id for field in self.fields.all()])
-        field_order_ids = set([field_id for field_id in self.fields_order])
-        non_overlap = field_ids.symmetric_difference(field_order_ids)
-        if len(non_overlap) > 0:
-            raise ValidationError("Fields and fields_order must be the same")
+        # print(self.fields, self.fields.all())
 
-        if hasattr(self, "sort_by") and self.sort_by is not None and len(self.sort_by) > 0:
-            for sort in self.sort_by:
-                if len(sort) != 2:
-                    raise ValidationError("Sort order must be a list of two items")
+        # field_ids = set([field.id for field in self.fields.all()])
+        # field_order_ids = set([field_id for field_id in self.fields_order])
+        # non_overlap = field_ids.symmetric_difference(field_order_ids)
+        # print(field_ids, field_order_ids, non_overlap)
+        # if len(non_overlap) > 0:
+        #     raise ValidationError(
+        #         {
+        #             "fields": "Fields and fields_order must have the same items",
+        #             "fields_order": "Fields and fields_order must have the same items",
+        #         }
+        #     )
 
-                if sort[0] not in field_ids:
-                    raise ValidationError("Sort field must be in fields")
+        # if hasattr(self, "sort_by") and self.sort_by is not None and len(self.sort_by) > 0:
+        #     for sort in self.sort_by:
+        #         if len(sort) != 2:
+        #             raise ValidationError({"sort_by": "Sort must be a list of lists with 2 items"})
 
-                if sort[1] not in ["asc", "desc"]:
-                    raise ValidationError("Sort order must be 'asc' or 'desc'")
+        #         if sort[0] not in field_ids:
+        #             raise ValidationError({"sort_by": f"Field ID {sort[0]} is not in the view's fields"})
+
+        #         if sort[1] not in ["asc", "desc"]:
+        #             raise ValidationError(
+        #                 {"sort_by": f"Sort direction {sort[1]} for field ID {sort[0]} is not 'asc' or 'desc'"}
+        #             )
 
         super().clean()
 
@@ -102,11 +112,16 @@ class Folder(BaseModel):
         return self.label
 
     def clean(self):
-        view_ids = set([view.id for view in self.views.all()])
-        view_order_ids = set([view_id for view_id in self.view_order])
-        non_overlap = view_ids.symmetric_difference(view_order_ids)
-        if len(non_overlap) > 0:
-            raise ValidationError("Views and view_order must be the same")
+        # view_ids = set([view.id for view in self.views.all()])
+        # view_order_ids = set([view_id for view_id in self.view_order])
+        # non_overlap = view_ids.symmetric_difference(view_order_ids)
+        # if len(non_overlap) > 0:
+        #     raise ValidationError(
+        #         {
+        #             "views": "Views and view_order must have the same items",
+        #             "view_order": "Views and view_order must have the same items",
+        #         }
+        #     )
 
         super().clean()
 
@@ -209,7 +224,11 @@ class Field(BaseModel):
 
             has_config = getattr(self, self.config_field_name) is not None
             if not has_config:
-                raise ValidationError(f"{self.config_field_name} is required for field type {self.field_type}")
+                raise ValidationError(
+                    {
+                        self.config_field_name: f"{self.config_field_name} is required for field type {self.field_type}",
+                    }
+                )
 
         super().clean()
 
@@ -249,7 +268,7 @@ class BooleanFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, bool):
-            raise ValidationError("Value must be a boolean")
+            raise ValidationError({"data": "Value must be a boolean"})
 
     def deserialize_response_data(self, data):
         if isinstance(data, str):
@@ -280,20 +299,20 @@ class ChecklistFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, list):
-            raise ValidationError("Value must be a list")
+            raise ValidationError({"data": "Value must be a list"})
 
         for item in data:
             if not isinstance(item, dict):
-                raise ValidationError("Value must be a list of dictionaries")
+                raise ValidationError({"data": "Item must be a list of dictionaries"})
 
             if "value" not in item:
-                raise ValidationError("Value must have a key 'value'")
+                raise ValidationError({"data": "Item must have a key 'value'"})
 
             if "is_checked" not in item:
-                raise ValidationError("Value must have a key 'is_checked'")
+                raise ValidationError({"data": "Item must have a key 'is_checked'"})
 
             if "is_checked" in item and not isinstance(item["is_checked"], bool):
-                raise ValidationError("is_checked must be a boolean")
+                raise ValidationError({"data": "Item is_checked must be a boolean"})
 
     def deserialize_response_data(self, data):
         if not isinstance(data, list):
@@ -345,22 +364,22 @@ class ChoiceFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, list):
-            raise ValidationError("Value must be a list")
+            raise ValidationError({"data": "Value must be a list"})
+
+        if not self.is_multi_select and len(data) > 1:
+            raise ValidationError({"data": "Cannot have multiple values when multi select is disabled"})
 
         for item in data:
             if not isinstance(item, str):
-                raise ValidationError("Value must be a list of strings")
+                raise ValidationError({"data": "Item must be a list of strings"})
 
             choice = ChoiceFieldOption.objects.filter(field_config=self, pk=item)
             if not choice.exists():
-                raise ValidationError("Value must be a list of choice IDs")
+                raise ValidationError({"data": "Item must be a list of choice IDs"})
 
             found_choice = choice.first()
             if found_choice and found_choice.field_config != self:
-                raise ValidationError("Choice must belong to the field config")
-
-        if not self.is_multi_select and len(data) > 1:
-            raise ValidationError("Cannot have multiple values when multi select is disabled")
+                raise ValidationError({"data": "Choice must belong to the field config"})
 
     def deserialize_response_data(self, data):
         if not isinstance(data, list):
@@ -389,7 +408,7 @@ class ChoiceFieldConfig(BaseModel):
 
     def clean(self):
         if self.is_multi_select and self.display_format == ChoiceFieldConfig.DisplayFormat.RADIO:
-            raise ValidationError("Cannot have radio display format when multi select is enabled")
+            raise ValidationError({"display_format": "Cannot have radio display format when multiselect is enabled"})
 
         super().clean()
 
@@ -421,7 +440,7 @@ class DateFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, str):
-            raise ValidationError("Value must be a string")
+            raise ValidationError({"data": "Value must be a string"})
 
     def deserialize_response_data(self, data):
         return parser.parse(data)
@@ -451,15 +470,15 @@ class FileFieldConfig(BaseModel):
 
     def valiate_response_data(self, data):
         if not isinstance(data, list):
-            raise ValidationError("Value must be a list")
+            raise ValidationError({"data": "Value must be a list"})
 
         for item in data:
             if not isinstance(item, str):
-                raise ValidationError("Value must be a list of strings")
+                raise ValidationError({"data": "Item must be a string"})
 
             attachment = Attachment.objects.filter(pk=item)
             if not attachment.exists():
-                raise ValidationError("Value must be a list of attachment IDs")
+                raise ValidationError({"data": "Item must be a valid attachment ID"})
 
     def deserialize_response_data(self, data):
         if not isinstance(data, list):
@@ -491,11 +510,11 @@ class FileFieldConfig(BaseModel):
             self.supported_file_types = [FileFieldConfig.FileType.ALL]
 
         if FileFieldConfig.FileType.ALL in self.supported_file_types and len(self.supported_file_types) > 1:
-            raise ValidationError("Cannot have other file types when 'all' is selected")
+            raise ValidationError({"supported_file_types": "Cannot have other file types when 'all' is selected"})
 
         for file_type in self.supported_file_types:
             if file_type not in FileFieldConfig.FileType.values:
-                raise ValidationError(f"{file_type} is not a valid file type")
+                raise ValidationError({"supported_file_types": f"{file_type} is not a valid file type"})
 
         super().clean()
 
@@ -519,7 +538,7 @@ class NumberFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, (int, float)):
-            raise ValidationError("Value must be a number")
+            raise ValidationError({"data": "Value must be a number"})
 
     def deserialize_response_data(self, data):
         if self.display_format == NumberFieldConfig.DisplayFormat.INTEGER:
@@ -551,19 +570,19 @@ class RelationFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, list):
-            raise ValidationError("Value must be a list")
+            raise ValidationError({"data": "Value must be a list"})
 
         for item in data:
             if not isinstance(item, str):
-                raise ValidationError("Value must be a list of strings")
+                raise ValidationError({"data": "Item must be a Page ID"})
 
             page = Page.objects.filter(pk=item)
             if not page.exists():
-                raise ValidationError("Value must be a list of page IDs")
+                raise ValidationError({"data": "Item must be a Page ID"})
 
             found_page = page.first()
             if found_page and found_page.database != self.target_field.database:
-                raise ValidationError("Page must belong to the target database")
+                raise ValidationError({"data": "Page ID must belong to the target database"})
 
     def deserialize_response_data(self, data):
         if not isinstance(data, list):
@@ -615,7 +634,7 @@ class TextFieldConfig(BaseModel):
 
     def validate_response_data(self, data):
         if not isinstance(data, str):
-            raise ValidationError("Value must be a string")
+            raise ValidationError({"data": "Value must be a string"})
 
     def deserialize_response_data(self, data):
         return str(data)
@@ -643,14 +662,14 @@ class FieldResponse(BaseModel):
         has_other_keys = len(self.data.keys()) > 1
 
         if not has_value_key or has_other_keys:
-            raise ValidationError("Value must have a single key 'data'")
+            raise ValidationError({"data": "Data must have a single key 'value'"})
+
+        validate_fn = getattr(self.field.config, "validate_response_data", None)
+        if validate_fn is not None:
+            validate_fn(self.data["value"])
 
         super().clean()
 
     def save(self, *args, **kwargs):
-        validate_fn = getattr(self.field.config, "validate_response_data", None)
-        if validate_fn is not None:
-            validate_fn(self.data)
-
         self.full_clean()
         super().save(*args, **kwargs)
