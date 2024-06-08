@@ -8,6 +8,8 @@ services:
 
     volumes:
       - ../..:/workspaces:cached
+      - ../scripts/bin:/root/.local/scripts/bin
+      - ~/.zshrc:/root/.zshrc
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
