@@ -1,4 +1,3 @@
-from django.shortcuts import render  # noqa: F401
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.decorators import action
@@ -13,7 +12,11 @@ from authentication.serializers import UserSerializer
     update=extend_schema(summary="Update user"),
     partial_update=extend_schema(summary="Partial update user"),
 )
-class UserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class UserViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]

@@ -9,7 +9,7 @@ from drf_social_oauth2.views import (
 from oauth2_provider.views import AuthorizationView
 from rest_framework import routers
 
-from authentication.views import UserViewSet
+from .views import UserViewSet
 
 router = routers.SimpleRouter()
 

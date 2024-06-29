@@ -15,12 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-import authentication.urls
 from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView
 
 from docs.views import SpectacularElementsView
+
+import authentication.urls
+import organizations.urls
 
 urlpatterns = [
     # API Docs
@@ -29,6 +31,7 @@ urlpatterns = [
     # API Endpoints
     re_path(r"^auth/", include(authentication.urls.auth_urlpatterns)),
     re_path(r"", include(authentication.urls)),
+    re_path(r"", include(organizations.urls)),
     # Admin
     path("admin/", admin.site.urls),
 ]
