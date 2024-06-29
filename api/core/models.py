@@ -13,6 +13,7 @@ class Database(BaseModel):
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    page_format_string = models.CharField(max_length=255, default="{name}")
 
     def __str__(self):
         return self.name
@@ -237,17 +238,17 @@ class Field(BaseModel):
             if self.config is None:
                 self.create_default_config()
 
-            has_opposite = self.config.target_field.source_relations.filter(target_field=self).exists()
+            has_opposite = self.config.related_field.source_relations.filter(related_field=self).exists()
             if not has_opposite:
                 self.create_opposite_relation()
 
     def create_opposite_relation(self):
         Field.objects.create(
-            database=self.config.target_field.database,
+            database=self.config.related_field.database,
             label=f"{self.label} (Reverse)",
             field_type=Field.FieldType.RELATION,
             relation_config=RelationFieldConfig.objects.create(
-                source_field=self.config.target_field, target_field=self
+                source_field=self.config.related_field, related_field=self
             ),
         )
 
@@ -281,10 +282,10 @@ class BooleanFieldConfig(BaseModel):
 class ChecklistFieldConfig(BaseModel):
     class DisplayFormat(models.TextChoices):
         CHECKBOX = "checkbox", "Checkbox"
-        SWITCH = "switch", "Switch"
+        TOGGLE = "toggle", "Toggle"
 
     class StatusFormat(models.TextChoices):
-        PROGRESS_BAR = "progress", "Progress"
+        PROGRESS_BAR = "progress_bar", "Progress Bar"
         PERCENTAGE = "percentage", "Percentage"
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.CHECKBOX)
@@ -348,7 +349,6 @@ class ChecklistFieldConfig(BaseModel):
 class ChoiceFieldConfig(BaseModel):
     class DisplayFormat(models.TextChoices):
         DROPDOWN = "dropdown", "Dropdown"
-        RADIO = "radio", "Radio"
         CHECKBOX = "checkbox", "Checkbox"
         TAGS = "tags", "Tags"
 
@@ -525,7 +525,6 @@ class NumberFieldConfig(BaseModel):
         DECIMAL = "decimal", "Decimal"
         INTEGER = "integer", "Integer"
         PERCENTAGE = "percentage", "Percentage"
-        CURRENCY = "currency", "Currency"
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DECIMAL)
 
@@ -544,9 +543,6 @@ class NumberFieldConfig(BaseModel):
         if self.display_format == NumberFieldConfig.DisplayFormat.PERCENTAGE and isinstance(data, str):
             return float(data.strip("%")) / 100
 
-        if self.display_format == NumberFieldConfig.DisplayFormat.CURRENCY and isinstance(data, str):
-            return float(data.strip("$").replace(",", ""))
-
         return float(data)
 
     def serialize_response_data(self, data):
@@ -556,13 +552,13 @@ class NumberFieldConfig(BaseModel):
 
 class RelationFieldConfig(BaseModel):
     source_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="source_relations")
-    target_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="target_relations")
+    related_field = models.ForeignKey("core.Field", on_delete=models.CASCADE, related_name="related_relations")
 
     @classmethod
     def create_default(cls, field):
         return RelationFieldConfig.objects.create(
             source_field=field,
-            target_field=field,
+            related_field=field,
         )
 
     def validate_response_data(self, data):
@@ -578,8 +574,8 @@ class RelationFieldConfig(BaseModel):
                 raise ValidationError({"data": "Item must be a Page ID"})
 
             found_page = page.first()
-            if found_page and found_page.database != self.target_field.database:
-                raise ValidationError({"data": "Page ID must belong to the target database"})
+            if found_page and found_page.database != self.related_field.database:
+                raise ValidationError({"data": "Page ID must belong to the related database"})
 
     def deserialize_response_data(self, data):
         if not isinstance(data, list):
@@ -621,7 +617,6 @@ class TextFieldConfig(BaseModel):
         EMAIL = "email", "Email"
         URL = "url", "URL"
         PHONE = "phone", "Phone"
-        RICH_TEXT = "rich_text", "Rich Text"
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.SINGLE_LINE)
 
