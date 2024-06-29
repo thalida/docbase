@@ -105,6 +105,8 @@ INSTALLED_APPS = [
     "docs",
     "core",
     "organizations",
+    # user generated apps
+    "team_thalida",
 ]
 
 MIDDLEWARE = [
@@ -381,3 +383,5 @@ UNFOLD = {
         },
     ],
 }
+
+from team_thalida.settings import *  # noqa

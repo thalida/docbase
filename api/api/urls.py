@@ -15,18 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-import authentication.urls
 from django.contrib import admin
 from django.urls import include, path, re_path
-from drf_spectacular.views import SpectacularAPIView
+import team_thalida.admin
 
-from docs.views import SpectacularElementsView
 
 urlpatterns = [
-    re_path(r"^auth/", include(authentication.urls.auth_urlpatterns)),
-    # API Docs
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("docs/", SpectacularElementsView.as_view(), name="docs"),
-    re_path(r"", include(authentication.urls)),
-    path("", admin.site.urls),
+    re_path(r"^auth/", include("drf_social_oauth2.urls", namespace="drf")),
+    path("team-thalida/", team_thalida.admin.site.urls),
+    path("admin/", admin.site.urls),
 ]
