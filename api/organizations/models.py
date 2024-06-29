@@ -5,6 +5,7 @@ from api.models import BaseModel
 
 class Workspace(BaseModel):
     name = models.CharField(max_length=255)
+    owner = models.ForeignKey("authentication.User", on_delete=models.CASCADE, related_name="owned_workspaces")
     members = models.ManyToManyField(
         "authentication.User",
         related_name="workspaces",

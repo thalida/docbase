@@ -38,6 +38,6 @@ class User(AbstractUser):
     def create_workspace(self, name: str):
         from organizations.models import Workspace, WorkspaceMembership
 
-        workspace = Workspace.objects.create(name=name)
+        workspace = Workspace.objects.create(name=name, owner=self)
         WorkspaceMembership.objects.create(workspace=workspace, user=self)
         return workspace

@@ -23,10 +23,12 @@ from drf_spectacular.views import SpectacularAPIView
 from docs.views import SpectacularElementsView
 
 urlpatterns = [
-    re_path(r"^auth/", include(authentication.urls.auth_urlpatterns)),
     # API Docs
+    path("", SpectacularElementsView.as_view(), name="docs"),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("docs/", SpectacularElementsView.as_view(), name="docs"),
+    # API Endpoints
+    re_path(r"^auth/", include(authentication.urls.auth_urlpatterns)),
     re_path(r"", include(authentication.urls)),
-    path("", admin.site.urls),
+    # Admin
+    path("admin/", admin.site.urls),
 ]
