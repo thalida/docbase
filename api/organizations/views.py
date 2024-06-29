@@ -6,12 +6,12 @@ from .serializers import WorkspaceSerializer
 
 
 @extend_schema_view(
-    list=extend_schema(summary="List workspaces"),
-    create=extend_schema(summary="Create workspace"),
-    retrieve=extend_schema(summary="Retrieve workspace"),
-    update=extend_schema(summary="Update workspace"),
-    destroy=extend_schema(summary="Delete workspace"),
-    partial_update=extend_schema(summary="Partial update workspace"),
+    list=extend_schema(summary="List Workspaces"),
+    create=extend_schema(summary="Create Workspace"),
+    retrieve=extend_schema(summary="Retrieve Workspace"),
+    update=extend_schema(summary="Update Workspace"),
+    partial_update=extend_schema(summary="Partial Update Workspace"),
+    destroy=extend_schema(summary="Delete Workspace"),
 )
 class WorkspaceViewSet(
     mixins.ListModelMixin,

@@ -23,6 +23,7 @@ from docs.views import SpectacularElementsView
 
 import authentication.urls
 import organizations.urls
+import core.urls
 
 urlpatterns = [
     # API Docs
@@ -32,6 +33,7 @@ urlpatterns = [
     re_path(r"^auth/", include(authentication.urls.auth_urlpatterns)),
     re_path(r"", include(authentication.urls)),
     re_path(r"", include(organizations.urls)),
+    re_path(r"", include(core.urls)),
     # Admin
     path("admin/", admin.site.urls),
 ]
