@@ -25,14 +25,6 @@ class Database(BaseModel):
         self.full_clean()
         super().save(*args, **kwargs)
 
-        has_views = View.objects.filter(database=self).exists()
-        if not has_views:
-            View.objects.create(
-                database=self,
-                label="META_ADMIN",
-                view_type=View.ViewType.META_ADMIN,
-            )
-
         has_page_view = View.objects.filter(database=self, view_type=View.ViewType.META_PAGE).exists()
         if not has_page_view:
             View.objects.create(
@@ -49,7 +41,6 @@ class View(BaseModel):
         LIST = 20
         KANBAN = 30
         CALENDAR = 40
-        META_ADMIN = 100
         META_PAGE = 101
 
     database = models.ForeignKey("core.Database", on_delete=models.CASCADE, related_name="views")
