@@ -16,6 +16,13 @@ class Workspace(BaseModel):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.owner not in self.members.all():
+            self.members.add(self.owner)
+            self.save()
+
 
 class WorkspaceMembership(BaseModel):
     workspace = models.ForeignKey("Workspace", on_delete=models.CASCADE, related_name="memberships")
@@ -23,3 +30,8 @@ class WorkspaceMembership(BaseModel):
 
     def __str__(self):
         return f"{self.user} in {self.workspace}"
+
+    def delete(self, *args, **kwargs):
+        if self.workspace.owner == self.user:
+            raise ValueError("Cannot delete owner from workspace")
+        return super().delete(*args, **kwargs)

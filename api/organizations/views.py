@@ -7,6 +7,7 @@ from .serializers import WorkspaceSerializer
 
 @extend_schema_view(
     list=extend_schema(summary="List workspaces"),
+    create=extend_schema(summary="Create workspace"),
     retrieve=extend_schema(summary="Retrieve workspace"),
     update=extend_schema(summary="Update workspace"),
     destroy=extend_schema(summary="Delete workspace"),
@@ -14,6 +15,7 @@ from .serializers import WorkspaceSerializer
 )
 class WorkspaceViewSet(
     mixins.ListModelMixin,
+    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
