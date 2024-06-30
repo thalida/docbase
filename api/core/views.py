@@ -2,8 +2,8 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
 
-from .models import Database, View, Field
-from .serializers import DatabaseSerializer, ViewSerializer, FieldSerializer
+from .models import Database, Page, View, Field
+from .serializers import DatabaseSerializer, PageSerializer, ViewSerializer, FieldSerializer
 
 
 @extend_schema_view(
@@ -48,6 +48,30 @@ class ViewViewSet(
 ):
     queryset = View.objects.all()
     serializer_class = ViewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(database__workspace__members=self.request.user)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Pages"),
+    create=extend_schema(summary="Create Page"),
+    retrieve=extend_schema(summary="Retrieve Page"),
+    update=extend_schema(summary="Update Page"),
+    partial_update=extend_schema(summary="Partial Update Page"),
+    destroy=extend_schema(summary="Delete Page"),
+)
+class PageViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Page.objects.all()
+    serializer_class = PageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

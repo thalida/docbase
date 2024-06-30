@@ -126,6 +126,10 @@ class Page(BaseModel):
     content = models.TextField(blank=True)
     attachments = models.ManyToManyField("core.Attachment", blank=True, related_name="pages")
 
+    @property
+    def view(self):
+        return View.objects.filter(database=self.database, view_type=View.ViewType.META_PAGE).first()
+
     def __str__(self):
         return self.title
 

@@ -9,8 +9,10 @@ from .models import (
     ChoiceFieldConfig,
     ChoiceFieldOption,
     DateFieldConfig,
+    FieldResponse,
     FileFieldConfig,
     NumberFieldConfig,
+    Page,
     RelationFieldConfig,
     TextFieldConfig,
     Database,
@@ -149,6 +151,74 @@ class FieldSerializer(serializers.ModelSerializer):
             "label",
             "field_type",
             "config",
+        ]
+
+    def create(self, validated_data):
+        validated_data["created_by"] = self.context["request"].user
+        validated_data["updated_by"] = self.context["request"].user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data["updated_by"] = self.context["request"].user
+        return super().update(instance, validated_data)
+
+
+class FieldResponseMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FieldResponse
+        fields = [
+            "data",
+        ]
+
+
+class FieldWithResponseSerializer(FieldSerializer):
+    response = serializers.SerializerMethodField(method_name="get_field_response")
+
+    @extend_schema_field(FieldResponseMinimalSerializer)
+    def get_field_response(self, obj):
+        page = self.context.get("internal_meta", {}).get("page")
+        response = FieldResponse.objects.filter(page=page, field=obj).first()
+        return FieldResponseMinimalSerializer(response).data
+
+    class Meta:
+        model = Field
+        fields = FieldSerializer.Meta.fields + ["response"]
+
+
+class PageSerializer(serializers.ModelSerializer):
+    created_by = serializers.UUIDField(read_only=True)
+    updated_by = serializers.UUIDField(read_only=True)
+    fields = serializers.SerializerMethodField(method_name="get_page_fields")
+
+    @extend_schema_field(FieldWithResponseSerializer(many=True))
+    def get_page_fields(self, obj):
+        fields = obj.view.fields.all()
+        fields_order = obj.view.fields_order
+        if len(fields_order) > 0:
+            fields = sorted(fields, key=lambda x: fields_order.index(x["id"]))
+
+        context = {
+            **self.context,
+            "internal_meta": {
+                **self.context.get("internal_meta", {}),
+                "page": obj,
+            },
+        }
+        return FieldWithResponseSerializer(fields, many=True, context=context).data
+
+    class Meta:
+        model = Page
+        fields = [
+            "id",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "database",
+            "title",
+            "content",
+            "attachments",
+            "fields",
         ]
 
     def create(self, validated_data):
