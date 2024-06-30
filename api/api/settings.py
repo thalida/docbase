@@ -321,11 +321,6 @@ UNFOLD = {
                         "link": reverse_lazy("admin:core_page_changelist"),
                     },
                     {
-                        "title": _("Folders"),
-                        "icon": "folder",
-                        "link": reverse_lazy("admin:core_folder_changelist"),
-                    },
-                    {
                         "title": _("Views"),
                         "icon": "frame_inspect",
                         "link": reverse_lazy("admin:core_view_changelist"),
