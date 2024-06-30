@@ -1,1 +1,1 @@
-export const LOCALSTOARGE_NAMESPACE = 'app'
+export const LOCALSTOARGE_NAMESPACE = 'docbase'

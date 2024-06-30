@@ -2,28 +2,39 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { LOCALSTOARGE_NAMESPACE } from '.'
 import type { ColorScheme, Theme } from '@/types/ui'
+import { useAuthStore } from './auth'
+import { useUsersStore } from './users'
 
 export const useUIStore = defineStore('ui', () => {
+  const authStore = useAuthStore()
+  const usersStore = useUsersStore()
+
   const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}theme`
   const supportedThemes = ['light', 'dark', 'system'] as const
-  const selectedTheme = ref<Theme>('system')
+  const theme = ref<Theme>('system')
   const colorScheme = ref<ColorScheme>()
 
-  function initTheme() {
+  const isReady = ref(false)
+
+  async function setup() {
+    isReady.value = false
+
     const theme = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'system'
     setTheme(theme)
     window
       .matchMedia('(prefers-color-scheme: dark)')
       .addEventListener('change', handleColorSchemeChange)
+
+    await authStore.silentLogin()
+    isReady.value = true
   }
 
-  function setTheme(theme: Theme) {
-    selectedTheme.value = theme
+  function setTheme(newTheme: Theme) {
+    theme.value = newTheme
 
     if (
-      selectedTheme.value === 'dark' ||
-      (selectedTheme.value === 'system' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
+      theme.value === 'dark' ||
+      (theme.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     ) {
       colorScheme.value = 'dark'
       document.documentElement.classList.add('dark')
@@ -38,26 +49,34 @@ export const useUIStore = defineStore('ui', () => {
         ?.setAttribute('content', '#dbeafe')
     }
 
-    if (selectedTheme.value === 'system') {
+    if (theme.value === 'system') {
       localStorage.removeItem(THEME_STORAGE_KEY)
     } else {
-      localStorage.setItem(THEME_STORAGE_KEY, selectedTheme.value)
+      localStorage.setItem(THEME_STORAGE_KEY, theme.value)
     }
   }
 
   function handleColorSchemeChange() {
-    if (selectedTheme.value !== 'system') {
+    if (theme.value !== 'system') {
       return
     }
 
     setTheme('system')
   }
 
+  function $resetAll() {
+    usersStore.$reset()
+  }
+
   return {
+    isReady,
+    setup,
+
+    theme,
+    setTheme,
     supportedThemes,
-    selectedTheme,
     colorScheme,
-    initTheme,
-    setTheme
+
+    $resetAll
   }
 })

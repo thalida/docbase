@@ -38,6 +38,7 @@ SECRET_KEY = "django-insecure-#^"
 DEBUG = True
 
 WSGI_APPLICATION = "api.wsgi.application"
+ASGI_APPLICATION = "api.asgi.application"
 
 
 # ============================================================================ #
@@ -79,8 +80,23 @@ INSTALLED_APPS = [
 #   HOST SETTINGS
 #                                                                              #
 # ============================================================================ #
-ALLOWED_HOSTS = []
-CORS_ALLOWED_ORIGIN_REGEXES = []
+ALLOWED_HOSTS = [
+    ".docbase.wiki",
+    ".onrender.com",
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://docbase.wiki",
+    "https://*.onrender.com",
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*\.docbase\.wiki$",
+    r"^https:\/\/.*\.onrender\.com$",
+]
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 if DEBUG:
     ALLOWED_HOSTS += [
@@ -89,10 +105,9 @@ if DEBUG:
         "localhost:3000",
         "127.0.0.1:8000",
     ]
-
     CORS_ALLOWED_ORIGIN_REGEXES += [
-        r"^http(s)?://localhost:3000$",
-        r"^http(s)?://127.0.0.1:3000$",
+        r"^http(s)?://localhost:5173$",
+        r"^http(s)?://127.0.0.1:5173$",
     ]
 
 
@@ -123,9 +138,15 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 AUTHENTICATION_BACKENDS = (
+    "social_core.backends.google.GoogleOAuth2",
     "drf_social_oauth2.backends.DjangoOAuth2",
     "django.contrib.auth.backends.ModelBackend",
 )
+
+OAUTH2_PROVIDER = {
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 60 * 60 * 24 * 52,  # 1 year
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

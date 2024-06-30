@@ -1,40 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { onMounted, watchEffect } from 'vue'
+import { watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
+import { useUsersStore } from '@/stores/users'
 
 const uiStore = useUIStore()
 const authStore = useAuthStore()
-const isLoading = ref(true)
-
-onMounted(() => {
-  uiStore.initTheme()
-  authStore.silentLogin().finally(() => {
-    isLoading.value = false
-  })
-})
+const usersStore = useUsersStore()
 
 watchEffect(() => {
-  if (isLoading.value) {
+  if (!uiStore.isReady || !authStore.isAuthenticated) {
     return
   }
 
-  // if (authStore.isAuthenticated) {
-  //   coreStore.initUser()
-  // } else {
-  //   coreStore.initAnon()
-  // }
+  usersStore.fetchMe()
 })
 </script>
 
 <template>
+  <RouterView v-if="uiStore.isReady" />
   <div
-    v-if="isLoading"
+    v-else
     class="flex h-full w-full flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-300 via-blue-200 to-sky-200 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950"
   />
-  <RouterView v-else />
 </template>
 
 <style scoped>

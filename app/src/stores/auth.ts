@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { IAuthTokenResponse } from '@/types/auth'
-import authApi from '@/api/auth'
+import $auth from '@/api/auth'
 import { LOCALSTOARGE_NAMESPACE } from '.'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
     clearTokenData()
 
     if (tokenDataCopy !== null) {
-      await authApi.revokeToken(tokenDataCopy)
+      await $auth.revokeToken(tokenDataCopy)
     }
   }
 
@@ -48,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      const res = await authApi.refreshToken(tokenData.refresh_token)
+      const res = await $auth.refreshToken(tokenData.refresh_token)
       setTokenData(res.data)
     } catch (error) {
       clearTokenData()
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function loginWithGoogle(accessToken: string) {
     try {
-      const res = await authApi.googleLogin(accessToken)
+      const res = await $auth.googleLogin(accessToken)
       setTokenData(res.data)
     } catch (error) {
       clearTokenData()

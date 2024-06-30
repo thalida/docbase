@@ -113,18 +113,6 @@ async function handleGoogleLogin() {
                   <span class="text-sm font-semibold leading-6">Continue with Google</span>
                 </button>
               </div>
-
-              <div class="relative mt-8">
-                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div class="w-full border-t border-gray-200 dark:border-slate-500" />
-                </div>
-                <div class="relative flex justify-center text-sm font-bold uppercase leading-6">
-                  <span class="bg-white px-6 text-gray-900 dark:bg-slate-950 dark:text-slate-400"
-                    >Or</span
-                  >
-                </div>
-              </div>
-              =
             </DialogPanel>
           </TransitionChild>
         </div>
