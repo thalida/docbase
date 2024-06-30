@@ -228,6 +228,20 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_PATCH": True,
     "COMPONENT_SPLIT_REQUEST": True,
     "COMPONENT_NO_READ_ONLY_REQUIRED": True,
+    "ENUM_NAME_OVERRIDES": {
+        "BooleanFieldConfigDisplayFormatEnum": "core.models.BooleanFieldConfig.DisplayFormat",
+        "BooleanFieldConfigDisplayIconEnum": "core.models.BooleanFieldConfig.DisplayIcon",
+        "ChecklistFieldConfigDisplayFormatEnum": "core.models.ChecklistFieldConfig.DisplayFormat",
+        "ChecklistFieldConfigStatusFormatEnum": "core.models.ChecklistFieldConfig.StatusFormat",
+        "ChoiceFieldConfigDisplayFormatEnum": "core.models.ChoiceFieldConfig.DisplayFormat",
+        "DateFieldConfigDisplayFormatEnum": "core.models.DateFieldConfig.DisplayFormat",
+        "NumberFieldConfigDisplayFormatEnum": "core.models.NumberFieldConfig.DisplayFormat",
+        "TextFieldConfigDisplayFormatEnum": "core.models.TextFieldConfig.DisplayFormat",
+    },
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "docs.hooks.assign_schema_name_to_title",
+    ],
 }
 
 

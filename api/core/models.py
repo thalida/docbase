@@ -225,31 +225,23 @@ class Field(BaseModel):
         self.full_clean()
         super().save(*args, **kwargs)
 
-        if self.field_type == Field.FieldType.RELATION:
-            if self.config is None:
-                self.create_default_config()
-
-            has_opposite = self.config.related_field.source_relations.filter(related_field=self).exists()
-            if not has_opposite:
-                self.create_opposite_relation()
-
-    def create_opposite_relation(self):
-        Field.objects.create(
-            database=self.config.related_field.database,
-            label=f"{self.label} (Reverse)",
-            field_type=Field.FieldType.RELATION,
-            relation_config=RelationFieldConfig.objects.create(
-                source_field=self.config.related_field, related_field=self
-            ),
-        )
-
 
 class BooleanFieldConfig(BaseModel):
     class DisplayFormat(models.TextChoices):
         CHECKBOX = "checkbox", "Checkbox"
         TOGGLE = "toggle", "Toggle"
+        ICON = "icon", "Icon"
+
+    class DisplayIcon(models.TextChoices):
+        CHECK = "check", "Check"
+        CROSS = "cross", "Cross"
+        STAR = "star", "Star"
+        HEART = "heart", "Heart"
+        THUMBS_UP = "thumbs_up", "Thumbs Up"
+        THUMBS_DOWN = "thumbs_down", "Thumbs Down"
 
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.CHECKBOX)
+    display_icon = models.CharField(max_length=255, choices=DisplayIcon.choices, default=None, blank=True, null=True)
 
     @classmethod
     def create_default(cls, field):
@@ -268,6 +260,19 @@ class BooleanFieldConfig(BaseModel):
     def serialize_response_data(self, data):
         obj = self.deserialize_response_data(data)
         return json.dumps(obj)
+
+    def clean(self):
+        if self.display_format == BooleanFieldConfig.DisplayFormat.ICON and self.display_icon is None:
+            raise ValidationError({"display_icon": "Display icon is required when display format is icon"})
+
+        if self.display_format != BooleanFieldConfig.DisplayFormat.ICON and self.display_icon is not None:
+            self.display_icon = None
+
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class ChecklistFieldConfig(BaseModel):
@@ -343,8 +348,8 @@ class ChoiceFieldConfig(BaseModel):
         CHECKBOX = "checkbox", "Checkbox"
         TAGS = "tags", "Tags"
 
-    is_multi_select = models.BooleanField(default=False)
     display_format = models.CharField(max_length=255, choices=DisplayFormat.choices, default=DisplayFormat.DROPDOWN)
+    is_multi_select = models.BooleanField(default=False)
 
     @classmethod
     def create_default(cls, field):
@@ -448,7 +453,7 @@ class FileFieldConfig(BaseModel):
         DOCUMENT = "document"
 
     supported_file_types = ArrayField(models.CharField(max_length=255), blank=True, default=list)
-    is_multiple = models.BooleanField(default=False)
+    allow_multiple = models.BooleanField(default=False)
 
     @classmethod
     def create_default(cls, field):
@@ -547,10 +552,7 @@ class RelationFieldConfig(BaseModel):
 
     @classmethod
     def create_default(cls, field):
-        return RelationFieldConfig.objects.create(
-            source_field=field,
-            related_field=field,
-        )
+        return None
 
     def validate_response_data(self, data):
         if not isinstance(data, list):

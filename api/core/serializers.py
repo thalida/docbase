@@ -1,14 +1,141 @@
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.utils import extend_schema_field, PolymorphicProxySerializer
 
 from authentication.serializers import UserMinimalSerializer
 
-from .models import Database, View, Field
+from .models import (
+    BooleanFieldConfig,
+    ChecklistFieldConfig,
+    ChoiceFieldConfig,
+    ChoiceFieldOption,
+    DateFieldConfig,
+    FileFieldConfig,
+    NumberFieldConfig,
+    RelationFieldConfig,
+    TextFieldConfig,
+    Database,
+    View,
+    Field,
+)
+
+
+class BooleanFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BooleanFieldConfig
+        fields = [
+            "display_format",
+            "display_icon",
+        ]
+
+
+class ChecklistFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChecklistFieldConfig
+        fields = [
+            "display_format",
+            "status_format",
+        ]
+
+
+class ChoiceFieldOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChoiceFieldOption
+        fields = [
+            "id",
+            "value",
+            "label",
+        ]
+
+
+class ChoiceFieldConfigSerializer(serializers.ModelSerializer):
+    options = ChoiceFieldOptionSerializer(many=True)
+
+    class Meta:
+        model = ChoiceFieldConfig
+        fields = [
+            "display_format",
+            "is_multi_select",
+            "options",
+        ]
+
+
+class DateFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DateFieldConfig
+        fields = [
+            "display_format",
+        ]
+
+
+class FileFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileFieldConfig
+        fields = [
+            "supported_file_types",
+            "allow_multiple",
+        ]
+
+
+class NumberFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NumberFieldConfig
+        fields = [
+            "display_format",
+        ]
+
+
+class RelationFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RelationFieldConfig
+        fields = [
+            "source_field",
+            "related_field",
+        ]
+
+
+class TextFieldConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TextFieldConfig
+        fields = [
+            "display_format",
+        ]
 
 
 class FieldSerializer(serializers.ModelSerializer):
     created_by = serializers.UUIDField(read_only=True)
     updated_by = serializers.UUIDField(read_only=True)
+    config = serializers.SerializerMethodField(method_name="get_field_config")
+
+    @extend_schema_field(
+        PolymorphicProxySerializer(
+            component_name="FieldConfig",
+            serializers={
+                Field.FieldType.BOOLEAN.value: BooleanFieldConfigSerializer,
+                Field.FieldType.CHECKLIST.value: ChecklistFieldConfigSerializer,
+                Field.FieldType.CHOICE.value: ChoiceFieldConfigSerializer,
+                Field.FieldType.DATE.value: DateFieldConfigSerializer,
+                Field.FieldType.FILE.value: FileFieldConfigSerializer,
+                Field.FieldType.NUMBER.value: NumberFieldConfigSerializer,
+                Field.FieldType.RELATION.value: RelationFieldConfigSerializer,
+                Field.FieldType.TEXT.value: TextFieldConfigSerializer,
+            },
+            resource_type_field_name="field_type",
+        ),
+    )
+    def get_field_config(self, obj):
+        config_serializer_map = {
+            Field.FieldType.BOOLEAN: BooleanFieldConfigSerializer,
+            Field.FieldType.CHECKLIST: ChecklistFieldConfigSerializer,
+            Field.FieldType.CHOICE: ChoiceFieldConfigSerializer,
+            Field.FieldType.DATE: DateFieldConfigSerializer,
+            Field.FieldType.FILE: FileFieldConfigSerializer,
+            Field.FieldType.NUMBER: NumberFieldConfigSerializer,
+            Field.FieldType.RELATION: RelationFieldConfigSerializer,
+            Field.FieldType.TEXT: TextFieldConfigSerializer,
+        }
+
+        config_serializer = config_serializer_map[obj.field_type]
+        return config_serializer(obj.config, context=self.context).data
 
     class Meta:
         model = Field
