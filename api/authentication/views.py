@@ -4,8 +4,10 @@ from rest_framework.decorators import action
 
 from authentication.models import User
 from authentication.serializers import UserSerializer
+from docs.tags import SchemaTags
 
 
+@extend_schema(tags=[SchemaTags.AUTHENTICATION__USERS.value])
 @extend_schema_view(
     retrieve=extend_schema(summary="Retrieve user"),
     me=extend_schema(summary="Retrieve me"),

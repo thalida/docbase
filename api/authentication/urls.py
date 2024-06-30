@@ -15,11 +15,7 @@ router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
 
-urlpatterns = [
-    re_path(r"^", include(router.urls)),
-]
-
-auth_urlpatterns = (
+drf_socialauth_urlpatterns = (
     [
         re_path(r"^authorize/?$", AuthorizationView.as_view(), name="authorize"),
         re_path(r"^token/?$", TokenView.as_view(), name="token"),
@@ -39,3 +35,8 @@ auth_urlpatterns = (
     ],
     "drf",
 )
+
+urlpatterns = [
+    re_path(r"^", include(router.urls)),
+    re_path(r"^auth/", include(drf_socialauth_urlpatterns)),
+]

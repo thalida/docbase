@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView
 
 from docs.views import SpectacularElementsView
@@ -25,15 +25,17 @@ import authentication.urls
 import organizations.urls
 import core.urls
 
+api_urls = []
+api_urls.extend(authentication.urls.urlpatterns)
+api_urls.extend(organizations.urls.urlpatterns)
+api_urls.extend(core.urls.urlpatterns)
+
 urlpatterns = [
     # API Docs
     path("", SpectacularElementsView.as_view(), name="docs"),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    # API Endpoints
-    re_path(r"^auth/", include(authentication.urls.auth_urlpatterns)),
-    re_path(r"", include(authentication.urls)),
-    re_path(r"", include(organizations.urls)),
-    re_path(r"", include(core.urls)),
+    # API
+    path("api/", include(api_urls)),
     # Admin
     path("admin/", admin.site.urls),
-]
+] + api_urls

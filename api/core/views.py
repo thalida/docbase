@@ -2,10 +2,13 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
 
+from docs.tags import SchemaTags
+
 from .models import Database, Page, View, Field
 from .serializers import DatabaseSerializer, PageSerializer, ViewSerializer, FieldSerializer
 
 
+@extend_schema(tags=[SchemaTags.CORE__DATABASE.value])
 @extend_schema_view(
     list=extend_schema(summary="List Databases"),
     create=extend_schema(summary="Create Database"),
@@ -30,6 +33,7 @@ class DatabaseViewSet(
         return self.queryset.filter(workspace__members=self.request.user)
 
 
+@extend_schema(tags=[SchemaTags.CORE__VIEW.value])
 @extend_schema_view(
     list=extend_schema(summary="List Views"),
     create=extend_schema(summary="Create View"),
@@ -54,6 +58,7 @@ class ViewViewSet(
         return self.queryset.filter(database__workspace__members=self.request.user)
 
 
+@extend_schema(tags=[SchemaTags.CORE__PAGE.value])
 @extend_schema_view(
     list=extend_schema(summary="List Pages"),
     create=extend_schema(summary="Create Page"),
@@ -78,6 +83,7 @@ class PageViewSet(
         return self.queryset.filter(database__workspace__members=self.request.user)
 
 
+@extend_schema(tags=[SchemaTags.CORE__FIELD.value])
 @extend_schema_view(
     list=extend_schema(summary="List Fields"),
     create=extend_schema(summary="Create Field"),

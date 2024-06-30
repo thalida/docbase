@@ -1,10 +1,13 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
 
+from docs.tags import SchemaTags
+
 from .models import Workspace
 from .serializers import WorkspaceSerializer
 
 
+@extend_schema(tags=[SchemaTags.ORGANIZATIONS__WORKSPACE.value])
 @extend_schema_view(
     list=extend_schema(summary="List Workspaces"),
     create=extend_schema(summary="Create Workspace"),

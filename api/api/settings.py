@@ -219,9 +219,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
-    "TITLE": "Docs",
+    "TITLE": "Docbase Docs",
     "DESCRIPTION": read_file("docs/markdown/introduction.md"),
+    # Servers are set dynamically via the post processing hook
     "SERVERS": [],
+    "SCHEMA_PATH_PREFIX": "/api",
+    "SCHEMA_PATH_PREFIX_TRIM": True,
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_COERCE_PATH_PK": True,
     "SCHEMA_COERCE_PATH_PK_SUFFIX": True,
@@ -240,6 +243,7 @@ SPECTACULAR_SETTINGS = {
     },
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",
+        "docs.hooks.set_server_urls",
         "docs.hooks.assign_schema_name_to_title",
     ],
 }
