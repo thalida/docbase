@@ -13,7 +13,8 @@ class User(AbstractUser):
 
     @property
     def display_name(self) -> str:
-        return self.get_full_name() or self.email
+        email_first_part = self.email.split("@")[0]
+        return self.get_full_name() or email_first_part
 
     @property
     def initials(self) -> str:
@@ -30,13 +31,3 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-
-        user_workspaces = self.workspaces.all()
-        if not user_workspaces.exists():
-            self.create_workspace(name="Personal Workspace")
-
-    def create_workspace(self, name: str):
-        from organizations.models import Workspace
-
-        workspace = Workspace.objects.create(name=name, owner=self)
-        return workspace
