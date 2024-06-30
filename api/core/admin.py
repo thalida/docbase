@@ -17,7 +17,6 @@ from core.models import (
     Field,
     FieldResponse,
     FileFieldConfig,
-    Folder,
     NumberFieldConfig,
     Page,
     RelationFieldConfig,
@@ -181,14 +180,6 @@ class ViewAdmin(ModelAdmin):
     list_filter = ("database",)
     exclude = ("created_by", "updated_by")
     filter_horizontal = ("fields",)
-
-
-@admin.register(Folder)
-class FolderAdmin(ModelAdmin):
-    list_display = ("label", "workspace", "created_at", "updated_at")
-    search_fields = ("label",)
-    list_filter = ("workspace",)
-    exclude = ("created_by", "updated_by")
 
 
 class FieldResponseInline(StackedInline):

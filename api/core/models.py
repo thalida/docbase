@@ -57,61 +57,6 @@ class View(BaseModel):
         return self.label
 
     def clean(self):
-        # field_ids = set([field.id for field in self.fields.all()])
-        # field_order_ids = set([field_id for field_id in self.fields_order])
-        # non_overlap = field_ids.symmetric_difference(field_order_ids)
-        # if len(non_overlap) > 0:
-        #     raise ValidationError(
-        #         {
-        #             "fields": "Fields and fields_order must have the same items",
-        #             "fields_order": "Fields and fields_order must have the same items",
-        #         }
-        #     )
-
-        # if hasattr(self, "sort_by") and self.sort_by is not None and len(self.sort_by) > 0:
-        #     for sort in self.sort_by:
-        #         if len(sort) != 2:
-        #             raise ValidationError({"sort_by": "Sort must be a list of lists with 2 items"})
-
-        #         if sort[0] not in field_ids:
-        #             raise ValidationError({"sort_by": f"Field ID {sort[0]} is not in the view's fields"})
-
-        #         if sort[1] not in ["asc", "desc"]:
-        #             raise ValidationError(
-        #                 {"sort_by": f"Sort direction {sort[1]} for field ID {sort[0]} is not 'asc' or 'desc'"}
-        #             )
-
-        super().clean()
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
-
-
-class Folder(BaseModel):
-    workspace = models.ForeignKey("organizations.Workspace", on_delete=models.CASCADE, related_name="folders")
-    parent = models.ForeignKey(
-        "core.Folder", on_delete=models.CASCADE, blank=True, null=True, related_name="child_folders"
-    )
-    label = models.CharField(max_length=255)
-    views = models.ManyToManyField("core.View", blank=True, related_name="folders")
-    view_order = ArrayField(models.UUIDField(), blank=True)
-
-    def __str__(self):
-        return self.label
-
-    def clean(self):
-        # view_ids = set([view.id for view in self.views.all()])
-        # view_order_ids = set([view_id for view_id in self.view_order])
-        # non_overlap = view_ids.symmetric_difference(view_order_ids)
-        # if len(non_overlap) > 0:
-        #     raise ValidationError(
-        #         {
-        #             "views": "Views and view_order must have the same items",
-        #             "view_order": "Views and view_order must have the same items",
-        #         }
-        #     )
-
         super().clean()
 
     def save(self, *args, **kwargs):
