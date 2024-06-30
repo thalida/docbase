@@ -15,21 +15,6 @@ const email = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 
-async function handleEmailLogin(e: Event) {
-  e.preventDefault()
-  try {
-    await authStore.loginWithEmail({ username: email.value, password: password.value })
-    email.value = ''
-    password.value = ''
-    error.value = null
-    emit('onDismiss')
-  } catch {
-    error.value = 'Invalid email or password'
-    email.value = ''
-    password.value = ''
-  }
-}
-
 async function handleGoogleLogin() {
   try {
     error.value = null
@@ -139,55 +124,7 @@ async function handleGoogleLogin() {
                   >
                 </div>
               </div>
-
-              <form class="mt-4 space-y-4" @submit="handleEmailLogin">
-                <div>
-                  <label
-                    for="email"
-                    class="block text-sm font-medium leading-6 text-gray-900 dark:text-white"
-                  >
-                    Email address
-                  </label>
-                  <div class="mt-2">
-                    <input
-                      v-model="email"
-                      id="email"
-                      name="email"
-                      type="email"
-                      autocomplete="email"
-                      required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-white/5 dark:text-white dark:ring-white/10"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label
-                    for="password"
-                    class="block text-sm font-medium leading-6 text-gray-900 dark:text-white"
-                  >
-                    Password
-                  </label>
-                  <div class="mt-2">
-                    <input
-                      v-model="password"
-                      id="password"
-                      name="password"
-                      type="password"
-                      autocomplete="current-password"
-                      required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-white/5 dark:text-white dark:ring-white/10"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <button
-                    type="submit"
-                    class="mt-8 flex w-full justify-center rounded-md bg-lime-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm transition duration-200 ease-in-out hover:bg-fuchsia-500 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  >
-                    Log In
-                  </button>
-                </div>
-              </form>
+              =
             </DialogPanel>
           </TransitionChild>
         </div>

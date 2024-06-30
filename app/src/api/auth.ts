@@ -1,5 +1,5 @@
 import api from './index'
-import type { IAuthLoginRequest, IAuthTokenResponse } from '@/types/auth'
+import type { IAuthTokenResponse } from '@/types/auth'
 
 export function googleLogin(accessToken: string) {
   return api.post(
@@ -10,21 +10,6 @@ export function googleLogin(accessToken: string) {
       client_secret: import.meta.env.VITE_API_CLIENT_SECRET,
       backend: 'google-oauth2',
       token: accessToken
-    },
-    {
-      headers: { 'Content-Type': 'application/json' }
-    }
-  )
-}
-
-export function emailLogin(data: IAuthLoginRequest) {
-  return api.post(
-    '/auth/token/',
-    {
-      grant_type: 'password',
-      client_id: import.meta.env.VITE_API_CLIENT_ID,
-      client_secret: import.meta.env.VITE_API_CLIENT_SECRET,
-      ...data
     },
     {
       headers: { 'Content-Type': 'application/json' }
@@ -69,7 +54,6 @@ export function revokeToken({
 
 export default {
   googleLogin,
-  emailLogin,
   refreshToken,
   revokeToken
 }
