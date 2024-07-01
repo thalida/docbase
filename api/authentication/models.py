@@ -7,6 +7,7 @@ from django.db import models
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, max_length=254, verbose_name="email address")
+    avatar = models.URLField(blank=True, null=True)
 
     USERNAME_FIELD = "username"
     EMAIL_FIELD = "email"
@@ -31,3 +32,11 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+        has_workspace = self.workspaces.exists()
+        if not has_workspace:
+            from organizations.models import Workspace
+
+            workspace = Workspace.objects.create(owner=self, name=f"{self.display_name}'s workspace")
+            self.workspaces.add(workspace)
+            self.save()

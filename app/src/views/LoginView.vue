@@ -4,9 +4,11 @@ import { googleTokenLogin } from 'vue3-google-login'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ROUTES } from '@/router'
+import { useUIStore } from '@/stores/ui'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const uiStore = useUIStore()
 const error = ref<string | null>(null)
 
 async function handleGoogleLogin() {
@@ -14,6 +16,7 @@ async function handleGoogleLogin() {
     error.value = null
     const response = await googleTokenLogin()
     await authStore.loginWithGoogle(response.access_token)
+    await uiStore.setup()
     router.push({ name: ROUTES.DASHBOARD })
   } catch (e) {
     console.error(e)

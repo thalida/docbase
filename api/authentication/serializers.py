@@ -13,6 +13,7 @@ class UserMinimalSerializer(serializers.ModelSerializer):
             "last_name",
             "display_name",
             "initials",
+            "avatar",
         ]
 
 
@@ -26,5 +27,6 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "display_name",
             "initials",
+            "avatar",
             "workspaces",
         ]

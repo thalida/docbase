@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import (
-    UserAdmin as BaseUserAdmin,
     GroupAdmin as BaseGroupAdmin,
+    UserAdmin as BaseUserAdmin,
 )
 from django.contrib.auth.models import Group
 from oauth2_provider.admin import (
-    ApplicationAdmin as BaseApplicationAdmin,
     AccessTokenAdmin as BaseAccessTokenAdmin,
+    ApplicationAdmin as BaseApplicationAdmin,
     GrantAdmin as BaseGrantAdmin,
     IDTokenAdmin as BaseIDTokenAdmin,
     RefreshTokenAdmin as BaseRefreshTokenAdmin,
@@ -48,6 +48,13 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
                 "fields": ("email", "first_name", "last_name", "password1", "password2"),
             },
         ),
+    )
+
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Personal info", {"fields": ("first_name", "last_name", "avatar")}),
+        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
 
     inlines = [WorkspaceMembershipInline]

@@ -1,9 +1,10 @@
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { defineStore } from 'pinia'
 import { LOCALSTOARGE_NAMESPACE } from '.'
 import type { ColorScheme, Theme } from '@/types/ui'
 import { useAuthStore } from './auth'
 import { useUsersStore } from './users'
+import auth from '@/api/auth'
 
 export const useUIStore = defineStore('ui', () => {
   const authStore = useAuthStore()

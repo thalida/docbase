@@ -3,9 +3,9 @@ import { ref } from 'vue'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
-import AppHeader from '@/components/ui/AppHeader.vue'
-import AppSidebar from '@/components/ui/AppSidebar.vue'
-import AppMain from '@/components/ui/AppMain.vue'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import AppSidebar from '@/components/layout/AppSidebar.vue'
+import AppMain from '@/components/layout/AppMain.vue'
 
 const sidebarOpen = ref(false)
 </script>

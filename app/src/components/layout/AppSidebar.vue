@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
-import {
-  Cog8ToothIcon,
-  FolderPlusIcon,
-  SquaresPlusIcon,
-  ArrowLeftStartOnRectangleIcon
-} from '@heroicons/vue/24/outline'
+import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
 import {
   Listbox,
   ListboxButton,
@@ -20,6 +14,7 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
 import { ROUTES } from '@/router'
 import AppThemeSwitcher from '@/components/ui/AppThemeSwitcher.vue'
+import XAvatar from '@/components/ui/XAvatar.vue'
 import { useUsersStore } from '@/stores/users'
 
 const router = useRouter()
@@ -187,7 +182,7 @@ function handleLogout() {
               aria-label="Your profile"
               class="flex flex-grow items-center !justify-start gap-x-2 !px-2 text-sm font-semibold"
             >
-              <Avatar :label="usersStore.me?.initials" shape="circle" />
+              <XAvatar />
               <span aria-hidden="true">{{ usersStore.me?.display_name }}</span>
             </Button>
             <Button
