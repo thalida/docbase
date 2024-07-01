@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { Cog8ToothIcon, FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
+import {
+  Cog8ToothIcon,
+  FolderPlusIcon,
+  SquaresPlusIcon,
+  ArrowLeftStartOnRectangleIcon
+} from '@heroicons/vue/24/outline'
 
 import { ref } from 'vue'
 import {
@@ -35,7 +40,7 @@ const databases = [
 
 <template>
   <div
-    class="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
+    class="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200 px-4 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
   >
     <div class="flex flex-row justify-between h-16 shrink-0 items-center">
       <div>
@@ -158,19 +163,28 @@ const databases = [
             </li>
           </ul>
         </li>
-        <li class="-mx-6 mt-auto">
-          <a
-            href="#"
-            class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
-          >
-            <img
-              class="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-800"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt=""
-            />
-            <span class="sr-only">Your profile</span>
-            <span aria-hidden="true">Tom Cook</span>
-          </a>
+        <li class="-mx-4 mt-auto">
+          <div class="flex flex-row items-stretch justify-between">
+            <a
+              href="#"
+              class="flex flex-grow items-center justify-start gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
+            >
+              <img
+                class="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-800"
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                alt=""
+              />
+              <span class="sr-only">Your profile</span>
+              <span aria-hidden="true">Tom Cook</span>
+            </a>
+            <a
+              href="#"
+              class="flex justify-center items-center gap-x-2 px-4 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
+            >
+              <ArrowLeftStartOnRectangleIcon class="h-5 w-5 text-red-500" aria-hidden="true" />
+              <span class="sr-only">Sign out</span>
+            </a>
+          </div>
         </li>
       </ul>
     </nav>
