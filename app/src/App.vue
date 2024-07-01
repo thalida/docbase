@@ -13,8 +13,6 @@ watchEffect(() => {
   if (!uiStore.isReady || !authStore.isAuthenticated) {
     return
   }
-
-  usersStore.fetchMe()
 })
 </script>
 

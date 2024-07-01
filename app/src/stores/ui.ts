@@ -26,6 +26,11 @@ export const useUIStore = defineStore('ui', () => {
       .addEventListener('change', handleColorSchemeChange)
 
     await authStore.silentLogin()
+
+    if (authStore.isAuthenticated) {
+      await usersStore.fetchMe()
+    }
+
     isReady.value = true
   }
 

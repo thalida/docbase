@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import Avatar from 'primevue/avatar'
+import Button from 'primevue/button'
 import {
   Cog8ToothIcon,
   FolderPlusIcon,
   SquaresPlusIcon,
   ArrowLeftStartOnRectangleIcon
 } from '@heroicons/vue/24/outline'
-
-import { ref } from 'vue'
 import {
   Listbox,
   ListboxButton,
@@ -15,7 +17,13 @@ import {
   ListboxOptions
 } from '@headlessui/vue'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
+
+import { ROUTES } from '@/router'
 import AppThemeSwitcher from '@/components/ui/AppThemeSwitcher.vue'
+import { useUsersStore } from '@/stores/users'
+
+const router = useRouter()
+const usersStore = useUsersStore()
 
 const people = [
   { id: 1, name: 'Wade Cooper' },
@@ -36,11 +44,15 @@ const databases = [
   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false }
 ]
+
+function handleLogout() {
+  router.push({ name: ROUTES.LOGOUT })
+}
 </script>
 
 <template>
   <div
-    class="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200 px-4 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
+    class="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
   >
     <div class="flex flex-row justify-between h-16 shrink-0 items-center">
       <div>
@@ -60,14 +72,16 @@ const databases = [
               <ListboxLabel class="flex-grow text-sm font-semibold leading-6 text-gray-400"
                 >Workspaces</ListboxLabel
               >
-              <div>
-                <button
-                  type="button"
-                  class="flex flex-row items-center justify-between px-2.5 py-2 rounded-md text-sm font-semibold text-yellow-700 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <FolderPlusIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-                </button>
-              </div>
+              <Button
+                icon=""
+                text
+                v-tooltip.right="{ value: 'Create a workspace', showDelay: 300, hideDelay: 300 }"
+                aria-label="Create a workspace"
+              >
+                <span>
+                  <FolderPlusIcon class="h-5 w-5" aria-hidden="true" />
+                </span>
+              </Button>
             </div>
             <div class="flex flex-row items-center justify-center gap-2 mt-2">
               <div class="relative flex-grow">
@@ -122,14 +136,13 @@ const databases = [
                   </ListboxOptions>
                 </transition>
               </div>
-              <div>
-                <button
-                  type="button"
-                  class="flex flex-row items-center justify-between px-2.5 py-2 rounded-md text-sm font-semibold text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <Cog8ToothIcon class="h-5 w-5" aria-hidden="true" />
-                </button>
-              </div>
+              <Button
+                icon="pi pi-cog"
+                text
+                severity="secondary"
+                v-tooltip.right="{ value: 'Workspace Settings', showDelay: 300, hideDelay: 300 }"
+                aria-label="Workspace Settings"
+              />
             </div>
           </Listbox>
         </li>
@@ -138,14 +151,16 @@ const databases = [
             <div class="w-full flex-grow text-sm font-semibold leading-6 text-gray-400">
               Databases
             </div>
-            <div>
-              <button
-                type="button"
-                class="flex flex-row items-center justify-between px-2.5 py-2 rounded-md text-yellow-700 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <SquaresPlusIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
+            <Button
+              icon=""
+              text
+              v-tooltip.right="{ value: 'Create a database', showDelay: 300, hideDelay: 300 }"
+              aria-label="Create a database"
+            >
+              <span>
+                <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
+              </span>
+            </Button>
           </div>
           <ul role="list" class="-mx-2 mt-2 space-y-1">
             <li v-for="db in databases" :key="db.name">
@@ -163,27 +178,25 @@ const databases = [
             </li>
           </ul>
         </li>
-        <li class="-mx-4 mt-auto">
+        <li class="-mx-2 mt-auto">
           <div class="flex flex-row items-stretch justify-between">
-            <a
-              href="#"
-              class="flex flex-grow items-center justify-start gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
+            <Button
+              icon="pi pi-sign-out"
+              text
+              severity="secondary"
+              aria-label="Your profile"
+              class="flex flex-grow items-center !justify-start gap-x-2 !px-2 text-sm font-semibold"
             >
-              <img
-                class="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-800"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt=""
-              />
-              <span class="sr-only">Your profile</span>
-              <span aria-hidden="true">Tom Cook</span>
-            </a>
-            <a
-              href="#"
-              class="flex justify-center items-center gap-x-2 px-4 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
-            >
-              <ArrowLeftStartOnRectangleIcon class="h-5 w-5 text-red-500" aria-hidden="true" />
-              <span class="sr-only">Sign out</span>
-            </a>
+              <Avatar :label="usersStore.me?.initials" shape="circle" />
+              <span aria-hidden="true">{{ usersStore.me?.display_name }}</span>
+            </Button>
+            <Button
+              icon="pi pi-sign-out"
+              text
+              severity="danger"
+              aria-label="Sign out"
+              @click="handleLogout"
+            />
           </div>
         </li>
       </ul>

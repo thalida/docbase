@@ -49,8 +49,9 @@ export default {
   }),
   text: {
     class: [
-      'p-3',
+      'p-2',
       'bg-surface-700',
+      'text-sm',
       'text-white',
       'leading-none',
       'rounded-md',
