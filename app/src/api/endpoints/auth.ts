@@ -1,8 +1,8 @@
-import api from './index'
+import { anonClient } from '../clients'
 import type { IAuthTokenResponse } from '@/types/auth'
 
 export function googleLogin(accessToken: string) {
-  return api.post(
+  return anonClient.post(
     '/auth/convert-token/',
     {
       grant_type: 'convert_token',
@@ -18,7 +18,7 @@ export function googleLogin(accessToken: string) {
 }
 
 export function refreshToken(refreshToken: string) {
-  return api.post(
+  return anonClient.post(
     '/auth/token/',
     {
       grant_type: 'refresh_token',
@@ -36,7 +36,7 @@ export function revokeToken({
   access_token: accessToken,
   token_type: tokenType
 }: IAuthTokenResponse) {
-  return api.post(
+  return anonClient.post(
     '/auth/revoke-token/',
     {
       client_id: import.meta.env.VITE_API_CLIENT_ID,

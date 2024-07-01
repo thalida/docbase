@@ -1,13 +1,13 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import $users from '@/api/users'
+import api from '@/api'
 import type { IUser } from '@/types/users'
 
 export const useUsersStore = defineStore('users', () => {
   const me = ref<IUser | null>(null)
 
   async function fetchMe() {
-    const res = await $users.fetchMe()
+    const res = await api.users.fetchMe()
     me.value = res.data
   }
 

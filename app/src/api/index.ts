@@ -1,7 +1,4 @@
-import axios from 'axios'
+import auth from './endpoints/auth'
+import users from './endpoints/users'
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
-})
-
-export default api
+export default { auth, users }
