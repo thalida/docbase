@@ -7,3 +7,7 @@ export interface IUser {
   initials: string
   avatar: string
 }
+
+export interface IMyUser extends IUser {
+  workspaces: string[]
+}

@@ -187,6 +187,7 @@ class PageSerializer(serializers.ModelSerializer):
     created_by = serializers.UUIDField(read_only=True)
     updated_by = serializers.UUIDField(read_only=True)
     fields = serializers.SerializerMethodField(method_name="get_page_fields")
+    attachments = serializers.ListField(child=serializers.UUIDField(), read_only=True)
 
     @extend_schema_field(FieldWithResponseSerializer(many=True))
     def get_page_fields(self, obj):
@@ -270,6 +271,10 @@ class ViewSerializer(serializers.ModelSerializer):
 
 
 class DatabaseSerializer(serializers.ModelSerializer):
+    created_by = serializers.UUIDField(read_only=True)
+    updated_by = serializers.UUIDField(read_only=True)
+    views = serializers.ListField(child=serializers.UUIDField(), read_only=True)
+
     class Meta:
         model = Database
         fields = [

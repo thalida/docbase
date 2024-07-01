@@ -7,5 +7,16 @@ export interface IWorkspace {
 
   name: string
   owner: string
+  is_owner: boolean
   members: string[]
+  databases: string[]
+}
+
+export interface IWorkspaceCreateRequest {
+  name: string
+}
+
+export interface IWorkspaceUpdateRequest {
+  id: string
+  name?: string
 }

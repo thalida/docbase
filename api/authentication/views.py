@@ -53,7 +53,7 @@ class UserViewSet(
 
     @action(detail=False, methods=["get"], url_path="me")
     def get_me(self, request, *args, **kwargs):
-        kwargs["pk"] = request.user.id
+        self.kwargs["pk"] = request.user.id
         return self.retrieve(request, *args, **kwargs)
 
     @action(detail=False, methods=["put"], url_path="me")
@@ -79,25 +79,3 @@ class UserViewSet(
 
     def perform_update(self, serializer):
         serializer.save()
-
-
-# @extend_schema(tags=[SchemaTags.AUTHENTICATION__USERS.value])
-# @extend_schema_view(
-#     retrieve=extend_schema(summary="Retrieve my user"),
-#     update=extend_schema(summary="Update my user"),
-#     partial_update=extend_schema(summary="Partial update my user"),
-# )
-# class MyUserViewSet(
-#     mixins.RetrieveModelMixin,
-#     mixins.UpdateModelMixin,
-#     viewsets.GenericViewSet,
-# ):
-#     queryset = User.objects.all()
-#     serializer_class = MyUserSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get_queryset(self):
-#         return self.queryset.filter(id=self.request.user.id)
-
-#     def get_object(self):
-#         return self.request.user
