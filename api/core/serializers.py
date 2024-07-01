@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field, PolymorphicProxySerializer
 
-from authentication.serializers import UserMinimalSerializer
-
 from .models import (
     BooleanFieldConfig,
     ChecklistFieldConfig,
@@ -272,9 +270,6 @@ class ViewSerializer(serializers.ModelSerializer):
 
 
 class DatabaseSerializer(serializers.ModelSerializer):
-    created_by = UserMinimalSerializer(read_only=True)
-    updated_by = UserMinimalSerializer(read_only=True)
-
     class Meta:
         model = Database
         fields = [

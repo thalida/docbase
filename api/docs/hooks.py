@@ -1,5 +1,5 @@
 def set_server_urls(result, generator, request, public):
-    host = request.get_host()
+    host = request.get_host() if request else "api.docbase.wiki"
     is_local = host.startswith("localhost")
     scheme = "http" if is_local else "https"
     result["servers"] = [

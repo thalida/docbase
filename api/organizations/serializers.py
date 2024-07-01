@@ -1,16 +1,10 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
-from authentication.serializers import UserMinimalSerializer
-
 from .models import Workspace
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
-    owner = UserMinimalSerializer(read_only=True)
-    members = UserMinimalSerializer(many=True, read_only=True)
-    created_by = UserMinimalSerializer(read_only=True)
-    updated_by = UserMinimalSerializer(read_only=True)
     is_owner = serializers.SerializerMethodField()
 
     class Meta:

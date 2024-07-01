@@ -1,32 +1,103 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from authentication.models import User
-from authentication.serializers import UserSerializer
+from authentication.serializers import MyUserSerializer, UserSerializer
 from docs.tags import SchemaTags
 
 
 @extend_schema(tags=[SchemaTags.AUTHENTICATION__USERS.value])
 @extend_schema_view(
-    retrieve=extend_schema(summary="Retrieve user"),
-    me=extend_schema(summary="Retrieve me"),
-    update=extend_schema(summary="Update user"),
-    partial_update=extend_schema(summary="Partial update user"),
+    retrieve=extend_schema(
+        summary="Retrieve user",
+        responses=UserSerializer,
+    ),
+    get_me=extend_schema(
+        summary="Retrieve my user",
+        responses=MyUserSerializer,
+    ),
+    update_me=extend_schema(
+        summary="Update my user",
+        responses=MyUserSerializer,
+    ),
+    partial_update_me=extend_schema(
+        summary="Partial update my user",
+        responses=MyUserSerializer,
+    ),
 )
 class UserViewSet(
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_object(self):
+        if self.kwargs.get("pk") == "me":
+            return self.request.user
+        return super().get_object()
+
     def get_queryset(self):
-        return self.queryset.filter(id=self.request.user.id)
+        if self.kwargs.get("pk") == "me":
+            return User.objects.filter(id=self.request.user.id)
+
+        return User.objects.filter(workspaces__in=self.request.user.workspaces.all()).distinct()
+
+    def get_serializer_class(self):
+        if self.kwargs.get("pk") == "me":
+            return MyUserSerializer
+        return super().get_serializer_class()
 
     @action(detail=False, methods=["get"], url_path="me")
-    def me(self, request, *args, **kwargs):
-        self.kwargs["pk"] = request.user.id
+    def get_me(self, request, *args, **kwargs):
+        kwargs["pk"] = request.user.id
         return self.retrieve(request, *args, **kwargs)
+
+    @action(detail=False, methods=["put"], url_path="me")
+    def update_me(self, request, *args, **kwargs):
+        kwargs["pk"] = request.user.id
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["patch"], url_path="me")
+    def partial_update_me(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update_me(request, *args, **kwargs)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+
+# @extend_schema(tags=[SchemaTags.AUTHENTICATION__USERS.value])
+# @extend_schema_view(
+#     retrieve=extend_schema(summary="Retrieve my user"),
+#     update=extend_schema(summary="Update my user"),
+#     partial_update=extend_schema(summary="Partial update my user"),
+# )
+# class MyUserViewSet(
+#     mixins.RetrieveModelMixin,
+#     mixins.UpdateModelMixin,
+#     viewsets.GenericViewSet,
+# ):
+#     queryset = User.objects.all()
+#     serializer_class = MyUserSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         return self.queryset.filter(id=self.request.user.id)
+
+#     def get_object(self):
+#         return self.request.user

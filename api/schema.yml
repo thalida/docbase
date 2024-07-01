@@ -1,0 +1,2103 @@
+openapi: 3.0.3
+info:
+  title: Docbase Docs
+  version: 1.0.0
+  description: |
+    # API Documentation
+paths:
+  /auth/convert-token/:
+    post:
+      operationId: auth_convert_token_create
+      description: |-
+        Implements an endpoint to convert a provider token to an access token
+
+        The endpoint is used in the following flows:
+
+        * Authorization code
+        * Client credentials
+      summary: Convert token
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConvertTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConvertTokenRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /auth/disconnect-backend/:
+    post:
+      operationId: auth_disconnect_backend_create
+      description: An endpoint for disconnect social auth backend providers such as
+        Facebook.
+      tags:
+      - auth
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          description: No response body
+  /auth/invalidate-refresh-tokens/:
+    post:
+      operationId: auth_invalidate_refresh_tokens_create
+      description: Invalidate all refresh tokens associated with a client id.
+      summary: Invalidate refresh tokens
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvalidateRefreshTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvalidateRefreshTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvalidateRefreshTokenRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /auth/invalidate-sessions/:
+    post:
+      operationId: auth_invalidate_sessions_create
+      description: Delete all access tokens associated with a client id.
+      summary: Invalidate sessions
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvalidateSessionsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvalidateSessionsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvalidateSessionsRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /auth/revoke-token/:
+    post:
+      operationId: auth_revoke_token_create
+      description: Implements an endpoint to revoke access or refresh tokens
+      summary: Revoke token
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        Implements an endpoint to provide access tokens
+
+        The endpoint is used in the following flows:
+
+        * Authorization code
+        * Password
+        * Client credentials
+      summary: Get token
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRequestRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: ''
+  /databases/:
+    get:
+      operationId: databases_list
+      summary: List Databases
+      tags:
+      - Databases
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Database'
+          description: ''
+    post:
+      operationId: databases_create
+      summary: Create Database
+      tags:
+      - Databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+          description: ''
+  /databases/{id}/:
+    get:
+      operationId: databases_retrieve
+      summary: Retrieve Database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this database.
+        required: true
+      tags:
+      - Databases
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+          description: ''
+    put:
+      operationId: databases_update
+      summary: Update Database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this database.
+        required: true
+      tags:
+      - Databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+          description: ''
+    patch:
+      operationId: databases_partial_update
+      summary: Partial Update Database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this database.
+        required: true
+      tags:
+      - Databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseRequest'
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+          description: ''
+    delete:
+      operationId: databases_destroy
+      summary: Delete Database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this database.
+        required: true
+      tags:
+      - Databases
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /fields/:
+    get:
+      operationId: fields_list
+      summary: List Fields
+      tags:
+      - Fields
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Field'
+          description: ''
+    post:
+      operationId: fields_create
+      summary: Create Field
+      tags:
+      - Fields
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+          description: ''
+  /fields/{id}/:
+    get:
+      operationId: fields_retrieve
+      summary: Retrieve Field
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this field.
+        required: true
+      tags:
+      - Fields
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+          description: ''
+    put:
+      operationId: fields_update
+      summary: Update Field
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this field.
+        required: true
+      tags:
+      - Fields
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+          description: ''
+    patch:
+      operationId: fields_partial_update
+      summary: Partial Update Field
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this field.
+        required: true
+      tags:
+      - Fields
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFieldRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFieldRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFieldRequest'
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+          description: ''
+    delete:
+      operationId: fields_destroy
+      summary: Delete Field
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this field.
+        required: true
+      tags:
+      - Fields
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /pages/:
+    get:
+      operationId: pages_list
+      summary: List Pages
+      tags:
+      - Pages
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Page'
+          description: ''
+    post:
+      operationId: pages_create
+      summary: Create Page
+      tags:
+      - Pages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PageRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+          description: ''
+  /pages/{id}/:
+    get:
+      operationId: pages_retrieve
+      summary: Retrieve Page
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this page.
+        required: true
+      tags:
+      - Pages
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+          description: ''
+    put:
+      operationId: pages_update
+      summary: Update Page
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this page.
+        required: true
+      tags:
+      - Pages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PageRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+          description: ''
+    patch:
+      operationId: pages_partial_update
+      summary: Partial Update Page
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this page.
+        required: true
+      tags:
+      - Pages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPageRequest'
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+          description: ''
+    delete:
+      operationId: pages_destroy
+      summary: Delete Page
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this page.
+        required: true
+      tags:
+      - Pages
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /users/{id}/:
+    get:
+      operationId: users_retrieve
+      summary: Retrieve user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - Users
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: users_update
+      summary: Update user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      summary: Partial update user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /users/me/:
+    get:
+      operationId: users_me_retrieve
+      summary: Retrieve me
+      tags:
+      - Users
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /views/:
+    get:
+      operationId: views_list
+      summary: List Views
+      tags:
+      - Views
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/View'
+          description: ''
+    post:
+      operationId: views_create
+      summary: Create View
+      tags:
+      - Views
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+          description: ''
+  /views/{id}/:
+    get:
+      operationId: views_retrieve
+      summary: Retrieve View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this view.
+        required: true
+      tags:
+      - Views
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+          description: ''
+    put:
+      operationId: views_update
+      summary: Update View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this view.
+        required: true
+      tags:
+      - Views
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+          description: ''
+    patch:
+      operationId: views_partial_update
+      summary: Partial Update View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this view.
+        required: true
+      tags:
+      - Views
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedViewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedViewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedViewRequest'
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+          description: ''
+    delete:
+      operationId: views_destroy
+      summary: Delete View
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this view.
+        required: true
+      tags:
+      - Views
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+  /workspaces/:
+    get:
+      operationId: workspaces_list
+      summary: List Workspaces
+      tags:
+      - Workspaces
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workspace'
+          description: ''
+    post:
+      operationId: workspaces_create
+      summary: Create Workspace
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkspaceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkspaceRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /workspaces/{id}/:
+    get:
+      operationId: workspaces_retrieve
+      summary: Retrieve Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    put:
+      operationId: workspaces_update
+      summary: Update Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkspaceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkspaceRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    patch:
+      operationId: workspaces_partial_update
+      summary: Partial Update Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspaceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspaceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspaceRequest'
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    delete:
+      operationId: workspaces_destroy
+      summary: Delete Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      security:
+      - basicAuth: []
+      - SocialAuthentication: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    BlankEnum:
+      enum:
+      - ''
+      title: BlankEnum
+    BooleanFieldConfig:
+      type: object
+      properties:
+        display_format:
+          $ref: '#/components/schemas/BooleanFieldConfigDisplayFormatEnum'
+        display_icon:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/BooleanFieldConfigDisplayIconEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+      title: BooleanFieldConfig
+    BooleanFieldConfigDisplayFormatEnum:
+      enum:
+      - checkbox
+      - toggle
+      - icon
+      type: string
+      description: |-
+        * `checkbox` - Checkbox
+        * `toggle` - Toggle
+        * `icon` - Icon
+      title: BooleanFieldConfigDisplayFormatEnum
+    BooleanFieldConfigDisplayIconEnum:
+      enum:
+      - check
+      - cross
+      - star
+      - heart
+      - thumbs_up
+      - thumbs_down
+      type: string
+      description: |-
+        * `check` - Check
+        * `cross` - Cross
+        * `star` - Star
+        * `heart` - Heart
+        * `thumbs_up` - Thumbs Up
+        * `thumbs_down` - Thumbs Down
+      title: BooleanFieldConfigDisplayIconEnum
+    ChecklistFieldConfig:
+      type: object
+      properties:
+        display_format:
+          $ref: '#/components/schemas/ChecklistFieldConfigDisplayFormatEnum'
+        status_format:
+          $ref: '#/components/schemas/ChecklistFieldConfigStatusFormatEnum'
+      title: ChecklistFieldConfig
+    ChecklistFieldConfigDisplayFormatEnum:
+      enum:
+      - checkbox
+      - toggle
+      type: string
+      description: |-
+        * `checkbox` - Checkbox
+        * `toggle` - Toggle
+      title: ChecklistFieldConfigDisplayFormatEnum
+    ChecklistFieldConfigStatusFormatEnum:
+      enum:
+      - progress_bar
+      - percentage
+      type: string
+      description: |-
+        * `progress_bar` - Progress Bar
+        * `percentage` - Percentage
+      title: ChecklistFieldConfigStatusFormatEnum
+    ChoiceFieldConfig:
+      type: object
+      properties:
+        display_format:
+          $ref: '#/components/schemas/ChoiceFieldConfigDisplayFormatEnum'
+        is_multi_select:
+          type: boolean
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChoiceFieldOption'
+      required:
+      - options
+      title: ChoiceFieldConfig
+    ChoiceFieldConfigDisplayFormatEnum:
+      enum:
+      - dropdown
+      - checkbox
+      - tags
+      type: string
+      description: |-
+        * `dropdown` - Dropdown
+        * `checkbox` - Checkbox
+        * `tags` - Tags
+      title: ChoiceFieldConfigDisplayFormatEnum
+    ChoiceFieldOption:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        value:
+          type: string
+          maxLength: 255
+        label:
+          type: string
+          maxLength: 255
+      required:
+      - label
+      - value
+      title: ChoiceFieldOption
+    ConvertTokenRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        backend:
+          type: string
+          minLength: 1
+          maxLength: 200
+        client_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+        client_secret:
+          type: string
+          minLength: 1
+          maxLength: 500
+        token:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+      - backend
+      - client_id
+      - client_secret
+      - grant_type
+      - token
+      title: ConvertTokenRequest
+    Database:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        workspace:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        page_format_string:
+          type: string
+          maxLength: 255
+        views:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - name
+      - views
+      - workspace
+      title: Database
+    DatabaseRequest:
+      type: object
+      properties:
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        workspace:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        page_format_string:
+          type: string
+          minLength: 1
+          maxLength: 255
+        views:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - name
+      - views
+      - workspace
+      title: DatabaseRequest
+    DateFieldConfig:
+      type: object
+      properties:
+        display_format:
+          $ref: '#/components/schemas/DateFieldConfigDisplayFormatEnum'
+      title: DateFieldConfig
+    DateFieldConfigDisplayFormatEnum:
+      enum:
+      - date
+      - datetime
+      - time
+      type: string
+      description: |-
+        * `date` - Date
+        * `datetime` - Date & Time
+        * `time` - Time
+      title: DateFieldConfigDisplayFormatEnum
+    Field:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+        updated_by:
+          type: string
+          format: uuid
+          readOnly: true
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          maxLength: 255
+        field_type:
+          $ref: '#/components/schemas/FieldTypeEnum'
+        config:
+          allOf:
+          - $ref: '#/components/schemas/FieldConfig'
+          readOnly: true
+      required:
+      - database
+      - label
+      title: Field
+    FieldConfig:
+      oneOf:
+      - $ref: '#/components/schemas/BooleanFieldConfig'
+      - $ref: '#/components/schemas/ChecklistFieldConfig'
+      - $ref: '#/components/schemas/ChoiceFieldConfig'
+      - $ref: '#/components/schemas/DateFieldConfig'
+      - $ref: '#/components/schemas/FileFieldConfig'
+      - $ref: '#/components/schemas/NumberFieldConfig'
+      - $ref: '#/components/schemas/RelationFieldConfig'
+      - $ref: '#/components/schemas/TextFieldConfig'
+      discriminator:
+        propertyName: field_type
+        mapping:
+          boolean: '#/components/schemas/BooleanFieldConfig'
+          checklist: '#/components/schemas/ChecklistFieldConfig'
+          choice: '#/components/schemas/ChoiceFieldConfig'
+          date: '#/components/schemas/DateFieldConfig'
+          file: '#/components/schemas/FileFieldConfig'
+          number: '#/components/schemas/NumberFieldConfig'
+          relation: '#/components/schemas/RelationFieldConfig'
+          text: '#/components/schemas/TextFieldConfig'
+      title: FieldConfig
+    FieldRequest:
+      type: object
+      properties:
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+        field_type:
+          $ref: '#/components/schemas/FieldTypeEnum'
+      required:
+      - database
+      - label
+      title: FieldRequest
+    FieldResponseMinimal:
+      type: object
+      properties:
+        data: {}
+      title: FieldResponseMinimal
+    FieldTypeEnum:
+      enum:
+      - boolean
+      - checklist
+      - choice
+      - date
+      - file
+      - number
+      - relation
+      - text
+      type: string
+      description: |-
+        * `boolean` - Boolean
+        * `checklist` - Checklist
+        * `choice` - Choice
+        * `date` - Date
+        * `file` - File
+        * `number` - Number
+        * `relation` - Relation
+        * `text` - Text
+      title: FieldTypeEnum
+    FieldWithResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+        updated_by:
+          type: string
+          format: uuid
+          readOnly: true
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          maxLength: 255
+        field_type:
+          $ref: '#/components/schemas/FieldTypeEnum'
+        config:
+          allOf:
+          - $ref: '#/components/schemas/FieldConfig'
+          readOnly: true
+        response:
+          allOf:
+          - $ref: '#/components/schemas/FieldResponseMinimal'
+          readOnly: true
+      required:
+      - database
+      - label
+      title: FieldWithResponse
+    FileFieldConfig:
+      type: object
+      properties:
+        supported_file_types:
+          type: array
+          items:
+            type: string
+            maxLength: 255
+        allow_multiple:
+          type: boolean
+      title: FileFieldConfig
+    InvalidateRefreshTokenRequest:
+      type: object
+      description: Validate the client_id required and length 100 characters for refresh
+        tokens.
+      properties:
+        client_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - client_id
+      title: InvalidateRefreshTokenRequest
+    InvalidateSessionsRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - client_id
+      title: InvalidateSessionsRequest
+    NullEnum:
+      enum:
+      - null
+      title: NullEnum
+    NumberFieldConfig:
+      type: object
+      properties:
+        display_format:
+          $ref: '#/components/schemas/NumberFieldConfigDisplayFormatEnum'
+      title: NumberFieldConfig
+    NumberFieldConfigDisplayFormatEnum:
+      enum:
+      - decimal
+      - integer
+      - percentage
+      type: string
+      description: |-
+        * `decimal` - Decimal
+        * `integer` - Integer
+        * `percentage` - Percentage
+      title: NumberFieldConfigDisplayFormatEnum
+    Page:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+        updated_by:
+          type: string
+          format: uuid
+          readOnly: true
+        database:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uuid
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldWithResponse'
+          readOnly: true
+      required:
+      - database
+      - title
+      title: Page
+    PageRequest:
+      type: object
+      properties:
+        database:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - database
+      - title
+      title: PageRequest
+    PatchedDatabaseRequest:
+      type: object
+      properties:
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        workspace:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        page_format_string:
+          type: string
+          minLength: 1
+          maxLength: 255
+        views:
+          type: array
+          items:
+            type: string
+            format: uuid
+      title: PatchedDatabaseRequest
+    PatchedFieldRequest:
+      type: object
+      properties:
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+        field_type:
+          $ref: '#/components/schemas/FieldTypeEnum'
+      title: PatchedFieldRequest
+    PatchedPageRequest:
+      type: object
+      properties:
+        database:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uuid
+      title: PatchedPageRequest
+    PatchedUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+      title: PatchedUserRequest
+    PatchedViewRequest:
+      type: object
+      properties:
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        view_type:
+          allOf:
+          - $ref: '#/components/schemas/ViewTypeEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        sort_by:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+              minLength: 1
+              title: Sort by
+              maxLength: 255
+            maxItems: 2
+        filter_by:
+          type: string
+      title: PatchedViewRequest
+    PatchedWorkspaceRequest:
+      type: object
+      properties:
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        owner:
+          type: string
+          format: uuid
+        databases:
+          type: array
+          items:
+            type: string
+            format: uuid
+      title: PatchedWorkspaceRequest
+    RelationFieldConfig:
+      type: object
+      properties:
+        source_field:
+          type: string
+          format: uuid
+        related_field:
+          type: string
+          format: uuid
+      required:
+      - related_field
+      - source_field
+      title: RelationFieldConfig
+    RevokeTokenRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+        client_secret:
+          type: string
+          minLength: 1
+          maxLength: 500
+        token:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+      - client_id
+      - client_secret
+      - token
+      title: RevokeTokenRequest
+    TextFieldConfig:
+      type: object
+      properties:
+        display_format:
+          $ref: '#/components/schemas/TextFieldConfigDisplayFormatEnum'
+      title: TextFieldConfig
+    TextFieldConfigDisplayFormatEnum:
+      enum:
+      - single_line
+      - multi_line
+      - email
+      - url
+      - phone
+      type: string
+      description: |-
+        * `single_line` - Single Line
+        * `multi_line` - Multi Line
+        * `email` - Email
+        * `url` - URL
+        * `phone` - Phone
+      title: TextFieldConfigDisplayFormatEnum
+    TokenRequestRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          minLength: 1
+        client_id:
+          type: string
+          minLength: 1
+        client_secret:
+          type: string
+          minLength: 1
+        refresh_token:
+          type: string
+          minLength: 1
+      required:
+      - client_id
+      - client_secret
+      - grant_type
+      title: TokenRequestRequest
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        refresh_token:
+          type: string
+        scope:
+          type: string
+      required:
+      - access_token
+      - expires_in
+      - refresh_token
+      - scope
+      - token_type
+      title: TokenResponse
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        display_name:
+          type: string
+          readOnly: true
+        initials:
+          type: string
+          readOnly: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        workspaces:
+          type: array
+          items:
+            type: string
+            format: uuid
+          readOnly: true
+      required:
+      - email
+      title: User
+    UserMinimal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        display_name:
+          type: string
+          readOnly: true
+        initials:
+          type: string
+          readOnly: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+      required:
+      - email
+      title: UserMinimal
+    UserMinimalRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+      required:
+      - email
+      title: UserMinimalRequest
+    UserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+      required:
+      - email
+      title: UserRequest
+    View:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+        updated_by:
+          type: string
+          format: uuid
+          readOnly: true
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        view_type:
+          allOf:
+          - $ref: '#/components/schemas/ViewTypeEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+          readOnly: true
+        sort_by:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+              title: Sort by
+              maxLength: 255
+            maxItems: 2
+        filter_by:
+          type: string
+      required:
+      - database
+      - label
+      title: View
+    ViewRequest:
+      type: object
+      properties:
+        database:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        view_type:
+          allOf:
+          - $ref: '#/components/schemas/ViewTypeEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        sort_by:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+              minLength: 1
+              title: Sort by
+              maxLength: 255
+            maxItems: 2
+        filter_by:
+          type: string
+      required:
+      - database
+      - label
+      title: ViewRequest
+    ViewTypeEnum:
+      enum:
+      - 0
+      - 10
+      - 20
+      - 30
+      - 40
+      - 101
+      type: integer
+      description: |-
+        * `0` - Table
+        * `10` - Grid
+        * `20` - List
+        * `30` - Kanban
+        * `40` - Calendar
+        * `101` - Meta Page
+      title: ViewTypeEnum
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          maxLength: 255
+        owner:
+          type: string
+          format: uuid
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserMinimal'
+          readOnly: true
+        is_owner:
+          type: boolean
+          readOnly: true
+        databases:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - databases
+      - name
+      - owner
+      title: Workspace
+    WorkspaceRequest:
+      type: object
+      properties:
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        owner:
+          type: string
+          format: uuid
+        databases:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - databases
+      - name
+      - owner
+      title: WorkspaceRequest
+  securitySchemes:
+    SocialAuthentication:
+      type: http
+      scheme: bearer
+    basicAuth:
+      type: http
+      scheme: basic
+    oauth2:
+      type: oauth2
+      flows: {}
+servers:
+- url: https://api.docbase.wiki/api/
+  description: API URL
