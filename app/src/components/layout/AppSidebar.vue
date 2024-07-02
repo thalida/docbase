@@ -166,17 +166,16 @@ function handleLogout() {
           </div>
           <ul v-if="workspaceDBs.length > 0" role="list" class="-mx-2 mt-2 space-y-1">
             <li v-for="database in workspaceDBs" :key="database.id">
-              <a
-                :href="database.id"
-                :class="[
-                  false
-                    ? 'bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-white dark:hover:bg-gray-800 dark:hover:text-white',
-                  'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
-                ]"
+              <RouterLink
+                :to="{
+                  name: ROUTES.DATABASE,
+                  params: { workspaceId: currentWorkspaceId, databaseId: database.id }
+                }"
+                class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                activeClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
               >
                 <span class="truncate">{{ database.name }}</span>
-              </a>
+              </RouterLink>
             </li>
           </ul>
           <div v-else>

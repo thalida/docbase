@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
 import IndexView from '@/views/IndexView.vue'
-import WorkspaceView from '@/views/WorkspaceView.vue'
 import LoginView from '@/views/LoginView.vue'
 import LogoutView from '@/views/LogoutView.vue'
+import WorkspaceView from '@/views/WorkspaceView.vue'
+import DatabaseView from '@/views/DatabaseView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 
@@ -11,6 +12,7 @@ export enum ROUTES {
   INDEX = 'index',
   WORKSPACE = 'workspace',
   CREATE_WORKSPACE = 'createWorkspace',
+  DATABASE = 'database',
   LOGIN = 'login',
   LOGOUT = 'logout',
   ABOUT = 'about',
@@ -44,7 +46,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/:workspaceId',
+      path: '/ws-:workspaceId',
       component: AppLayout,
       meta: {
         requiresAuth: true,
@@ -55,6 +57,11 @@ const router = createRouter({
           path: '',
           name: ROUTES.WORKSPACE,
           component: WorkspaceView
+        },
+        {
+          path: 'db-:databaseId',
+          name: ROUTES.DATABASE,
+          component: DatabaseView
         }
       ]
     },
