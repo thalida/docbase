@@ -8,6 +8,9 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, max_length=254, verbose_name="email address")
     avatar = models.URLField(blank=True, null=True)
+    default_workspace = models.ForeignKey(
+        "organizations.Workspace", on_delete=models.SET_NULL, blank=True, null=True, related_name="default_for_users"
+    )
 
     USERNAME_FIELD = "username"
     EMAIL_FIELD = "email"
@@ -39,4 +42,5 @@ class User(AbstractUser):
 
             workspace = Workspace.objects.create(owner=self, name=f"{self.display_name}'s workspace")
             self.workspaces.add(workspace)
+            self.default_workspace = workspace
             self.save()

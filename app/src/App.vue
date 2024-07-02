@@ -1,19 +1,8 @@
 <script setup lang="ts">
-import { watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
-import { useUsersStore } from '@/stores/users'
 
 const uiStore = useUIStore()
-const authStore = useAuthStore()
-const usersStore = useUsersStore()
-
-watchEffect(() => {
-  if (!uiStore.isReady || !authStore.isAuthenticated) {
-    return
-  }
-})
 </script>
 
 <template>

@@ -1,12 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardView from '@/views/DashboardView.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import IndexView from '@/views/IndexView.vue'
+import WorkspaceView from '@/views/WorkspaceView.vue'
 import LoginView from '@/views/LoginView.vue'
 import LogoutView from '@/views/LogoutView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 
 export enum ROUTES {
-  DASHBOARD = 'dashboard',
+  INDEX = 'index',
+  WORKSPACE = 'workspace',
+  CREATE_WORKSPACE = 'createWorkspace',
   LOGIN = 'login',
   LOGOUT = 'logout',
   ABOUT = 'about',
@@ -18,12 +22,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: ROUTES.DASHBOARD,
-      component: DashboardView,
-      meta: {
-        requiresAuth: true,
-        redirectTo: ROUTES.LOGIN
-      }
+      name: ROUTES.INDEX,
+      component: IndexView
     },
     {
       path: '/login',
@@ -31,7 +31,7 @@ const router = createRouter({
       component: LoginView,
       meta: {
         requiresAuth: false,
-        redirectTo: ROUTES.DASHBOARD
+        redirectTo: ROUTES.INDEX
       }
     },
     {
@@ -43,14 +43,21 @@ const router = createRouter({
         redirectTo: ROUTES.LOGIN
       }
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // },
+    {
+      path: '/:workspaceId',
+      component: AppLayout,
+      meta: {
+        requiresAuth: true,
+        redirectTo: ROUTES.LOGIN
+      },
+      children: [
+        {
+          path: '',
+          name: ROUTES.WORKSPACE,
+          component: WorkspaceView
+        }
+      ]
+    },
     { path: '/:pathMatch(.*)*', name: 'NotFound', redirect: '/' }
   ]
 })

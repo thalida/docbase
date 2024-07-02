@@ -10,6 +10,7 @@ export interface IWorkspace {
   is_owner: boolean
   members: string[]
   databases: string[]
+  is_default: boolean
 }
 
 export interface IWorkspaceCreateRequest {

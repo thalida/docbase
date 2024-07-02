@@ -22,4 +22,5 @@ class MyUserSerializer(UserSerializer):
         model = User
         fields = UserSerializer.Meta.fields + [
             "workspaces",
+            "default_workspace",
         ]

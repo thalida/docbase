@@ -6,6 +6,7 @@ from .models import Workspace
 
 class WorkspaceSerializer(serializers.ModelSerializer):
     is_owner = serializers.SerializerMethodField()
+    is_default = serializers.SerializerMethodField()
 
     class Meta:
         model = Workspace
@@ -18,13 +19,19 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "name",
             "owner",
             "members",
-            "is_owner",
             "databases",
+            "is_owner",
+            "is_default",
         ]
 
     @extend_schema_field(serializers.BooleanField())
     def get_is_owner(self, obj):
         return obj.owner == self.context["request"].user
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_default(self, obj):
+        user = self.context["request"].user
+        return user.default_workspace.id == obj.id if user.default_workspace else False
 
     def create(self, validated_data):
         validated_data["owner"] = self.context["request"].user

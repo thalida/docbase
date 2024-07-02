@@ -25,3 +25,7 @@ export interface IDatabaseUpdateRequest {
   description?: string
   page_format_string?: string
 }
+
+export interface IDatabaseRequestFilters {
+  workspace?: string
+}

@@ -4,10 +4,14 @@ import { LOCALSTOARGE_NAMESPACE } from '.'
 import type { ColorScheme, Theme } from '@/types/ui'
 import { useAuthStore } from './auth'
 import { useUsersStore } from './users'
+import { useWorkspacesStore } from './workspaces'
+import { useDatabasesStore } from './databases'
 
 export const useUIStore = defineStore('ui', () => {
   const authStore = useAuthStore()
   const usersStore = useUsersStore()
+  const workspacesStore = useWorkspacesStore()
+  const databasesStore = useDatabasesStore()
 
   const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}theme`
   const supportedThemes = ['light', 'dark', 'system'] as const
@@ -29,6 +33,7 @@ export const useUIStore = defineStore('ui', () => {
 
     if (authStore.isAuthenticated) {
       await usersStore.fetchMe()
+      await workspacesStore.fetchAll()
     }
 
     isReady.value = true
@@ -70,7 +75,10 @@ export const useUIStore = defineStore('ui', () => {
   }
 
   function $resetAll() {
+    databasesStore.$reset()
+    workspacesStore.$reset()
     usersStore.$reset()
+    authStore.$reset()
   }
 
   return {

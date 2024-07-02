@@ -273,7 +273,6 @@ class ViewSerializer(serializers.ModelSerializer):
 class DatabaseSerializer(serializers.ModelSerializer):
     created_by = serializers.UUIDField(read_only=True)
     updated_by = serializers.UUIDField(read_only=True)
-    views = serializers.ListField(child=serializers.UUIDField(), read_only=True)
 
     class Meta:
         model = Database
@@ -289,6 +288,7 @@ class DatabaseSerializer(serializers.ModelSerializer):
             "page_format_string",
             "views",
         ]
+        read_only_fields = ["views"]
 
     def create(self, validated_data):
         validated_data["created_by"] = self.context["request"].user

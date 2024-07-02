@@ -1,13 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
+import { ROUTES } from '@/router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppMain from '@/components/layout/AppMain.vue'
+import { useWorkspacesStore } from '@/stores/workspaces'
+import { useDatabasesStore } from '@/stores/databases'
 
+const route = useRoute()
+const router = useRouter()
+const workspacesStore = useWorkspacesStore()
+const databasesStore = useDatabasesStore()
 const sidebarOpen = ref(false)
+
+const currentWorkspaceId = ref<string | null | undefined>(
+  route.params.workspaceId as string | null | undefined
+)
+
+watch(
+  () => route.params.workspaceId as string,
+  (workspaceId) => fetchData(workspaceId),
+  { immediate: true }
+)
+
+async function fetchData(workspaceId: string) {
+  currentWorkspaceId.value = workspaceId
+  try {
+    await workspacesStore.fetchOne(workspaceId)
+    databasesStore.fetchAll({
+      workspace: workspaceId
+    })
+  } catch (e) {
+    router.replace({ name: ROUTES.INDEX })
+  }
+}
 </script>
 
 <template>
@@ -68,7 +98,7 @@ const sidebarOpen = ref(false)
     <AppHeader @openSidebar="() => (sidebarOpen = true)" />
 
     <AppMain>
-      <slot />
+      <RouterView />
     </AppMain>
   </div>
 </template>

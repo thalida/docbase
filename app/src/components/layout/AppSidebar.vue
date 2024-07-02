@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import Button from 'primevue/button'
 import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
 import {
@@ -16,29 +17,30 @@ import { ROUTES } from '@/router'
 import AppThemeSwitcher from '@/components/ui/AppThemeSwitcher.vue'
 import XAvatar from '@/components/ui/XAvatar.vue'
 import { useUsersStore } from '@/stores/users'
+import { useWorkspacesStore } from '@/stores/workspaces'
+import { useDatabasesStore } from '@/stores/databases'
 
+const route = useRoute()
 const router = useRouter()
 const usersStore = useUsersStore()
+const workspacesStore = useWorkspacesStore()
+const databaseStore = useDatabasesStore()
 
-const people = [
-  { id: 1, name: 'Wade Cooper' },
-  { id: 2, name: 'Arlene Mccoy' },
-  { id: 3, name: 'Devon Webb' },
-  { id: 4, name: 'Tom Cook' },
-  { id: 5, name: 'Tanya Fox' },
-  { id: 6, name: 'Hellen Schmidt' },
-  { id: 7, name: 'Caroline Schultz' },
-  { id: 8, name: 'Mason Heaney' },
-  { id: 9, name: 'Claudie Smitham' },
-  { id: 10, name: 'Emil Schaefer' }
-]
+const currentWorkspaceId = ref(route.params.workspaceId as string)
+const currentWorkspace = computed(() => workspacesStore.getOne(currentWorkspaceId.value))
+const workspaceDBs = computed(() => databaseStore.getAllByWorkspace(currentWorkspaceId.value))
 
-const selected = ref(people[3])
-const databases = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false }
-]
+watch(
+  () => route.params.workspaceId as string,
+  (workspaceId) => {
+    currentWorkspaceId.value = workspaceId
+  },
+  { immediate: true }
+)
+
+function handleChangeWorkspace(workspaceId: string) {
+  router.push({ name: ROUTES.WORKSPACE, params: { workspaceId } })
+}
 
 function handleLogout() {
   router.push({ name: ROUTES.LOGOUT })
@@ -62,11 +64,15 @@ function handleLogout() {
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
         <li>
-          <Listbox as="div" v-model="selected">
+          <Listbox
+            as="div"
+            :modelValue="currentWorkspaceId"
+            @update:modelValue="handleChangeWorkspace"
+          >
             <div class="flex flex-row justify-between items-center">
-              <ListboxLabel class="flex-grow text-sm font-semibold leading-6 text-gray-400"
-                >Workspaces</ListboxLabel
-              >
+              <ListboxLabel class="flex-grow text-sm font-semibold leading-6 text-gray-400">
+                Workspaces
+              </ListboxLabel>
               <Button
                 icon=""
                 text
@@ -83,7 +89,7 @@ function handleLogout() {
                 <ListboxButton
                   class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-900 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 >
-                  <span class="block truncate">{{ selected.name }}</span>
+                  <span class="block truncate">{{ currentWorkspace?.name }}</span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                   >
@@ -101,9 +107,9 @@ function handleLogout() {
                   >
                     <ListboxOption
                       as="template"
-                      v-for="person in people"
-                      :key="person.id"
-                      :value="person"
+                      v-for="workspace in workspacesStore.orderedCollection"
+                      :key="workspace.id"
+                      :value="workspace.id"
                       v-slot="{ active, selected }"
                     >
                       <li
@@ -114,8 +120,9 @@ function handleLogout() {
                       >
                         <span
                           :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']"
-                          >{{ person.name }}</span
                         >
+                          {{ workspace.name }}
+                        </span>
 
                         <span
                           v-if="selected"
@@ -157,21 +164,29 @@ function handleLogout() {
               </span>
             </Button>
           </div>
-          <ul role="list" class="-mx-2 mt-2 space-y-1">
-            <li v-for="db in databases" :key="db.name">
+          <ul v-if="workspaceDBs.length > 0" role="list" class="-mx-2 mt-2 space-y-1">
+            <li v-for="database in workspaceDBs" :key="database.id">
               <a
-                :href="db.href"
+                :href="database.id"
                 :class="[
-                  db.current
+                  false
                     ? 'bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-white dark:hover:bg-gray-800 dark:hover:text-white',
                   'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
                 ]"
               >
-                <span class="truncate">{{ db.name }}</span>
+                <span class="truncate">{{ database.name }}</span>
               </a>
             </li>
           </ul>
+          <div v-else>
+            <Button aria-label="Create a database" class="w-full gap-2">
+              <span>
+                <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span>Create a database</span>
+            </Button>
+          </div>
         </li>
         <li class="-mx-2 mt-auto">
           <div class="flex flex-row items-stretch justify-between">

@@ -17,7 +17,7 @@ async function handleGoogleLogin() {
     const response = await googleTokenLogin()
     await authStore.loginWithGoogle(response.access_token)
     await uiStore.setup()
-    router.push({ name: ROUTES.DASHBOARD })
+    router.push({ name: ROUTES.INDEX })
   } catch (e) {
     console.error(e)
     error.value = 'Failed to login with Google'

@@ -35,19 +35,22 @@ class UserViewSet(
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def is_me(self):
+        return self.kwargs.get("pk") == self.request.user.id or self.kwargs.get("pk") == "me"
+
     def get_object(self):
-        if self.kwargs.get("pk") == "me":
+        if self.is_me():
             return self.request.user
         return super().get_object()
 
     def get_queryset(self):
-        if self.kwargs.get("pk") == "me":
+        if self.is_me():
             return User.objects.filter(id=self.request.user.id)
 
         return User.objects.filter(workspaces__in=self.request.user.workspaces.all()).distinct()
 
     def get_serializer_class(self):
-        if self.kwargs.get("pk") == "me":
+        if self.is_me():
             return MyUserSerializer
         return super().get_serializer_class()
 

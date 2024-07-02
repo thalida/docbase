@@ -10,4 +10,5 @@ export interface IUser {
 
 export interface IMyUser extends IUser {
   workspaces: string[]
+  default_workspace: string | null
 }

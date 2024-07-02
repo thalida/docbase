@@ -1,9 +1,11 @@
 # Create your views here.
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 
 from docs.tags import SchemaTags
 
+from .filters import DatabaseFilter
 from .models import Database, Page, View, Field
 from .serializers import DatabaseSerializer, PageSerializer, ViewSerializer, FieldSerializer
 
@@ -28,6 +30,9 @@ class DatabaseViewSet(
     queryset = Database.objects.all()
     serializer_class = DatabaseSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = DatabaseFilter
 
     def get_queryset(self):
         return self.queryset.filter(workspace__members=self.request.user)

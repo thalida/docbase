@@ -55,6 +55,7 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
         ("Personal info", {"fields": ("first_name", "last_name", "avatar")}),
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
+        ("Workspaces", {"fields": ("default_workspace",)}),
     )
 
     inlines = [WorkspaceMembershipInline]

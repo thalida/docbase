@@ -65,6 +65,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  function $reset() {
+    clearTokenData()
+  }
+
   return {
     isAuthenticated,
     setTokenData,
@@ -72,6 +76,8 @@ export const useAuthStore = defineStore('auth', () => {
     clearTokenData,
     logout,
     silentLogin,
-    loginWithGoogle
+    loginWithGoogle,
+
+    $reset
   }
 })
