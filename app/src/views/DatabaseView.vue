@@ -61,7 +61,7 @@ watch(
         </RouterLink>
         <span v-else>
           <span :class="[item.icon, 'text-color']" />
-          <span class="font-semibold">{{ item.label }}</span>
+          <span class="ml-2 font-semibold">{{ item.label }}</span>
         </span>
       </template>
     </Breadcrumb>
