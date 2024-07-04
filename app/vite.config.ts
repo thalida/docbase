@@ -3,11 +3,16 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import Components from 'unplugin-vue-components/vite'
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    Components({
+      resolvers: [PrimeVueResolver()]
+    }),
     VitePWA({
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'logo-white.svg'],
       manifest: {

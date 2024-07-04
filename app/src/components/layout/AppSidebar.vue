@@ -13,7 +13,7 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
 import { ROUTES } from '@/router'
-import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
+import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import XAvatar from '@/components/ui/XAvatar.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
@@ -77,14 +77,15 @@ function handleLogout() {
                 text
                 v-tooltip.right="{ value: 'Create a workspace', showDelay: 300, hideDelay: 300 }"
                 aria-label="Create a workspace"
+                class="w-10 h-10"
               >
                 <span>
                   <FolderPlusIcon class="h-5 w-5" aria-hidden="true" />
                 </span>
               </Button>
             </div>
-            <div class="flex flex-row items-center justify-center gap-2 mt-2">
-              <div class="relative flex-grow">
+            <div class="flex flex-row items-center justify-between gap-2 mt-2">
+              <div class="relative min-w-0 flex-shrink">
                 <ListboxButton
                   class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-900 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 >
@@ -143,6 +144,7 @@ function handleLogout() {
                 severity="secondary"
                 v-tooltip.right="{ value: 'Workspace Settings', showDelay: 300, hideDelay: 300 }"
                 aria-label="Workspace Settings"
+                class="flex-shrink-0 w-10 h-10"
               />
             </div>
           </Listbox>
@@ -157,6 +159,7 @@ function handleLogout() {
               text
               v-tooltip.right="{ value: 'Create a database', showDelay: 300, hideDelay: 300 }"
               aria-label="Create a database"
+              class="w-10 h-10"
             >
               <span>
                 <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
