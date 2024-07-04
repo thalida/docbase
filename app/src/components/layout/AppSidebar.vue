@@ -6,7 +6,7 @@ import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
 
 import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
-import XAvatar from '@/components/ui/XAvatar.vue'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
@@ -140,10 +140,10 @@ function handleLogout() {
               text
               severity="secondary"
               aria-label="Your profile"
-              class="flex flex-grow items-center !justify-start gap-x-2 !px-2 text-sm font-semibold"
+              class="flex flex-grow items-center !justify-start !px-2 text-sm font-semibold"
             >
-              <XAvatar />
-              <span aria-hidden="true">{{ usersStore.me?.display_name }}</span>
+              <UserAvatar :user="usersStore.me" />
+              <div aria-hidden="true" class="ml-2">{{ usersStore.me?.display_name }}</div>
             </Button>
             <Button
               icon="pi pi-sign-out"
