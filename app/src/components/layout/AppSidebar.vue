@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
 import Button from 'primevue/button'
 import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
 import {
@@ -14,7 +13,7 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
 import { ROUTES } from '@/router'
-import AppThemeSwitcher from '@/components/ui/AppThemeSwitcher.vue'
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
 import XAvatar from '@/components/ui/XAvatar.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
@@ -59,7 +58,7 @@ function handleLogout() {
           alt="Your Company"
         />
       </div>
-      <AppThemeSwitcher />
+      <ThemeSwitcher />
     </div>
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
