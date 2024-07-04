@@ -10,8 +10,11 @@ declare module 'vue' {
     AppHeader: typeof import('./src/components/layout/AppHeader.vue')['default']
     AppMain: typeof import('./src/components/layout/AppMain.vue')['default']
     AppSidebar: typeof import('./src/components/layout/AppSidebar.vue')['default']
+    Button: typeof import('primevue/button')['default']
+    Menu: typeof import('primevue/menu')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
     ThemeSwitcher: typeof import('./src/components/ThemeSwitcher.vue')['default']
     XAvatar: typeof import('./src/components/ui/XAvatar.vue')['default']
   }

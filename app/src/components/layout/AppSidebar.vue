@@ -3,14 +3,6 @@ import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
-import {
-  Listbox,
-  ListboxButton,
-  ListboxLabel,
-  ListboxOption,
-  ListboxOptions
-} from '@headlessui/vue'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
 import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
@@ -63,91 +55,43 @@ function handleLogout() {
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
         <li>
-          <Listbox
-            as="div"
-            :modelValue="currentWorkspaceId"
-            @update:modelValue="handleChangeWorkspace"
-          >
-            <div class="flex flex-row justify-between items-center">
-              <ListboxLabel class="flex-grow text-sm font-semibold leading-6 text-gray-400">
-                Workspaces
-              </ListboxLabel>
-              <Button
-                icon=""
-                text
-                v-tooltip.right="{ value: 'Create a workspace', showDelay: 300, hideDelay: 300 }"
-                aria-label="Create a workspace"
-                class="w-10 h-10"
-              >
-                <span>
-                  <FolderPlusIcon class="h-5 w-5" aria-hidden="true" />
-                </span>
-              </Button>
+          <div class="flex flex-row justify-between items-center">
+            <div class="w-full flex-grow text-sm font-semibold leading-6 text-gray-400">
+              Workspaces
             </div>
-            <div class="flex flex-row items-center justify-between gap-2 mt-2">
-              <div class="relative min-w-0 flex-shrink">
-                <ListboxButton
-                  class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-900 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                >
-                  <span class="block truncate">{{ currentWorkspace?.name }}</span>
-                  <span
-                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                  >
-                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                  </span>
-                </ListboxButton>
-
-                <transition
-                  leave-active-class="transition ease-in duration-100"
-                  leave-from-class="opacity-100"
-                  leave-to-class="opacity-0"
-                >
-                  <ListboxOptions
-                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-900 py-1 text-base shadow-lg ring-1 ring-black dark:ring-white/10 ring-opacity-5 focus:outline-none sm:text-sm"
-                  >
-                    <ListboxOption
-                      as="template"
-                      v-for="workspace in workspacesStore.orderedCollection"
-                      :key="workspace.id"
-                      :value="workspace.id"
-                      v-slot="{ active, selected }"
-                    >
-                      <li
-                        :class="[
-                          active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-white',
-                          'relative cursor-default select-none py-2 pl-3 pr-9'
-                        ]"
-                      >
-                        <span
-                          :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']"
-                        >
-                          {{ workspace.name }}
-                        </span>
-
-                        <span
-                          v-if="selected"
-                          :class="[
-                            active ? 'text-white' : 'text-indigo-600',
-                            'absolute inset-y-0 right-0 flex items-center pr-4'
-                          ]"
-                        >
-                          <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                        </span>
-                      </li>
-                    </ListboxOption>
-                  </ListboxOptions>
-                </transition>
-              </div>
-              <Button
-                icon="pi pi-cog"
-                text
-                severity="secondary"
-                v-tooltip.right="{ value: 'Workspace Settings', showDelay: 300, hideDelay: 300 }"
-                aria-label="Workspace Settings"
-                class="flex-shrink-0 w-10 h-10"
-              />
-            </div>
-          </Listbox>
+            <Button
+              icon=""
+              text
+              v-tooltip.right="{ value: 'Create a workspace', showDelay: 300, hideDelay: 300 }"
+              aria-label="Create a workspace"
+              class="w-10 h-10"
+            >
+              <span>
+                <FolderPlusIcon class="h-5 w-5" aria-hidden="true" />
+              </span>
+            </Button>
+          </div>
+          <div class="flex flex-row items-center justify-between gap-2 mt-2">
+            <Select
+              :modelValue="currentWorkspaceId"
+              @update:modelValue="handleChangeWorkspace"
+              :options="workspacesStore.orderedCollection"
+              optionValue="id"
+              optionLabel="name"
+              placeholder="Select a workspace"
+              checkmark
+              :highlightOnSelect="false"
+              class="flex-shrink min-w-0"
+            />
+            <Button
+              icon="pi pi-cog"
+              text
+              severity="secondary"
+              v-tooltip.right="{ value: 'Workspace Settings', showDelay: 300, hideDelay: 300 }"
+              aria-label="Workspace Settings"
+              class="flex-shrink-0 w-10 h-10"
+            />
+          </div>
         </li>
         <li>
           <div class="flex flex-row justify-between items-center">
