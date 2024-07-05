@@ -9,10 +9,6 @@ const emits = defineEmits(['update:visible'])
 
 const workspacesStore = useWorkspacesStore()
 const currentWorkspace = computed(() => workspacesStore.getOne(props.workspaceId))
-const hasCurrentWorkspace = computed(
-  () => typeof props.workspaceId !== 'undefined' && props.workspaceId !== null
-)
-
 function handleCancel() {
   emits('update:visible', false)
 }
