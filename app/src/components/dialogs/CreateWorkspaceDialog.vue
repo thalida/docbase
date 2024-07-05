@@ -10,7 +10,7 @@ const emits = defineEmits(['update:visible'])
 const workspacesStore = useWorkspacesStore()
 
 const isSubmitting = ref(false)
-const newWorkspaceForm = ref<IWorkspaceCreateRequest>({
+const form = ref<IWorkspaceCreateRequest>({
   name: '',
   is_default: false
 })
@@ -18,7 +18,7 @@ const errors = ref<Record<string, string[]>>({})
 
 function reset() {
   errors.value = {}
-  newWorkspaceForm.value = {
+  form.value = {
     name: '',
     is_default: false
   }
@@ -32,7 +32,7 @@ function handleCancel() {
 async function handleSubmit() {
   isSubmitting.value = true
   try {
-    const res = await workspacesStore.createOne(newWorkspaceForm.value)
+    const res = await workspacesStore.create(form.value)
     router.push({ name: ROUTES.WORKSPACE, params: { workspaceId: res.id } })
     emits('update:visible', false)
   } catch (e: any) {
@@ -68,7 +68,7 @@ function onVisibleChange(visible: boolean) {
           class="flex-auto"
           autocomplete="off"
           placeholder="My Awesome Workspace"
-          v-model="newWorkspaceForm.name"
+          v-model="form.name"
           :invalid="typeof errors.name !== 'undefined' && errors.name.length > 0"
         />
         <div
@@ -80,9 +80,9 @@ function onVisibleChange(visible: boolean) {
       </div>
       <div class="flex flex-row items-center justify-between gap-2">
         <div class="flex flex-row gap-2 items-center justify-start">
-          <label for="create-workspace-dialog__field-is-default" class="font-semibold"
-            >Make default?</label
-          >
+          <label for="create-workspace-dialog__field-is-default" class="font-semibold">
+            Make default?
+          </label>
           <i
             class="pi pi-question-circle"
             v-tooltip.bottom="'Make this workspace your default dashboard'"
@@ -90,7 +90,7 @@ function onVisibleChange(visible: boolean) {
         </div>
         <ToggleSwitch
           inputId="create-workspace-dialog__field-is-default"
-          v-model="newWorkspaceForm.is_default"
+          v-model="form.is_default"
         />
       </div>
     </div>

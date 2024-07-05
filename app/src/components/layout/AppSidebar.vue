@@ -21,7 +21,7 @@ const workspacesStore = useWorkspacesStore()
 const databaseStore = useDatabasesStore()
 
 const currentWorkspaceId = ref(route.params.workspaceId as string)
-const currentWorkspace = computed(() => workspacesStore.getOne(currentWorkspaceId.value))
+const currentWorkspace = computed(() => workspacesStore.get(currentWorkspaceId.value))
 const workspaceDBs = computed(() => databaseStore.getAllByWorkspace(currentWorkspaceId.value))
 const showCreateWorkspaceDialog = ref(false)
 const showEditWorkspaceDialog = ref(false)

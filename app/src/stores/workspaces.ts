@@ -1,7 +1,11 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/api'
-import type { IWorkspace, IWorkspaceCreateRequest } from '@/types/workspaces'
+import type {
+  IWorkspace,
+  IWorkspaceCreateRequest,
+  IWorkspaceUpdateRequest
+} from '@/types/workspaces'
 import { useUsersStore } from './users'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
@@ -32,7 +36,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     return orderedCollection.value[0]
   })
 
-  const getOne = computed(() => (id: IWorkspace['id']) => {
+  const get = computed(() => (id: IWorkspace['id']) => {
     if (collection.value === null) {
       return null
     }
@@ -40,7 +44,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     return collection.value[id] || null
   })
 
-  async function fetchOne(id: IWorkspace['id']) {
+  async function fetch(id: IWorkspace['id']) {
     if (collection.value === null || !collection.value[id]) {
       const { data: workspace } = await api.workspaces.retrieve(id)
       addOrUpdateItem(workspace)
@@ -52,8 +56,14 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     addOrUpdateItems(workspaces)
   }
 
-  async function createOne(data: IWorkspaceCreateRequest) {
+  async function create(data: IWorkspaceCreateRequest) {
     const { data: workspace } = await api.workspaces.create(data)
+    addOrUpdateItem(workspace)
+    return workspace
+  }
+
+  async function update(id: IWorkspace['id'], data: IWorkspaceUpdateRequest) {
+    const { data: workspace } = await api.workspaces.update(id, data)
     addOrUpdateItem(workspace)
     return workspace
   }
@@ -103,10 +113,11 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     defaultWorkspace,
 
     // methods
-    getOne,
-    fetchOne,
+    get,
+    fetch,
     fetchAll,
-    createOne,
+    create,
+    update,
 
     $reset
   }

@@ -19,7 +19,6 @@ export interface IWorkspaceCreateRequest {
 }
 
 export interface IWorkspaceUpdateRequest {
-  id: string
   name?: string
   is_default?: boolean
 }

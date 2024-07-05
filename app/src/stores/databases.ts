@@ -7,7 +7,7 @@ export const useDatabasesStore = defineStore('databases', () => {
   const collection = ref<Record<IDatabase['id'], IDatabase> | null>(null)
   const byWorkspace = ref<Record<IDatabase['workspace'], IDatabase['id'][]> | null>(null)
 
-  const getOne = computed(() => (id: IDatabase['id']) => {
+  const get = computed(() => (id: IDatabase['id']) => {
     if (collection.value === null) {
       return null
     }
@@ -36,7 +36,7 @@ export const useDatabasesStore = defineStore('databases', () => {
       .filter((item) => typeof item !== 'undefined' && item !== null) as IDatabase[]
   })
 
-  async function fetchOne(id: IDatabase['id']) {
+  async function fetch(id: IDatabase['id']) {
     if (collection.value === null || !collection.value[id]) {
       const { data: database } = await api.databases.retrieve(id)
       addOrUpdateItem(database)
@@ -81,10 +81,10 @@ export const useDatabasesStore = defineStore('databases', () => {
   return {
     collection,
 
-    getOne,
+    get,
     getAllByWorkspace,
 
-    fetchOne,
+    fetch,
     fetchAll,
 
     $reset

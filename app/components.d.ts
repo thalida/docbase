@@ -12,6 +12,7 @@ declare module 'vue' {
     AppSidebar: typeof import('./src/components/layout/AppSidebar.vue')['default']
     Avatar: typeof import('primevue/avatar')['default']
     Badge: typeof import('primevue/badge')['default']
+    BlockUI: typeof import('primevue/blockui')['default']
     Button: typeof import('primevue/button')['default']
     Chip: typeof import('primevue/chip')['default']
     CreateDatabaseDialog: typeof import('./src/components/dialogs/CreateDatabaseDialog.vue')['default']

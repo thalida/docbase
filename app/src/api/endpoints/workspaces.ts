@@ -1,6 +1,10 @@
 import type { AxiosResponse } from 'axios'
 import client from '../clients'
-import type { IWorkspace, IWorkspaceCreateRequest } from '@/types/workspaces'
+import type {
+  IWorkspace,
+  IWorkspaceCreateRequest,
+  IWorkspaceUpdateRequest
+} from '@/types/workspaces'
 
 export function list() {
   return client.get<IWorkspace[]>('/workspaces/')
@@ -14,8 +18,16 @@ export function create(data: IWorkspaceCreateRequest) {
   return client.post<IWorkspaceCreateRequest, AxiosResponse<IWorkspace>>('/workspaces/', data)
 }
 
+export function update(id: string, data: IWorkspaceUpdateRequest) {
+  return client.patch<IWorkspaceUpdateRequest, AxiosResponse<IWorkspace>>(
+    `/workspaces/${id}/`,
+    data
+  )
+}
+
 export default {
-  create,
   list,
-  retrieve
+  retrieve,
+  create,
+  update
 }

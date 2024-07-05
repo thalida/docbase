@@ -30,7 +30,7 @@ watch(
 async function fetchData(workspaceId: string) {
   currentWorkspaceId.value = workspaceId
   try {
-    await workspacesStore.fetchOne(workspaceId)
+    await workspacesStore.fetch(workspaceId)
     databasesStore.fetchAll({
       workspace: workspaceId
     })
