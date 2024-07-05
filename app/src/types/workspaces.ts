@@ -15,9 +15,11 @@ export interface IWorkspace {
 
 export interface IWorkspaceCreateRequest {
   name: string
+  is_default?: boolean
 }
 
 export interface IWorkspaceUpdateRequest {
   id: string
   name?: string
+  is_default?: boolean
 }

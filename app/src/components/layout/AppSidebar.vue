@@ -99,8 +99,15 @@ function handleCreateDatabase() {
               optionLabel="name"
               placeholder="Select a workspace"
               :highlightOnSelect="false"
-              class="flex-shrink min-w-0"
-            />
+              class="flex-grow min-w-0"
+            >
+              <template #option="slotProps">
+                <div class="flex flex-row items-center justify-between gap-4">
+                  <div>{{ slotProps.option.name }}</div>
+                  <Tag v-if="slotProps.option.is_default" value="Default" />
+                </div>
+              </template>
+            </Select>
             <Button
               icon="pi pi-cog"
               text

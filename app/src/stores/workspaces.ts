@@ -1,9 +1,11 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/api'
-import type { IWorkspace } from '@/types/workspaces'
+import type { IWorkspace, IWorkspaceCreateRequest } from '@/types/workspaces'
+import { useUsersStore } from './users'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
+  const usersStore = useUsersStore()
   const collection = ref<Record<IWorkspace['id'], IWorkspace> | null>(null)
 
   const orderedCollection = computed(() => {
@@ -50,6 +52,12 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     addOrUpdateItems(workspaces)
   }
 
+  async function createOne(data: IWorkspaceCreateRequest) {
+    const { data: workspace } = await api.workspaces.create(data)
+    addOrUpdateItem(workspace)
+    return workspace
+  }
+
   function addOrUpdateItems(workspaces: IWorkspace[]) {
     for (const workspace of workspaces) {
       addOrUpdateItem(workspace)
@@ -60,6 +68,25 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     collection.value = {
       ...collection.value,
       [workspace.id]: workspace
+    }
+
+    for (const key in collection.value) {
+      if (key === workspace.id) {
+        continue
+      }
+      const otherWorkspace = collection.value[key]
+      otherWorkspace.is_default = workspace.is_default ? false : otherWorkspace.is_default
+    }
+
+    const foundDefaultWorkspace = Object.values(collection.value).find(
+      (workspace) => workspace.is_default
+    )
+
+    if (usersStore.me !== null) {
+      usersStore.me = {
+        ...usersStore.me,
+        default_workspace: foundDefaultWorkspace?.id || null
+      }
     }
   }
 
@@ -79,6 +106,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     getOne,
     fetchOne,
     fetchAll,
+    createOne,
 
     $reset
   }

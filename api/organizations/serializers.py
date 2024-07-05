@@ -7,6 +7,8 @@ from .models import Workspace
 class WorkspaceSerializer(serializers.ModelSerializer):
     is_owner = serializers.SerializerMethodField()
     is_default = serializers.SerializerMethodField()
+    databases = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Workspace
@@ -33,12 +35,27 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         return user.default_workspace.id == obj.id if user.default_workspace else False
 
+    def _set_default_workspace(self, instance):
+        request_data = self.context["request"].data
+        if request_data.get("is_default", False):
+            user = self.context["request"].user
+            user.default_workspace = instance
+            user.save()
+
     def create(self, validated_data):
         validated_data["owner"] = self.context["request"].user
         validated_data["created_by"] = self.context["request"].user
         validated_data["updated_by"] = self.context["request"].user
-        return super().create(validated_data)
+
+        instance = super().create(validated_data)
+        self._set_default_workspace(instance)
+
+        return instance
 
     def update(self, instance, validated_data):
         validated_data["updated_by"] = self.context["request"].user
-        return super().update(instance, validated_data)
+
+        instance = super().update(instance, validated_data)
+        self._set_default_workspace(instance)
+
+        return instance
