@@ -51,22 +51,20 @@ watch(
 
 <template>
   <div>
-    <Breadcrumb :model="items">
+    <!-- <Breadcrumb :model="items" class="p-0 !bg-transparent">
       <template #item="{ item, props }">
         <RouterLink v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
           <a :href="href" v-bind="props.action" @click="navigate">
-            <span :class="[item.icon, 'text-color']" />
-            <span class="text-primary font-semibold">{{ item.label }}</span>
+            <span :class="[item.icon, 'text-color']" style="font-size:10px" />
+            <span class="text-primary font-semibold text-xs">{{ item.label }}</span>
           </a>
         </RouterLink>
         <span v-else>
           <span :class="[item.icon, 'text-color']" />
-          <span class="ml-2 font-semibold">{{ item.label }}</span>
+          <span class="ml-2 font-semibold text-xs">{{ item.label }}</span>
         </span>
       </template>
-    </Breadcrumb>
-
-    DATABASE!!
+    </Breadcrumb> -->
     <div>{{ database?.name }} ({{ database?.id }})</div>
     <div>{{ workspace?.name }} ({{ workspace?.id }})</div>
   </div>

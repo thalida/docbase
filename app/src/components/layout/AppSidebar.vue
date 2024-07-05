@@ -7,6 +7,9 @@ import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
 import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
+import CreateWorkspaceDialog from '@/components/dialogs/CreateWorkspaceDialog.vue'
+import EditWorkspaceDialog from '@/components/dialogs/EditWorkspaceDialog.vue'
+import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
@@ -20,6 +23,9 @@ const databaseStore = useDatabasesStore()
 const currentWorkspaceId = ref(route.params.workspaceId as string)
 const currentWorkspace = computed(() => workspacesStore.getOne(currentWorkspaceId.value))
 const workspaceDBs = computed(() => databaseStore.getAllByWorkspace(currentWorkspaceId.value))
+const showCreateWorkspaceDialog = ref(false)
+const showEditWorkspaceDialog = ref(false)
+const showCreateDatabaseDialog = ref(false)
 
 watch(
   () => route.params.workspaceId as string,
@@ -35,6 +41,18 @@ function handleChangeWorkspace(workspaceId: string) {
 
 function handleLogout() {
   router.push({ name: ROUTES.LOGOUT })
+}
+
+function handleCreateWorkspace() {
+  showCreateWorkspaceDialog.value = true
+}
+
+function handleEditWorkspace() {
+  showEditWorkspaceDialog.value = true
+}
+
+function handleCreateDatabase() {
+  showCreateDatabaseDialog.value = true
 }
 </script>
 
@@ -65,6 +83,7 @@ function handleLogout() {
               v-tooltip.right="{ value: 'Create a workspace', showDelay: 300, hideDelay: 300 }"
               aria-label="Create a workspace"
               class="w-10 h-10"
+              @click="handleCreateWorkspace"
             >
               <span>
                 <FolderPlusIcon class="h-5 w-5" aria-hidden="true" />
@@ -79,7 +98,6 @@ function handleLogout() {
               optionValue="id"
               optionLabel="name"
               placeholder="Select a workspace"
-              checkmark
               :highlightOnSelect="false"
               class="flex-shrink min-w-0"
             />
@@ -90,6 +108,7 @@ function handleLogout() {
               v-tooltip.right="{ value: 'Workspace Settings', showDelay: 300, hideDelay: 300 }"
               aria-label="Workspace Settings"
               class="flex-shrink-0 w-10 h-10"
+              @click="handleEditWorkspace"
             />
           </div>
         </li>
@@ -104,6 +123,7 @@ function handleLogout() {
               v-tooltip.right="{ value: 'Create a database', showDelay: 300, hideDelay: 300 }"
               aria-label="Create a database"
               class="w-10 h-10"
+              @click="handleCreateDatabase"
             >
               <span>
                 <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
@@ -125,7 +145,11 @@ function handleLogout() {
             </li>
           </ul>
           <div v-else>
-            <Button aria-label="Create a database" class="w-full gap-2">
+            <Button
+              aria-label="Create a database"
+              class="w-full gap-2"
+              @click="handleCreateDatabase"
+            >
               <span>
                 <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
               </span>
@@ -156,5 +180,18 @@ function handleLogout() {
         </li>
       </ul>
     </nav>
+    <CreateWorkspaceDialog
+      v-model:visible="showCreateWorkspaceDialog"
+      @update:visible="(state) => (showCreateWorkspaceDialog = state)"
+    />
+    <EditWorkspaceDialog
+      :workspaceId="currentWorkspaceId"
+      v-model:visible="showEditWorkspaceDialog"
+      @update:visible="(state) => (showEditWorkspaceDialog = state)"
+    />
+    <CreateDatabaseDialog
+      v-model:visible="showCreateDatabaseDialog"
+      @update:visible="(state) => (showCreateDatabaseDialog = state)"
+    />
   </div>
 </template>
