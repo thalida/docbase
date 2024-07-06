@@ -25,9 +25,14 @@ export function update(id: string, data: IWorkspaceUpdateRequest) {
   )
 }
 
+export function destroy(id: string) {
+  return client.delete(`/workspaces/${id}/`)
+}
+
 export default {
   list,
   retrieve,
   create,
-  update
+  update,
+  destroy
 }

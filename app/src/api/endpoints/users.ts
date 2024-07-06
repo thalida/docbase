@@ -9,7 +9,12 @@ export function retrieveMe() {
   return client.get<IMyUser>('/users/me/')
 }
 
+export function list() {
+  return client.get<IUser[]>('/users/')
+}
+
 export default {
   retrieve,
-  retrieveMe
+  retrieveMe,
+  list
 }

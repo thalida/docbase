@@ -6,6 +6,7 @@ import { createPinia } from 'pinia'
 import vue3GoogleLogin from 'vue3-google-login'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
+import ConfirmationService from 'primevue/confirmationservice'
 
 import App from './App.vue'
 import router from './router'
@@ -106,5 +107,6 @@ app.use(PrimeVue, {
   },
   ripple: true
 })
+app.use(ConfirmationService)
 
 app.mount('#app')

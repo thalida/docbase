@@ -68,6 +68,24 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     return workspace
   }
 
+  async function destroy(id: IWorkspace['id']) {
+    await api.workspaces.destroy(id)
+
+    if (collection.value === null) {
+      return
+    }
+
+    collection.value = Object.values(collection.value).reduce(
+      (acc, workspace) => {
+        if (workspace.id !== id) {
+          acc[workspace.id] = workspace
+        }
+        return acc
+      },
+      {} as Record<IWorkspace['id'], IWorkspace>
+    )
+  }
+
   function addOrUpdateItems(workspaces: IWorkspace[]) {
     for (const workspace of workspaces) {
       addOrUpdateItem(workspace)
@@ -118,6 +136,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     fetchAll,
     create,
     update,
+    destroy,
 
     $reset
   }

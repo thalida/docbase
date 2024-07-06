@@ -14,6 +14,7 @@ from docs.tags import SchemaTags
         summary="Retrieve user",
         responses=UserSerializer,
     ),
+    list=extend_schema(summary="List users", responses=UserSerializer),
     get_me=extend_schema(
         summary="Retrieve my user",
         responses=MyUserSerializer,
@@ -29,6 +30,7 @@ from docs.tags import SchemaTags
 )
 class UserViewSet(
     mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = User.objects.all()
