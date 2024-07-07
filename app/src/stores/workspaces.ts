@@ -150,7 +150,10 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
   function addOrUpdateItem(workspace: IWorkspace) {
     collection.value = {
       ...collection.value,
-      [workspace.id]: workspace
+      [workspace.id]: {
+        ...collection.value?.[workspace.id],
+        ...workspace
+      }
     }
 
     for (const key in collection.value) {
@@ -191,6 +194,8 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     getInvitations,
     fetch,
     fetchAll,
+    addOrUpdateItem,
+    addOrUpdateItems,
     create,
     update,
     destroy,

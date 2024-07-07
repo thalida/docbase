@@ -6,8 +6,11 @@ import type {
   IWorkspaceInvitationCreateRequest,
   IWorkspaceInvitationUpdateRequest
 } from '@/types/workspaceInvitations'
+import { useWorkspacesStore } from './workspaces'
+import type { IWorkspace } from '@/types/workspaces'
 
 export const useWorkspaceInvitationsStore = defineStore('workspaceInvitations', () => {
+  const workspacesStore = useWorkspacesStore()
   const collection = ref<Record<IWorkspaceInvitation['id'], IWorkspaceInvitation> | null>(null)
 
   const get = computed(() => (id: IWorkspaceInvitation['id']) => {
@@ -63,17 +66,36 @@ export const useWorkspaceInvitationsStore = defineStore('workspaceInvitations', 
     )
   }
 
-  function addOrUpdateItems(workspaces: IWorkspaceInvitation[]) {
-    for (const workspace of workspaces) {
-      addOrUpdateItem(workspace)
+  function addOrUpdateItems(workspaceInvitations: IWorkspaceInvitation[]) {
+    for (const workspaceInvitation of workspaceInvitations) {
+      addOrUpdateItem(workspaceInvitation)
     }
   }
 
-  function addOrUpdateItem(workspace: IWorkspaceInvitation) {
+  function addOrUpdateItem(workspaceInvitation: IWorkspaceInvitation) {
     collection.value = {
       ...collection.value,
-      [workspace.id]: workspace
+      [workspaceInvitation.id]: workspaceInvitation
     }
+
+    const workspace = workspacesStore.get(workspaceInvitation.workspace)
+    if (!workspace) {
+      return
+    }
+
+    const hasInvitation = workspace.invitations?.includes(workspaceInvitation.id)
+
+    if (hasInvitation) {
+      return
+    }
+
+    workspacesStore.addOrUpdateItem({
+      id: workspaceInvitation.workspace,
+      invitations: [
+        ...(workspacesStore.get(workspaceInvitation.workspace)?.invitations || []),
+        workspaceInvitation.id
+      ]
+    } as IWorkspace)
   }
 
   function $reset() {

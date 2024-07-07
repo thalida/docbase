@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
+import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
 import type { IWorkspaceUpdateRequest } from '@/types/workspaces'
 import { ROUTES } from '@/router'
 
@@ -13,16 +14,21 @@ const router = useRouter()
 const confirm = useConfirm()
 const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
+const workspaceInvitationsStore = useWorkspaceInvitationsStore()
 const currentWorkspace = computed(() => workspacesStore.get(props.workspaceId))
 const teamMembers = computed(() => workspacesStore.getMembers(props.workspaceId))
+const invitations = computed(() => workspacesStore.getInvitations(props.workspaceId))
 
 const isSubmitting = ref(false)
 const isDeleting = ref(false)
+const isInviting = ref(false)
 const form = ref<IWorkspaceUpdateRequest>({
   name: '',
   is_default: false
 })
 const errors = ref<Record<string, string[]>>({})
+const inviteForm = ref({ email: '' })
+const inviteFormErrors = ref<Record<string, string[]>>({})
 
 watch(
   () => props.workspaceId,
@@ -75,6 +81,19 @@ function confirmDelete() {
     },
     accept: handleDelete
   })
+}
+
+async function handleInvite() {
+  inviteFormErrors.value = {}
+  try {
+    await workspaceInvitationsStore.create({
+      workspace: props.workspaceId,
+      ...inviteForm.value
+    })
+    inviteForm.value.email = ''
+  } catch (e: any) {
+    inviteFormErrors.value = e.response.data
+  }
 }
 
 function handleCancel() {
@@ -187,6 +206,56 @@ function onVisibleChange(visible: boolean) {
                 icon="pi pi-trash"
                 severity="danger"
                 v-tooltip.right="{ value: 'Remove member', showDelay: 300, hideDelay: 300 }"
+              />
+            </div>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <InputText
+              id="edit-workspace-dialog__field-email"
+              class="flex-auto"
+              autocomplete="off"
+              placeholder="Email"
+              v-model="inviteForm.email"
+              :invalid="
+                typeof inviteFormErrors.email !== 'undefined' && inviteFormErrors.email.length > 0
+              "
+            />
+            <div
+              v-if="
+                typeof inviteFormErrors.email !== 'undefined' && inviteFormErrors.email.length > 0
+              "
+              class="text-red-500 text-sm"
+            >
+              <span v-for="(error, i) in inviteFormErrors.email" :key="i">{{ error }}</span>
+            </div>
+            <Button
+              type="button"
+              label="Invite"
+              @click="handleInvite"
+              :loading="isInviting"
+              :disabled="!currentWorkspace.is_owner"
+            />
+          </li>
+          <li
+            v-for="invitation in invitations"
+            :key="invitation.id"
+            class="flex items-center justify-between"
+          >
+            <div class="flex flex-row items-center justify-start gap-2">
+              <div class="flex flex-col items-start justify-center">
+                <span> {{ invitation.email }}</span>
+              </div>
+              <Tag :value="invitation.status" severity="warning" />
+            </div>
+            <div>
+              <Button
+                v-if="currentWorkspace.is_owner"
+                type="button"
+                icon="pi pi-trash"
+                severity="danger"
+                v-tooltip.right="{ value: 'Cancel invitation', showDelay: 300, hideDelay: 300 }"
               />
             </div>
           </li>
