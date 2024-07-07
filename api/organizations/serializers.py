@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
 
 from .models import Workspace, WorkspaceInvitation
 
@@ -70,6 +70,10 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         if request_data.get("is_default", False):
             user = self.context["request"].user
             user.default_workspace = instance
+            user.save()
+        elif self.get_is_default(instance):
+            user = self.context["request"].user
+            user.default_workspace = None
             user.save()
 
     def create(self, validated_data):
