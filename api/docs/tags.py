@@ -8,3 +8,4 @@ class SchemaTags(Enum):
     CORE__PAGE = "Pages"
     CORE__FIELD = "Fields"
     ORGANIZATIONS__WORKSPACE = "Workspaces"
+    ORGANIZATIONS__WORKSPACEINVITATION = "Workspace Invitations"

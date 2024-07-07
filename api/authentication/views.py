@@ -1,8 +1,10 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from authentication.filters import UserFilter
 from authentication.models import User
 from authentication.serializers import MyUserSerializer, UserSerializer
 from docs.tags import SchemaTags
@@ -36,6 +38,9 @@ class UserViewSet(
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
 
     def is_me(self):
         return self.kwargs.get("pk") == self.request.user.id or self.kwargs.get("pk") == "me"

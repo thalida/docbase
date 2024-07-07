@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from core.models import Database
+from .models import Database
 
 
 class DatabaseFilter(filters.FilterSet):

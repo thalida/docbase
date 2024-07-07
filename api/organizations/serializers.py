@@ -1,7 +1,36 @@
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
-from .models import Workspace
+from .models import Workspace, WorkspaceInvitation
+
+
+class WorkspaceInvitationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = WorkspaceInvitation
+        fields = [
+            "id",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "workspace",
+            "email",
+            "token",
+            "status",
+        ]
+
+    def create(self, validated_data):
+        validated_data["created_by"] = self.context["request"].user
+        validated_data["updated_by"] = self.context["request"].user
+
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data["updated_by"] = self.context["request"].user
+
+        return super().update(instance, validated_data)
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -22,6 +51,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "owner",
             "members",
             "databases",
+            "invitations",
             "is_owner",
             "is_default",
         ]

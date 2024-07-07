@@ -35,3 +35,30 @@ class WorkspaceMembership(BaseModel):
         if self.workspace.owner == self.user:
             raise ValueError("Cannot delete owner from workspace")
         return super().delete(*args, **kwargs)
+
+
+class WorkspaceInvitation(BaseModel):
+    class InvitationStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        ACCEPTED = "accepted", "Accepted"
+        REJECTED = "rejected", "Rejected"
+
+    workspace = models.ForeignKey("Workspace", on_delete=models.CASCADE, related_name="invitations")
+    email = models.EmailField()
+    token = models.CharField(max_length=255)
+    status = models.CharField(max_length=10, choices=InvitationStatus.choices, default=InvitationStatus.PENDING)
+
+    def __str__(self):
+        return f"{self.email} invited to {self.workspace}"
+
+    def create_token(self):
+        from django.utils.crypto import get_random_string
+
+        self.token = get_random_string(length=32)
+        return self.token
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.create_token()
+
+        return super().save(*args, **kwargs)
