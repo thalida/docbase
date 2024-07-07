@@ -15,7 +15,7 @@ export const useUsersStore = defineStore('users', () => {
     return users.value.find((user) => user.id === id) || null
   }
 
-  function getAll(excludeMe = true) {
+  function getAll(excludeMe = false) {
     if (users.value === null) {
       return []
     }
@@ -30,9 +30,7 @@ export const useUsersStore = defineStore('users', () => {
   async function fetchMe() {
     if (!me.value) {
       const res = await api.users.retrieveMe()
-      me.value = res.data
-      users.value = users.value || []
-      users.value.push(res.data)
+      addOrUpdateItem(res.data, true)
     }
 
     return me.value
@@ -40,15 +38,40 @@ export const useUsersStore = defineStore('users', () => {
 
   async function fetch(id: IUser['id']) {
     const res = await api.users.retrieve(id)
-    users.value = users.value || []
-    users.value.push(res.data)
-    return res.data
+    addOrUpdateItem(res.data)
   }
 
-  async function fetchAll() {
-    const res = await api.users.list()
-    users.value = res.data
-    return users.value
+  async function fetchAll(params: { workspace?: string } = {}) {
+    const res = await api.users.list(params)
+    addOrUpdateItems(res.data)
+  }
+
+  function addOrUpdateItem(user: IUser | IMyUser, isMe: boolean = false) {
+    users.value = users.value || []
+    const index = users.value.findIndex((u) => u.id === user.id)
+
+    if (index === -1) {
+      users.value.push(user)
+    } else {
+      users.value[index] = {
+        ...users.value[index],
+        ...user
+      }
+    }
+
+    if (isMe || me.value?.id === user.id) {
+      me.value = me.value || ({} as IMyUser)
+      me.value = {
+        ...me.value,
+        ...user
+      }
+    }
+  }
+
+  function addOrUpdateItems(users: IUser[]) {
+    for (const user of users) {
+      addOrUpdateItem(user)
+    }
   }
 
   function $reset() {

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 
-import { useUsersStore } from '@/stores/users'
-import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
+import { useWorkspacesStore } from '@/stores/workspaces'
 
 const route = useRoute()
 const workspacesStore = useWorkspacesStore()

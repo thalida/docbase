@@ -14,7 +14,7 @@ const confirm = useConfirm()
 const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
 const currentWorkspace = computed(() => workspacesStore.get(props.workspaceId))
-const teamMembers = computed(() => workspacesStore.getTeamMembers(props.workspaceId))
+const teamMembers = computed(() => workspacesStore.getMembers(props.workspaceId))
 
 const isSubmitting = ref(false)
 const isDeleting = ref(false)

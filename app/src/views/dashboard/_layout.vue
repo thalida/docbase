@@ -8,13 +8,17 @@ import { ROUTES } from '@/router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppMain from '@/components/layout/AppMain.vue'
-import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
+import { useWorkspacesStore } from '@/stores/workspaces'
+import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
+import { useUsersStore } from '@/stores/users'
 
 const route = useRoute()
 const router = useRouter()
-const workspacesStore = useWorkspacesStore()
 const databasesStore = useDatabasesStore()
+const workspacesStore = useWorkspacesStore()
+const workspaceInvitationsStore = useWorkspaceInvitationsStore()
+const usersStore = useUsersStore()
 const sidebarOpen = ref(false)
 
 const currentWorkspaceId = ref<string | null | undefined>(
@@ -30,13 +34,22 @@ watch(
 async function fetchData(workspaceId: string) {
   currentWorkspaceId.value = workspaceId
   try {
-    await workspacesStore.fetch(workspaceId)
-    databasesStore.fetchAll({
-      workspace: workspaceId
-    })
+    await workspacesStore.fetch(currentWorkspaceId.value)
   } catch (e) {
     router.replace({ name: ROUTES.INDEX })
   }
+
+  databasesStore.fetchAll({
+    workspace: currentWorkspaceId.value
+  })
+
+  usersStore.fetchAll({
+    workspace: currentWorkspaceId.value
+  })
+
+  workspaceInvitationsStore.fetchAll({
+    workspace: currentWorkspaceId.value
+  })
 }
 </script>
 

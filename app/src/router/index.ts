@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AppLayout from '@/layouts/AppLayout.vue'
+import DashboardLayout from '@/views/dashboard/_layout.vue'
 import IndexView from '@/views/IndexView.vue'
-import LoginView from '@/views/LoginView.vue'
-import LogoutView from '@/views/LogoutView.vue'
-import WorkspaceView from '@/views/WorkspaceView.vue'
-import DatabaseView from '@/views/DatabaseView.vue'
+import LoginView from '@/views/auth/LoginView.vue'
+import LogoutView from '@/views/auth/LogoutView.vue'
+import WorkspaceView from '@/views/dashboard/WorkspaceView.vue'
+import DatabaseView from '@/views/dashboard/DatabaseView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 
@@ -47,7 +47,7 @@ const router = createRouter({
     },
     {
       path: '/ws-:workspaceId',
-      component: AppLayout,
+      component: DashboardLayout,
       meta: {
         requiresAuth: true,
         redirectTo: ROUTES.LOGIN

@@ -9,6 +9,7 @@ export interface IWorkspace {
   owner: string
   is_owner: boolean
   members: string[]
+  invitations: string[]
   databases: string[]
   is_default: boolean
 }
@@ -21,5 +22,4 @@ export interface IWorkspaceCreateRequest {
 export interface IWorkspaceUpdateRequest {
   name?: string
   is_default?: boolean
-  members?: string[]
 }

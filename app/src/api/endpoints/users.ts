@@ -9,8 +9,8 @@ export function retrieveMe() {
   return client.get<IMyUser>('/users/me/')
 }
 
-export function list() {
-  return client.get<IUser[]>('/users/')
+export function list(params: { workspace?: string } = {}) {
+  return client.get<IUser[]>('/users/', { params })
 }
 
 export default {

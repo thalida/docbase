@@ -8,9 +8,12 @@ import type {
 } from '@/types/workspaces'
 import { useUsersStore } from './users'
 import type { IUser } from '@/types/users'
+import { useWorkspaceInvitationsStore } from './workspaceInvitations'
+import type { IWorkspaceInvitation } from '@/types/workspaceInvitations'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const usersStore = useUsersStore()
+  const workspaceInvitationsStore = useWorkspaceInvitationsStore()
   const collection = ref<Record<IWorkspace['id'], IWorkspace> | null>(null)
 
   const orderedCollection = computed(() => {
@@ -45,7 +48,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     return collection.value[id] || null
   })
 
-  const getTeamMembers = computed(() => (id: IWorkspace['id']) => {
+  const getMembers = computed(() => (id: IWorkspace['id']) => {
     if (collection.value === null) {
       return []
     }
@@ -78,6 +81,22 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
 
     const teamMembers = sortedMembers.map((member) => usersStore.get(member))
     return teamMembers as IUser[]
+  })
+
+  const getInvitations = computed(() => (id: IWorkspace['id']) => {
+    if (collection.value === null) {
+      return []
+    }
+
+    const workspace = collection.value[id]
+    if (workspace === undefined) {
+      return []
+    }
+
+    const invitations = workspace.invitations.map((invitation) =>
+      workspaceInvitationsStore.get(invitation)
+    )
+    return invitations as IWorkspaceInvitation[]
   })
 
   async function fetch(id: IWorkspace['id']) {
@@ -152,15 +171,6 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
         default_workspace: foundDefaultWorkspace?.id || null
       }
     }
-
-    // loop over workspace members and find the user
-    for (const member of workspace.members) {
-      if (member === usersStore.me?.id) {
-        continue
-      }
-
-      usersStore.fetch(member)
-    }
   }
 
   function $reset() {
@@ -177,7 +187,8 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
 
     // methods
     get,
-    getTeamMembers,
+    getMembers,
+    getInvitations,
     fetch,
     fetchAll,
     create,
