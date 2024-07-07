@@ -7,6 +7,14 @@ export const useUsersStore = defineStore('users', () => {
   const me = ref<IMyUser | null>(null)
   const users = ref<IUser[] | null>(null)
 
+  function get(id: IUser['id']) {
+    if (users.value === null) {
+      return null
+    }
+
+    return users.value.find((user) => user.id === id) || null
+  }
+
   function getAll(excludeMe = true) {
     if (users.value === null) {
       return []
@@ -23,9 +31,18 @@ export const useUsersStore = defineStore('users', () => {
     if (!me.value) {
       const res = await api.users.retrieveMe()
       me.value = res.data
+      users.value = users.value || []
+      users.value.push(res.data)
     }
 
     return me.value
+  }
+
+  async function fetch(id: IUser['id']) {
+    const res = await api.users.retrieve(id)
+    users.value = users.value || []
+    users.value.push(res.data)
+    return res.data
   }
 
   async function fetchAll() {
@@ -41,8 +58,10 @@ export const useUsersStore = defineStore('users', () => {
 
   return {
     me,
+    fetch,
     fetchMe,
     fetchAll,
+    get,
     getAll,
     $reset
   }

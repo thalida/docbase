@@ -7,6 +7,7 @@ import type {
   IWorkspaceUpdateRequest
 } from '@/types/workspaces'
 import { useUsersStore } from './users'
+import type { IUser } from '@/types/users'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const usersStore = useUsersStore()
@@ -42,6 +43,41 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     }
 
     return collection.value[id] || null
+  })
+
+  const getTeamMembers = computed(() => (id: IWorkspace['id']) => {
+    if (collection.value === null) {
+      return []
+    }
+
+    const workspace = collection.value[id]
+    if (workspace === undefined) {
+      return []
+    }
+
+    const sortAlphabetically = workspace.members.sort((a, b) => {
+      const userA = usersStore.get(a)
+      const userB = usersStore.get(b)
+      if (userA && userB) {
+        return userA.display_name.localeCompare(userB.display_name)
+      }
+
+      return 0
+    })
+    const sortedMembers = sortAlphabetically.sort((a, b) => {
+      if (a === workspace.owner) {
+        return -1
+      }
+
+      if (b === workspace.owner) {
+        return 1
+      }
+
+      return 0
+    })
+
+    const teamMembers = sortedMembers.map((member) => usersStore.get(member))
+    return teamMembers as IUser[]
   })
 
   async function fetch(id: IWorkspace['id']) {
@@ -116,6 +152,15 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
         default_workspace: foundDefaultWorkspace?.id || null
       }
     }
+
+    // loop over workspace members and find the user
+    for (const member of workspace.members) {
+      if (member === usersStore.me?.id) {
+        continue
+      }
+
+      usersStore.fetch(member)
+    }
   }
 
   function $reset() {
@@ -132,6 +177,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
 
     // methods
     get,
+    getTeamMembers,
     fetch,
     fetchAll,
     create,

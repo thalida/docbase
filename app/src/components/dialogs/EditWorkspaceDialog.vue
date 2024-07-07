@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
+import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import type { IWorkspaceUpdateRequest } from '@/types/workspaces'
 import { ROUTES } from '@/router'
@@ -10,8 +11,10 @@ const props = defineProps<{ visible: boolean; workspaceId: string }>()
 const emits = defineEmits(['update:visible'])
 const router = useRouter()
 const confirm = useConfirm()
+const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
 const currentWorkspace = computed(() => workspacesStore.get(props.workspaceId))
+const teamMembers = computed(() => workspacesStore.getTeamMembers(props.workspaceId))
 
 const isSubmitting = ref(false)
 const isDeleting = ref(false)
@@ -121,17 +124,10 @@ function onVisibleChange(visible: boolean) {
     modal
     v-bind="$attrs"
     :visible="props.visible"
-    :header="`Edit Workspace: ${currentWorkspace.name}`"
+    header="Workspace Settings"
     @update:visible="onVisibleChange"
-    :style="{ width: '25rem' }"
+    :style="{ width: '50%', minWidth: '25rem' }"
   >
-    <template #header>
-      <div class="flex flex-row gap-2 items-center justify-start">
-        <i class="pi pi-pencil" />
-        <span>Editing: {{ currentWorkspace.name }}</span>
-      </div>
-    </template>
-
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
         <label for="edit-workspace-dialog__field-name" class="font-semibold"> Name </label>
@@ -167,20 +163,48 @@ function onVisibleChange(visible: boolean) {
         </div>
         <ToggleSwitch inputId="edit-workspace-dialog__field-is-default" v-model="form.is_default" />
       </div>
+      <div class="flex flex-col gap-2">
+        <label for="edit-workspace-dialog__field-name" class="font-semibold"> Team Members </label>
+        <ul class="flex flex-col gap-2">
+          <li
+            v-for="member in teamMembers"
+            :key="member.id"
+            class="flex items-center justify-between"
+          >
+            <div class="flex flex-row items-center justify-start gap-2">
+              <UserAvatar :user="member" class="w-8 h-8" />
+              <div class="flex flex-col items-start justify-center">
+                <span> {{ member.display_name }}</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500">{{ member.email }}</span>
+              </div>
+              <Tag v-if="currentWorkspace.owner === member.id" value="Owner" severity="danger" />
+              <Tag v-if="usersStore.me?.id === member.id" value="You" />
+            </div>
+            <div>
+              <Button
+                v-if="currentWorkspace.is_owner && usersStore.me?.id !== member.id"
+                type="button"
+                icon="pi pi-trash"
+                severity="danger"
+                v-tooltip.right="{ value: 'Remove member', showDelay: 300, hideDelay: 300 }"
+              />
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="flex justify-between items-center gap-2 mt-8">
-      <Button
-        type="button"
-        label="Delete"
-        severity="danger"
-        @click="confirmDelete()"
-        :loading="isDeleting"
-        :disabled="!currentWorkspace.is_owner"
-        v-tooltip.bottom="{
-          value: 'Only owner\'s can delete a workspace',
-          disabled: currentWorkspace.is_owner
-        }"
-      />
+      <div class="flex justify-start items-center gap-2">
+        <Button type="button" severity="secondary" label="Cancel" @click="handleCancel" />
+        <Button
+          v-if="currentWorkspace.is_owner"
+          type="button"
+          label="Delete"
+          severity="danger"
+          @click="confirmDelete()"
+          :loading="isDeleting"
+        />
+      </div>
       <Button type="button" label="Update" @click="handleSubmit" :loading="isSubmitting" />
     </div>
   </Dialog>

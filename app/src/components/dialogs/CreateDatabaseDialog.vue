@@ -16,7 +16,7 @@ function handleSave() {
     header="Create Database"
     v-bind="$attrs"
     @update:visible="emits('update:visible')"
-    :style="{ width: '25rem' }"
+    :style="{ width: '50%', minWidth: '25rem' }"
   >
     <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span>
     <div class="flex items-center gap-4 mb-4">

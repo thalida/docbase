@@ -16,7 +16,6 @@ export interface IWorkspace {
 export interface IWorkspaceCreateRequest {
   name: string
   is_default?: boolean
-  members?: string[]
 }
 
 export interface IWorkspaceUpdateRequest {
