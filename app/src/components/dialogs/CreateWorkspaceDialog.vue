@@ -59,6 +59,8 @@ function onVisibleChange(visible: boolean) {
     v-bind="$attrs"
     @update:visible="onVisibleChange"
     :style="{ width: '50%', minWidth: '25rem' }"
+    dismissableMask
+    :draggable="false"
   >
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
@@ -96,7 +98,13 @@ function onVisibleChange(visible: boolean) {
     </div>
     <div class="flex justify-between items-center gap-2 mt-8">
       <Button type="button" label="Cancel" severity="secondary" @click="handleCancel"></Button>
-      <Button type="button" label="Create" @click="handleSubmit" :loading="isSubmitting" />
+      <Button
+        type="button"
+        label="Create"
+        icon="pi pi-folder-plus"
+        @click="handleSubmit"
+        :loading="isSubmitting"
+      />
     </div>
   </Dialog>
 </template>

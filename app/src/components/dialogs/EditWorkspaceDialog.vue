@@ -170,6 +170,8 @@ function onVisibleChange(visible: boolean) {
     header="Workspace Settings"
     @update:visible="onVisibleChange"
     :style="{ width: '50%', minWidth: '25rem' }"
+    dismissableMask
+    :draggable="false"
   >
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
@@ -341,12 +343,19 @@ function onVisibleChange(visible: boolean) {
           v-if="currentWorkspace.is_owner"
           type="button"
           label="Delete"
+          icon="pi pi-trash"
           severity="danger"
           @click="confirmDelete()"
           :loading="isDeleting"
         />
       </div>
-      <Button type="button" label="Update" @click="handleSubmit" :loading="isSubmitting" />
+      <Button
+        type="button"
+        label="Update"
+        icon="pi pi-save"
+        @click="handleSubmit"
+        :loading="isSubmitting"
+      />
     </div>
   </Dialog>
   <ConfirmDialog />

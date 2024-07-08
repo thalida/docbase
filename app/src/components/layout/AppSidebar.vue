@@ -108,9 +108,16 @@ function handleGoToProfile() {
               class="flex-grow min-w-0"
             >
               <template #option="slotProps">
-                <div class="flex flex-row items-center justify-between gap-4">
+                <div class="w-full flex flex-row items-center justify-between gap-4">
                   <div>{{ slotProps.option.name }}</div>
-                  <Tag v-if="slotProps.option.is_default" value="Default" />
+                  <div class="flex flex-row gap-2 items-center justify-end">
+                    <Tag v-if="slotProps.option.is_default" value="Default" />
+                    <Tag
+                      v-if="slotProps.option.id === currentWorkspaceId"
+                      icon="pi pi-check"
+                      severity="info"
+                    />
+                  </div>
                 </div>
               </template>
             </Select>

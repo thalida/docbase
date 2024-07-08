@@ -17,6 +17,8 @@ function handleSave() {
     v-bind="$attrs"
     @update:visible="emits('update:visible')"
     :style="{ width: '50%', minWidth: '25rem' }"
+    dismissableMask
+    :draggable="false"
   >
     <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span>
     <div class="flex items-center gap-4 mb-4">
@@ -29,7 +31,7 @@ function handleSave() {
     </div>
     <div class="flex justify-end gap-2">
       <Button type="button" label="Cancel" severity="secondary" @click="handleCancel"></Button>
-      <Button type="button" label="Save" @click="handleSave"></Button>
+      <Button type="button" label="Save" icon="pi pi-plus-cirlce" @click="handleSave"></Button>
     </div>
   </Dialog>
 </template>
