@@ -238,12 +238,8 @@ function onVisibleChange(visible: boolean) {
                     <span> {{ member.display_name }}</span>
                     <span class="text-xs text-gray-400 dark:text-gray-500">{{ member.email }}</span>
                   </div>
-                  <Tag
-                    v-if="currentWorkspace.owner === member.id"
-                    value="Owner"
-                    severity="danger"
-                  />
-                  <Tag v-if="usersStore.me?.id === member.id" value="You" />
+                  <Tag v-if="currentWorkspace.owner === member.id" value="Owner" severity="info" />
+                  <Tag v-if="usersStore.me?.id === member.id" value="You" severity="secondary" />
                 </div>
                 <div>
                   <Button
@@ -277,7 +273,7 @@ function onVisibleChange(visible: boolean) {
                   type="button"
                   icon="pi pi-users"
                   label="Invite"
-                  severity="primary"
+                  severity="contrast"
                   @click="handleInvite"
                   :loading="isInviting"
                   :disabled="!currentWorkspace.is_owner"

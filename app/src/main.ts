@@ -24,31 +24,18 @@ app.use(vue3GoogleLogin, {
 
 const MyTheme = definePreset(Aura, {
   semantic: {
-    // primary: {
-    //   50: '{indigo.50}',
-    //   100: '{indigo.100}',
-    //   200: '{indigo.200}',
-    //   300: '{indigo.300}',
-    //   400: '{indigo.400}',
-    //   500: '{indigo.500}',
-    //   600: '{indigo.600}',
-    //   700: '{indigo.700}',
-    //   800: '{indigo.800}',
-    //   900: '{indigo.900}',
-    //   950: '{indigo.950}'
-    // },
     primary: {
-      50: '{slate.50}',
-      100: '{slate.100}',
-      200: '{slate.200}',
-      300: '{slate.300}',
-      400: '{slate.400}',
-      500: '{slate.500}',
-      600: '{slate.600}',
-      700: '{slate.700}',
-      800: '{slate.800}',
-      900: '{slate.900}',
-      950: '{slate.950}'
+      50: '{blue.50}',
+      100: '{blue.100}',
+      200: '{blue.200}',
+      300: '{blue.300}',
+      400: '{blue.400}',
+      500: '{blue.500}',
+      600: '{blue.600}',
+      700: '{blue.700}',
+      800: '{blue.800}',
+      900: '{blue.900}',
+      950: '{blue.950}'
     },
     colorScheme: {
       light: {
@@ -65,13 +52,6 @@ const MyTheme = definePreset(Aura, {
           800: '{zinc.800}',
           900: '{zinc.900}',
           950: '{zinc.950}'
-        },
-        primary: {
-          color: '{primary.950}',
-          contrastColor: '{primary.50}',
-          hoverColor: '{primary.800}',
-          activeColor: '{primary.700}',
-          secondaryColor: '{primary.100}'
         }
       },
       dark: {
@@ -88,13 +68,6 @@ const MyTheme = definePreset(Aura, {
           800: '{slate.800}',
           900: '{slate.900}',
           950: '{slate.950}'
-        },
-        primary: {
-          color: '{primary.50}',
-          contrastColor: '{primary.950}',
-          hoverColor: '{primary.200}',
-          activeColor: '{primary.300}',
-          secondaryColor: '{primary.500}'
         }
       }
     }

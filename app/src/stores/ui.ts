@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { palette as primevuePalette, updatePreset } from '@primevue/themes'
 import { LOCALSTOARGE_NAMESPACE } from '.'
 import type { ColorScheme, Theme } from '@/types/ui'
 import { useAuthStore } from './auth'
@@ -15,21 +16,51 @@ export const useUIStore = defineStore('ui', () => {
   const databasesStore = useDatabasesStore()
   const workspaceInvitationsStore = useWorkspaceInvitationsStore()
 
-  const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}theme`
+  const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:theme`
+  const PALETTE_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:palette`
   const supportedThemes = ['light', 'dark', 'system'] as const
-  const theme = ref<Theme>('system')
+  const defaultTheme = 'system'
+  const theme = ref<Theme>(defaultTheme)
   const colorScheme = ref<ColorScheme>()
+
+  const supportedPalettes = [
+    'red',
+    'orange',
+    'amber',
+    'yellow',
+    'lime',
+    'green',
+    'emerald',
+    'teal',
+    'cyan',
+    'sky',
+    'blue',
+    'indigo',
+    'violet',
+    'purple',
+    'fuchsia',
+    'pink',
+    'rose',
+    'slate',
+    'stone',
+    'contrast'
+  ]
+  const defaultPalette = 'blue'
+  const palette = ref(defaultPalette)
 
   const isReady = ref(false)
 
   async function setup() {
     isReady.value = false
 
-    const theme = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'system'
+    const theme = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || defaultTheme
     setTheme(theme)
     window
       .matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', handleColorSchemeChange)
+      .addEventListener('change', handleDeviceColorSchemeChange)
+
+    const palette = (localStorage.getItem(PALETTE_STORAGE_KEY) as string) || defaultPalette
+    setPalette(palette)
 
     await authStore.silentLogin()
 
@@ -73,12 +104,111 @@ export const useUIStore = defineStore('ui', () => {
     }
   }
 
-  function handleColorSchemeChange() {
+  function handleDeviceColorSchemeChange() {
     if (theme.value !== 'system') {
       return
     }
 
     setTheme('system')
+  }
+
+  function setPalette(newPalette: string) {
+    const isValid = supportedPalettes.includes(newPalette)
+
+    if (!isValid) {
+      newPalette = defaultPalette
+    }
+
+    palette.value = newPalette
+
+    let paletteConfig = {}
+    if (newPalette === 'contrast') {
+      paletteConfig = {
+        primary: {
+          50: '{zinc.50}',
+          100: '{zinc.100}',
+          200: '{zinc.200}',
+          300: '{zinc.300}',
+          400: '{zinc.400}',
+          500: '{zinc.500}',
+          600: '{zinc.600}',
+          700: '{zinc.700}',
+          800: '{zinc.800}',
+          900: '{zinc.900}',
+          950: '{zinc.950}'
+        },
+        colorScheme: {
+          light: {
+            primary: {
+              color: '{zinc.950}',
+              inverseColor: '#ffffff',
+              hoverColor: '{zinc.900}',
+              activeColor: '{zinc.800}'
+            },
+            highlight: {
+              background: '{zinc.950}',
+              focusBackground: '{zinc.700}',
+              color: '#ffffff',
+              focusColor: '#ffffff'
+            }
+          },
+          dark: {
+            primary: {
+              color: '{zinc.50}',
+              inverseColor: '{zinc.950}',
+              hoverColor: '{zinc.100}',
+              activeColor: '{zinc.200}'
+            },
+            highlight: {
+              background: 'rgba(250, 250, 250, .16)',
+              focusBackground: 'rgba(250, 250, 250, .24)',
+              color: 'rgba(255,255,255,.87)',
+              focusColor: 'rgba(255,255,255,.87)'
+            }
+          }
+        }
+      }
+    } else {
+      paletteConfig = {
+        primary: primevuePalette(`{${newPalette}}`),
+        colorScheme: {
+          light: {
+            primary: {
+              color: '{primary.500}',
+              contrastColor: '#ffffff',
+              hoverColor: '{primary.600}',
+              activeColor: '{primary.700}'
+            },
+            highlight: {
+              background: '{primary.50}',
+              focusBackground: '{primary.100}',
+              color: '{primary.700}',
+              focusColor: '{primary.800}'
+            }
+          },
+          dark: {
+            primary: {
+              color: '{primary.400}',
+              contrastColor: '{surface.900}',
+              hoverColor: '{primary.300}',
+              activeColor: '{primary.200}'
+            },
+            highlight: {
+              background: 'color-mix(in srgb, {primary.400}, transparent 84%)',
+              focusBackground: 'color-mix(in srgb, {primary.400}, transparent 76%)',
+              color: 'rgba(255,255,255,.87)',
+              focusColor: 'rgba(255,255,255,.87)'
+            }
+          }
+        }
+      }
+    }
+    updatePreset({
+      semantic: {
+        ...paletteConfig
+      }
+    })
+    localStorage.setItem(PALETTE_STORAGE_KEY, palette.value)
   }
 
   function $resetAll() {
@@ -94,8 +224,11 @@ export const useUIStore = defineStore('ui', () => {
 
     theme,
     setTheme,
-    supportedThemes,
     colorScheme,
+    palette,
+    setPalette,
+    supportedThemes,
+    supportedPalettes,
 
     $resetAll
   }

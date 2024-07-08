@@ -111,11 +111,11 @@ function handleGoToProfile() {
                 <div class="w-full flex flex-row items-center justify-between gap-4">
                   <div>{{ slotProps.option.name }}</div>
                   <div class="flex flex-row gap-2 items-center justify-end">
-                    <Tag v-if="slotProps.option.is_default" value="Default" />
+                    <Tag v-if="slotProps.option.is_default" value="Default" severity="secondary" />
                     <Tag
                       v-if="slotProps.option.id === currentWorkspaceId"
                       icon="pi pi-check"
-                      severity="info"
+                      severity="success"
                     />
                   </div>
                 </div>
@@ -167,7 +167,7 @@ function handleGoToProfile() {
           <div v-else>
             <Button
               aria-label="Create a database"
-              class="w-full gap-2"
+              class="w-full gap-2 mt-4"
               @click="handleCreateDatabase"
             >
               <span>
