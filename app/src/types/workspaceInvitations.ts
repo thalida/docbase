@@ -14,6 +14,7 @@ export interface IWorkspaceInvitation {
   email: string
   workspace: string
   status: InvitationStatus
+  token: string
 }
 
 export interface IWorkspaceInvitationCreateRequest {

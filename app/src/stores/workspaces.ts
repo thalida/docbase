@@ -9,7 +9,7 @@ import type {
 import { useUsersStore } from './users'
 import type { IUser } from '@/types/users'
 import { useWorkspaceInvitationsStore } from './workspaceInvitations'
-import type { IWorkspaceInvitation } from '@/types/workspaceInvitations'
+import { InvitationStatus, type IWorkspaceInvitation } from '@/types/workspaceInvitations'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const usersStore = useUsersStore()
@@ -97,6 +97,24 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       workspaceInvitationsStore.get(invitation)
     )
     return invitations as IWorkspaceInvitation[]
+  })
+
+  const getPendingInvitations = computed(() => (id: IWorkspace['id']) => {
+    if (collection.value === null) {
+      return []
+    }
+
+    const workspace = collection.value[id]
+    if (workspace === undefined) {
+      return []
+    }
+
+    const invitations = workspace.invitations.map((invitation) =>
+      workspaceInvitationsStore.get(invitation)
+    )
+    return invitations.filter(
+      (invitation) => invitation?.status === InvitationStatus.PENDING
+    ) as IWorkspaceInvitation[]
   })
 
   async function fetch(id: IWorkspace['id']) {
@@ -192,6 +210,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     get,
     getMembers,
     getInvitations,
+    getPendingInvitations,
     fetch,
     fetchAll,
     addOrUpdateItem,

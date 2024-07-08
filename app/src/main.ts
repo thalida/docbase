@@ -5,12 +5,14 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import vue3GoogleLogin from 'vue3-google-login'
 import PrimeVue from 'primevue/config'
+import { definePreset } from '@primevue/themes'
 import Aura from '@primevue/themes/aura'
+import Ripple from 'primevue/ripple'
 import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
 
 import App from './App.vue'
 import router from './router'
-import { definePreset } from '@primevue/themes'
 
 const app = createApp(App)
 
@@ -108,5 +110,7 @@ app.use(PrimeVue, {
   ripple: true
 })
 app.use(ConfirmationService)
+app.use(ToastService)
+app.directive('ripple', Ripple)
 
 app.mount('#app')
