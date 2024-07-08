@@ -1,29 +1,59 @@
 <script setup lang="ts">
-import { watchEffect } from 'vue'
+import { watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import { ROUTES } from '@/router'
-import { useAuthStore } from '@/stores/auth'
-import { useUsersStore } from '@/stores/users'
+import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
 
+const props = defineProps<{
+  invitation: string
+}>()
 const router = useRouter()
-const authStore = useAuthStore()
-const usersStore = useUsersStore()
+const toast = useToast()
+const workspaceInvitationsStore = useWorkspaceInvitationsStore()
 
-// watchEffect(async () => {
-//   if (!authStore.isAuthenticated) {
-//     router.replace({ name: ROUTES.LOGIN })
-//     return
-//   }
+watch(
+  () => props.invitation,
+  async (invitationId) => {
+    if (!invitationId) {
+      console.error('No invitation ID provided')
+      router.replace({ name: ROUTES.INDEX })
+      return
+    }
 
-//   const myWorkspaces = usersStore.me?.workspaces || []
-//   if (myWorkspaces.length === 0) {
-//     router.replace({ name: ROUTES.CREATE_WORKSPACE })
-//     return
-//   }
+    let invitation
+    try {
+      invitation = await workspaceInvitationsStore.fetch(invitationId)
+    } catch (error) {
+      console.error('Error fetching invitation', error)
+      router.replace({ name: ROUTES.INDEX })
+      return
+    }
 
-//   const defaultWorkspace = usersStore.me?.default_workspace || myWorkspaces[0]
-//   router.replace({ name: ROUTES.WORKSPACE, params: { workspaceId: defaultWorkspace } })
-// })
+    if (!invitation) {
+      console.error('Invitation not found')
+      router.replace({ name: ROUTES.INDEX })
+      return
+    }
+
+    try {
+      await workspaceInvitationsStore.accept(invitationId)
+      toast.add({
+        group: 'globalNotifications',
+        severity: 'success',
+        summary: 'Invitation accepted',
+        detail: `You have joined ${invitation.workspace_meta.name}`,
+        life: 2000
+      })
+      router.replace({ name: ROUTES.WORKSPACE, params: { workspaceId: invitation.workspace } })
+    } catch (error) {
+      console.error('Error accepting invitation', error)
+      router.replace({ name: ROUTES.INDEX })
+      return
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

@@ -6,6 +6,9 @@ import { useAuthStore } from '@/stores/auth'
 import { ROUTES } from '@/router'
 import { useUIStore } from '@/stores/ui'
 
+const props = defineProps<{
+  redirectTo?: string | null | undefined
+}>()
 const router = useRouter()
 const authStore = useAuthStore()
 const uiStore = useUIStore()
@@ -17,6 +20,12 @@ async function handleGoogleLogin() {
     const response = await googleTokenLogin()
     await authStore.loginWithGoogle(response.access_token)
     await uiStore.setup()
+
+    if (props.redirectTo) {
+      router.push(props.redirectTo)
+      return
+    }
+
     router.push({ name: ROUTES.INDEX })
   } catch (e) {
     console.error(e)

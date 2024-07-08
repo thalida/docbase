@@ -104,18 +104,23 @@ async function handleCancelInvitation(invitationId: string) {
 
 async function handleCopyInvitationLink(invitationId: string) {
   const invitation = invitations.value.find((i) => i.id === invitationId)
+
+  if (!invitation) {
+    return
+  }
+
   const host = window.location.origin
   const route = router.resolve({
     name: ROUTES.ACCEPT_INVITE,
-    query: { token: invitation?.token }
+    query: { invitation: invitation.id }
   })
   const url = `${host}${route.href}`
   await navigator.clipboard.writeText(url)
   toast.add({
-    group: 'clipboard',
+    group: 'globalClipboard',
     severity: 'success',
     summary: 'Invitation Copied',
-    detail: `${invitation?.email}'s invitation link copied to clipboard`,
+    detail: `${invitation.email}'s invitation link copied to clipboard`,
     life: 2000
   })
 }
@@ -355,5 +360,4 @@ function onVisibleChange(visible: boolean) {
     </div>
   </Dialog>
   <ConfirmDialog />
-  <Toast group="clipboard" successIcon="pi pi-clipboard" />
 </template>

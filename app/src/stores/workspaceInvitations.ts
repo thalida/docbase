@@ -26,6 +26,8 @@ export const useWorkspaceInvitationsStore = defineStore('workspaceInvitations', 
       const { data } = await api.workspaceInvitations.retrieve(id)
       addOrUpdateItem(data)
     }
+
+    return get.value(id)
   }
 
   async function fetchAll(params: { workspace?: string; email?: string } = {}) {

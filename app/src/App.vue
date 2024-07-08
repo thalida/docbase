@@ -11,6 +11,8 @@ const uiStore = useUIStore()
     v-else
     class="flex h-full w-full flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-300 via-blue-200 to-sky-200 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950"
   />
+  <Toast group="globalNotifications" />
+  <Toast group="globalClipboard" successIcon="pi pi-clipboard" />
 </template>
 
 <style scoped>

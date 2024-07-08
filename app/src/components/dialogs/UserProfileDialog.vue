@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
+import { useToast } from 'primevue/usetoast'
+import type { IWorkspaceInvitation } from '@/types/workspaceInvitations'
 
 const props = defineProps<{
   visible: boolean
@@ -12,6 +14,7 @@ const props = defineProps<{
 const emits = defineEmits(['update:visible'])
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
 const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
 const workspaceInvitationsStore = useWorkspaceInvitationsStore()
@@ -44,9 +47,16 @@ function handleUpdateVisible(visible: boolean) {
   emits('update:visible', visible)
 }
 
-async function handleAcceptInvitation(invitationId: string) {
+async function handleAcceptInvitation(invitation: IWorkspaceInvitation) {
   try {
-    await workspaceInvitationsStore.accept(invitationId)
+    await workspaceInvitationsStore.accept(invitation.id)
+    toast.add({
+      group: 'globalNotifications',
+      severity: 'success',
+      summary: 'Invitation accepted',
+      detail: `You have joined ${invitation.workspace_meta.name}`,
+      life: 2000
+    })
     workspacesStore.fetchAll()
     invitationErrors.value = {}
   } catch (error: any) {
@@ -54,8 +64,8 @@ async function handleAcceptInvitation(invitationId: string) {
   }
 }
 
-async function handleRejectInvitation(invitationId: string) {
-  workspaceInvitationsStore.reject(invitationId)
+async function handleRejectInvitation(invitation: IWorkspaceInvitation) {
+  workspaceInvitationsStore.reject(invitation.id)
 }
 
 async function handleRefreshPendingInvitations() {
@@ -124,14 +134,14 @@ async function handleRefreshPendingInvitations() {
               size="small"
               severity="danger"
               icon="pi pi-times"
-              @click="() => handleRejectInvitation(invitation.id)"
+              @click="() => handleRejectInvitation(invitation)"
               v-tooltip.left="{ value: 'Reject Invitation' }"
             />
             <Button
               size="small"
               severity="success"
               icon="pi pi-check"
-              @click="() => handleAcceptInvitation(invitation.id)"
+              @click="() => handleAcceptInvitation(invitation)"
               v-tooltip.left="{ value: 'Accept Invitation' }"
             />
           </ButtonGroup>

@@ -36,7 +36,8 @@ const router = createRouter({
       meta: {
         requiresAuth: false,
         redirectTo: ROUTES.INDEX
-      }
+      },
+      props: (route) => ({ redirectTo: route.query.redirectTo as string })
     },
     {
       path: '/logout',
@@ -51,7 +52,11 @@ const router = createRouter({
       path: '/accept-invitation',
       name: ROUTES.ACCEPT_INVITE,
       component: AcceptInviteView,
-      props: (route) => ({ token: route.query.token as string })
+      meta: {
+        requiresAuth: true,
+        redirectTo: ROUTES.LOGIN
+      },
+      props: (route) => ({ invitation: route.query.invitation as string })
     },
     {
       path: '/ws-:workspaceId',
@@ -108,7 +113,9 @@ router.beforeEach(async (to) => {
     return
   }
 
-  return { name: redirectTo }
+  const query = to.meta.requiresAuth ? { redirectTo: to.fullPath } : {}
+
+  return { name: redirectTo, query }
 })
 
 export default router
