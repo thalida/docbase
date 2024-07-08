@@ -28,6 +28,18 @@ export function update(id: string, data: IWorkspaceInvitationUpdateRequest) {
   )
 }
 
+export function accept(id: string) {
+  return client.post<null, AxiosResponse<IWorkspaceInvitation>>(
+    `/workspace-invitations/${id}/accept/`
+  )
+}
+
+export function reject(id: string) {
+  return client.post<null, AxiosResponse<IWorkspaceInvitation>>(
+    `/workspace-invitations/${id}/reject/`
+  )
+}
+
 export function destroy(id: string) {
   return client.delete(`/workspace-invitations/${id}/`)
 }
@@ -37,5 +49,7 @@ export default {
   retrieve,
   create,
   update,
+  accept,
+  reject,
   destroy
 }

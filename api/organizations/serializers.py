@@ -4,8 +4,15 @@ from rest_framework import serializers
 from .models import Workspace, WorkspaceInvitation
 
 
+class WorkspaceMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Workspace
+        fields = ["id", "name"]
+
+
 class WorkspaceInvitationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(read_only=True)
+    workspace_meta = WorkspaceMinimalSerializer(read_only=True, source="workspace")
 
     class Meta:
         model = WorkspaceInvitation
@@ -16,6 +23,7 @@ class WorkspaceInvitationSerializer(serializers.ModelSerializer):
             "created_by",
             "updated_by",
             "workspace",
+            "workspace_meta",
             "email",
             "token",
             "status",

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from api.models import BaseModel
@@ -51,6 +52,27 @@ class WorkspaceInvitation(BaseModel):
     def __str__(self):
         return f"{self.email} invited to {self.workspace}"
 
+    def clean(self) -> None:
+        workspace_members = self.workspace.members.all()
+        if self.status == WorkspaceInvitation.InvitationStatus.PENDING and self.email in [
+            member.email for member in workspace_members
+        ]:
+            raise ValidationError({"email": "User is already a member of this workspace"})
+
+        existing_pending_invitation = (
+            WorkspaceInvitation.objects.filter(
+                workspace=self.workspace,
+                email=self.email,
+                status=WorkspaceInvitation.InvitationStatus.PENDING,
+            )
+            .exclude(pk=self.pk)
+            .first()
+        )
+        if existing_pending_invitation:
+            raise ValidationError({"email": "A pending invitation already exists for this email"})
+
+        return super().clean()
+
     def create_token(self):
         from django.utils.crypto import get_random_string
 
@@ -61,4 +83,16 @@ class WorkspaceInvitation(BaseModel):
         if not self.token:
             self.create_token()
 
+        self.full_clean()
+
         return super().save(*args, **kwargs)
+
+    def accept(self, user):
+        print("Accepting invitation")
+        self.workspace.members.add(user)
+        self.status = WorkspaceInvitation.InvitationStatus.ACCEPTED
+        self.save()
+
+    def reject(self, user):
+        self.status = WorkspaceInvitation.InvitationStatus.REJECTED
+        self.save()

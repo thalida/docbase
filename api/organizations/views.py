@@ -1,7 +1,10 @@
-from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import mixins, permissions, viewsets
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from docs.tags import SchemaTags
 from organizations.filters import WorkspaceInvitationFilter
@@ -60,4 +63,28 @@ class WorkspaceInvitationViewSet(
     filterset_class = WorkspaceInvitationFilter
 
     def get_queryset(self):
-        return self.queryset.filter(Q(workspace__members=self.request.user) | Q(email=self.request.user.email))
+        return self.queryset.filter(
+            Q(workspace__members=self.request.user) | Q(email=self.request.user.email)
+        ).distinct()
+
+    @action(detail=True, methods=["post"], url_path="accept")
+    def accept(self, request, pk=None):
+        invitation = self.get_object()
+
+        try:
+            invitation.accept(request.user)
+        except ValidationError as e:
+            return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(invitation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="reject")
+    def reject(self, request, pk=None):
+        invitation = self.get_object()
+        invitation.reject(request.user)
+
+        serializer = self.get_serializer(invitation)
+        return Response(serializer.data, status=status.HTTP_200_OK)

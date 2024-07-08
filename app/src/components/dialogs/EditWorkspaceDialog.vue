@@ -105,9 +105,11 @@ async function handleCancelInvitation(invitationId: string) {
 async function handleCopyInvitationLink(invitationId: string) {
   const invitation = invitations.value.find((i) => i.id === invitationId)
   const host = window.location.origin
-  const query = new URLSearchParams({ token: invitation?.token ?? '' })
-  const url = `${host}/accept-invite?${query.toString()}`
-  console.log(url)
+  const route = router.resolve({
+    name: ROUTES.ACCEPT_INVITE,
+    query: { token: invitation?.token }
+  })
+  const url = `${host}${route.href}`
   await navigator.clipboard.writeText(url)
   toast.add({
     group: 'clipboard',

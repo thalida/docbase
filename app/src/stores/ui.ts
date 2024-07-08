@@ -6,12 +6,14 @@ import { useAuthStore } from './auth'
 import { useUsersStore } from './users'
 import { useWorkspacesStore } from './workspaces'
 import { useDatabasesStore } from './databases'
+import { useWorkspaceInvitationsStore } from './workspaceInvitations'
 
 export const useUIStore = defineStore('ui', () => {
   const authStore = useAuthStore()
   const usersStore = useUsersStore()
   const workspacesStore = useWorkspacesStore()
   const databasesStore = useDatabasesStore()
+  const workspaceInvitationsStore = useWorkspaceInvitationsStore()
 
   const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}theme`
   const supportedThemes = ['light', 'dark', 'system'] as const
@@ -32,8 +34,13 @@ export const useUIStore = defineStore('ui', () => {
     await authStore.silentLogin()
 
     if (authStore.isAuthenticated) {
-      await usersStore.fetchMe()
-      await workspacesStore.fetchAll()
+      const promises = [
+        usersStore.fetchMe(),
+        workspacesStore.fetchAll(),
+        workspaceInvitationsStore.fetchAll({ email: usersStore.me?.email })
+      ]
+
+      await Promise.all(promises)
     }
 
     isReady.value = true

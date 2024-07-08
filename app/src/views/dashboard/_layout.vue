@@ -8,11 +8,16 @@ import { ROUTES } from '@/router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppMain from '@/components/layout/AppMain.vue'
+import UserProfileDialog from '@/components/dialogs/UserProfileDialog.vue'
 import { useDatabasesStore } from '@/stores/databases'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
 import { useUsersStore } from '@/stores/users'
 
+const props = defineProps<{
+  showUserProfile: boolean
+  profileForUser?: string
+}>()
 const route = useRoute()
 const router = useRouter()
 const databasesStore = useDatabasesStore()
@@ -24,10 +29,28 @@ const sidebarOpen = ref(false)
 const currentWorkspaceId = ref<string | null | undefined>(
   route.params.workspaceId as string | null | undefined
 )
+const showUserProfile = ref(props.showUserProfile)
+const userProfileId = ref(props.profileForUser === 'me' ? usersStore.me?.id : props.profileForUser)
 
 watch(
   () => route.params.workspaceId as string,
   (workspaceId) => fetchData(workspaceId),
+  { immediate: true }
+)
+
+watch(
+  () => props.showUserProfile,
+  (val) => {
+    showUserProfile.value = val
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.profileForUser,
+  (val) => {
+    userProfileId.value = val === 'me' ? usersStore.me?.id : val
+  },
   { immediate: true }
 )
 
@@ -113,5 +136,10 @@ async function fetchData(workspaceId: string) {
     <AppMain>
       <RouterView />
     </AppMain>
+    <UserProfileDialog
+      v-model:visible="showUserProfile"
+      @update:visible="(state) => (showUserProfile = state)"
+      :userId="userProfileId"
+    />
   </div>
 </template>

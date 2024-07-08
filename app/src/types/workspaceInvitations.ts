@@ -13,6 +13,10 @@ export interface IWorkspaceInvitation {
 
   email: string
   workspace: string
+  workspace_meta: {
+    id: string
+    name: string
+  }
   status: InvitationStatus
   token: string
 }

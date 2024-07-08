@@ -1,17 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useUIStore } from '@/stores/ui'
 import DashboardLayout from '@/views/dashboard/_layout.vue'
 import IndexView from '@/views/IndexView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import LogoutView from '@/views/auth/LogoutView.vue'
 import WorkspaceView from '@/views/dashboard/WorkspaceView.vue'
 import DatabaseView from '@/views/dashboard/DatabaseView.vue'
-import { useAuthStore } from '@/stores/auth'
-import { useUIStore } from '@/stores/ui'
+import AcceptInviteView from '@/views/AcceptInviteView.vue'
 
 export enum ROUTES {
   INDEX = 'index',
   WORKSPACE = 'workspace',
   CREATE_WORKSPACE = 'createWorkspace',
+  ACCEPT_INVITE = 'acceptInvite',
   DATABASE = 'database',
   LOGIN = 'login',
   LOGOUT = 'logout',
@@ -46,11 +48,24 @@ const router = createRouter({
       }
     },
     {
+      path: '/accept-invitation',
+      name: ROUTES.ACCEPT_INVITE,
+      component: AcceptInviteView,
+      props: (route) => ({ token: route.query.token as string })
+    },
+    {
       path: '/ws-:workspaceId',
       component: DashboardLayout,
       meta: {
         requiresAuth: true,
         redirectTo: ROUTES.LOGIN
+      },
+      props(route) {
+        return {
+          showUserProfile:
+            typeof route.query.profile === 'string' && route.query.profile.length > 0,
+          profileForUser: route.query.profile
+        }
       },
       children: [
         {

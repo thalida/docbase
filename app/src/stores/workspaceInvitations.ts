@@ -1,10 +1,10 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/api'
-import type {
-  IWorkspaceInvitation,
-  IWorkspaceInvitationCreateRequest,
-  IWorkspaceInvitationUpdateRequest
+import {
+  type IWorkspaceInvitation,
+  type IWorkspaceInvitationCreateRequest,
+  type IWorkspaceInvitationUpdateRequest
 } from '@/types/workspaceInvitations'
 import { useWorkspacesStore } from './workspaces'
 import type { IWorkspace } from '@/types/workspaces'
@@ -44,6 +44,18 @@ export const useWorkspaceInvitationsStore = defineStore('workspaceInvitations', 
     inputData: IWorkspaceInvitationUpdateRequest
   ) {
     const { data } = await api.workspaceInvitations.update(id, inputData)
+    addOrUpdateItem(data)
+    return data
+  }
+
+  async function accept(id: IWorkspaceInvitation['id']) {
+    const { data } = await api.workspaceInvitations.accept(id)
+    addOrUpdateItem(data)
+    return data
+  }
+
+  async function reject(id: IWorkspaceInvitation['id']) {
+    const { data } = await api.workspaceInvitations.reject(id)
     addOrUpdateItem(data)
     return data
   }
@@ -113,6 +125,8 @@ export const useWorkspaceInvitationsStore = defineStore('workspaceInvitations', 
     create,
     update,
     destroy,
+    accept,
+    reject,
 
     $reset
   }

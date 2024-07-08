@@ -1,11 +1,27 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/api'
 import type { IMyUser, IUser } from '@/types/users'
+import { useWorkspaceInvitationsStore } from './workspaceInvitations'
+import { InvitationStatus, type IWorkspaceInvitation } from '@/types/workspaceInvitations'
 
 export const useUsersStore = defineStore('users', () => {
+  const workspaceInvitationsStore = useWorkspaceInvitationsStore()
   const me = ref<IMyUser | null>(null)
   const users = ref<IUser[] | null>(null)
+
+  const myPendingInvitations = computed(() => {
+    if (me.value === null) {
+      return []
+    }
+
+    const invitations = me.value.invitations.map((invitation) =>
+      workspaceInvitationsStore.get(invitation)
+    )
+    return invitations.filter(
+      (invitation) => invitation?.status === InvitationStatus.PENDING
+    ) as IWorkspaceInvitation[]
+  })
 
   function get(id: IUser['id']) {
     if (users.value === null) {
@@ -27,8 +43,8 @@ export const useUsersStore = defineStore('users', () => {
     return users.value
   }
 
-  async function fetchMe() {
-    if (!me.value) {
+  async function fetchMe(reset = false) {
+    if (!me.value || reset) {
       const res = await api.users.retrieveMe()
       addOrUpdateItem(res.data, true)
     }
@@ -86,6 +102,7 @@ export const useUsersStore = defineStore('users', () => {
     fetchAll,
     get,
     getAll,
+    myPendingInvitations,
     $reset
   }
 })

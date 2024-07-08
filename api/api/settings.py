@@ -423,6 +423,22 @@ UNFOLD = {
         },
         {
             "models": [
+                "organizations.workspace",
+                "organizations.workspaceinvitation",
+            ],
+            "items": [
+                {
+                    "title": _("All Workspaces"),
+                    "link": reverse_lazy("admin:organizations_workspace_changelist"),
+                },
+                {
+                    "title": _("All Workspace Invitations"),
+                    "link": reverse_lazy("admin:organizations_workspaceinvitation_changelist"),
+                },
+            ],
+        },
+        {
+            "models": [
                 "core.booleanfieldconfig",
                 "core.checklistfieldconfig",
                 "core.choicefieldconfig",

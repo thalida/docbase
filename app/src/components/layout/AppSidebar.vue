@@ -54,6 +54,12 @@ function handleEditWorkspace() {
 function handleCreateDatabase() {
   showCreateDatabaseDialog.value = true
 }
+
+function handleGoToProfile() {
+  router.replace({
+    query: { profile: 'me' }
+  })
+}
 </script>
 
 <template>
@@ -167,11 +173,11 @@ function handleCreateDatabase() {
         <li class="-mx-2 mt-auto">
           <div class="flex flex-row items-stretch justify-between">
             <Button
-              icon="pi pi-sign-out"
               text
               severity="secondary"
               aria-label="Your profile"
               class="flex flex-grow items-center !justify-start !px-2 text-sm font-semibold"
+              @click="handleGoToProfile"
             >
               <UserAvatar :user="usersStore.me" />
               <div aria-hidden="true" class="ml-2">{{ usersStore.me?.display_name }}</div>
