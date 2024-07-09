@@ -1,4 +1,4 @@
-import { anonClient } from '../clients'
+import client, { anonClient } from '../clients'
 import type { IAuthTokenResponse } from '@/types/auth'
 
 export function googleLogin(accessToken: string) {
@@ -52,8 +52,13 @@ export function revokeToken({
   )
 }
 
+export function ablyToken() {
+  return client.post('/auth/ably-token/')
+}
+
 export default {
   googleLogin,
   refreshToken,
-  revokeToken
+  revokeToken,
+  ablyToken
 }

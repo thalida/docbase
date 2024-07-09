@@ -1,9 +1,10 @@
-from drf_spectacular.utils import extend_schema, extend_schema_view
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, permissions, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 
+from api.ably import ably_client
 from authentication.filters import UserFilter
 from authentication.models import User
 from authentication.serializers import MyUserSerializer, UserSerializer
@@ -89,3 +90,14 @@ class UserViewSet(
 
     def perform_update(self, serializer):
         serializer.save()
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
+def get_ably_token(request):
+    token_params = {
+        "client_id": str(request.user.id),
+        "ttl": 24 * 60 * 60,
+    }
+    token_details = ably_client.auth.request_token(token_params=token_params)
+    return Response(token_details.to_dict())

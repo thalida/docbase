@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useRoute, useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
@@ -13,11 +13,13 @@ import { useDatabasesStore } from '@/stores/databases'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
 import { useUsersStore } from '@/stores/users'
+import AblyInstance, { utils } from '@/services/ably'
 
 const props = defineProps<{
   showUserProfile: boolean
   profileForUser?: string
 }>()
+const isLayoutReady = ref(false)
 const route = useRoute()
 const router = useRouter()
 const databasesStore = useDatabasesStore()
@@ -74,6 +76,96 @@ async function fetchData(workspaceId: string) {
     workspace: currentWorkspaceId.value
   })
 }
+
+onMounted(async () => {
+  const currentWorkspaceId = route.params.workspaceId as string
+  const currentDatabaseId = route.params.databaseId as string
+
+  if (typeof currentWorkspaceId !== 'undefined' && currentWorkspaceId !== null) {
+    const workspaceSpace = await AblyInstance.spaces.get(utils.getSpaceId(currentWorkspaceId))
+    workspaceSpace.enter()
+  }
+
+  if (typeof currentDatabaseId !== 'undefined' && currentDatabaseId !== null) {
+    const databaseSpace = await AblyInstance.spaces.get(
+      utils.getSpaceId(currentWorkspaceId, currentDatabaseId)
+    )
+    databaseSpace.enter()
+  }
+})
+
+onBeforeRouteUpdate(async (to, from) => {
+  const toWorkspaceId = to.params.workspaceId as string
+  const fromWorkspaceId = from.params.workspaceId as string
+
+  const toDatabaseId = to.params.databaseId as string
+  const fromDatabaseId = from.params.databaseId as string
+
+  const isSameWorkspace = toWorkspaceId === fromWorkspaceId
+  const isSameDatabase = toDatabaseId === fromDatabaseId
+
+  if (isSameWorkspace && isSameDatabase) {
+    return
+  }
+
+  if (!isSameWorkspace) {
+    if (typeof toWorkspaceId !== 'undefined' && toWorkspaceId !== null) {
+      const enterSpace = await AblyInstance.spaces.get(utils.getSpaceId(toWorkspaceId))
+      enterSpace.enter()
+    }
+
+    if (typeof fromWorkspaceId !== 'undefined' && fromWorkspaceId !== null) {
+      const leaveSpace = await AblyInstance.spaces.get(utils.getSpaceId(fromWorkspaceId))
+      leaveSpace.leave()
+    }
+  }
+
+  if (!isSameDatabase) {
+    if (typeof toDatabaseId !== 'undefined' && toDatabaseId !== null) {
+      const enterSpace = await AblyInstance.spaces.get(
+        utils.getSpaceId(toWorkspaceId, toDatabaseId)
+      )
+      enterSpace.enter()
+    }
+
+    if (typeof fromDatabaseId !== 'undefined' && fromDatabaseId !== null) {
+      const leaveSpace = await AblyInstance.spaces.get(
+        utils.getSpaceId(fromWorkspaceId, fromDatabaseId)
+      )
+      leaveSpace.leave()
+    }
+  }
+})
+// onBeforeRouteLeave(async (to, from) => {
+//   const toWorkspaceId = to.params.workspaceId as string
+//   const fromWorkspaceId = from.params.workspaceId as string
+
+//   const toDatabaseId = to.params.databaseId as string
+//   const fromDatabaseId = from.params.databaseId as string
+
+//   const isSameWorkspace = toWorkspaceId === fromWorkspaceId
+//   const isSameDatabase = toDatabaseId === fromDatabaseId
+
+//   if (isSameWorkspace && isSameDatabase) {
+//     return
+//   }
+
+//   if (!isSameWorkspace) {
+//     const enterSpace = await AblyInstance.spaces.get(`workspace:${toWorkspaceId}`)
+//     enterSpace.enter();
+
+//     const leaveSpace = await AblyInstance.spaces.get(`workspace:${fromWorkspaceId}`)
+//     leaveSpace.leave();
+//   }
+
+//   if (!isSameDatabase) {
+//     const enterSpace = await AblyInstance.spaces.get(`workspace:${toWorkspaceId}|database:${toDatabaseId}`)
+//     enterSpace.enter();
+
+//     const leaveSpace = await AblyInstance.spaces.get(`workspace:${toWorkspaceId}|database:${fromDatabaseId}`)
+//     leaveSpace.leave();
+//   }
+// })
 </script>
 
 <template>

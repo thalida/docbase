@@ -8,6 +8,7 @@ import { useUsersStore } from './users'
 import { useWorkspacesStore } from './workspaces'
 import { useDatabasesStore } from './databases'
 import { useWorkspaceInvitationsStore } from './workspaceInvitations'
+import AblyInstance from '@/services/ably'
 
 export const useUIStore = defineStore('ui', () => {
   const authStore = useAuthStore()
@@ -66,6 +67,7 @@ export const useUIStore = defineStore('ui', () => {
 
     if (authStore.isAuthenticated) {
       const promises = [
+        AblyInstance.connect(),
         usersStore.fetchMe(),
         workspacesStore.fetchAll(),
         workspaceInvitationsStore.fetchAll({ email: usersStore.me?.email })
