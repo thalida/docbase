@@ -160,7 +160,7 @@ function handleGoToProfile() {
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
                 activeClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
               >
-                <AvatarStack :workspaceId="currentWorkspaceId" :databaseId="database.id" />
+                <AvatarStack :workspaceId="currentWorkspaceId" />
                 <span class="truncate">{{ database.name }}</span>
               </RouterLink>
             </li>
