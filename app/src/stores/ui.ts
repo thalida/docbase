@@ -8,7 +8,7 @@ import { useUsersStore } from './users'
 import { useWorkspacesStore } from './workspaces'
 import { useDatabasesStore } from './databases'
 import { useWorkspaceInvitationsStore } from './workspaceInvitations'
-import AblyInstance from '@/services/ably'
+import { useRealtimeStore } from './realtime'
 
 export const useUIStore = defineStore('ui', () => {
   const authStore = useAuthStore()
@@ -16,6 +16,7 @@ export const useUIStore = defineStore('ui', () => {
   const workspacesStore = useWorkspacesStore()
   const databasesStore = useDatabasesStore()
   const workspaceInvitationsStore = useWorkspaceInvitationsStore()
+  const realtimeStore = useRealtimeStore()
 
   const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:theme`
   const PALETTE_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:palette`
@@ -67,7 +68,7 @@ export const useUIStore = defineStore('ui', () => {
 
     if (authStore.isAuthenticated) {
       const promises = [
-        AblyInstance.connect(),
+        realtimeStore.connect(),
         usersStore.fetchMe(),
         workspacesStore.fetchAll(),
         workspaceInvitationsStore.fetchAll({ email: usersStore.me?.email })

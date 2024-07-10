@@ -10,18 +10,18 @@ import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppMain from '@/components/layout/AppMain.vue'
 import UserProfileDialog from '@/components/dialogs/UserProfileDialog.vue'
 import { useDatabasesStore } from '@/stores/databases'
+import { useRealtimeStore } from '@/stores/realtime'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
 import { useUsersStore } from '@/stores/users'
-import AblyInstance, { utils } from '@/services/ably'
 
 const props = defineProps<{
   showUserProfile: boolean
   profileForUser?: string
 }>()
-const isLayoutReady = ref(false)
 const route = useRoute()
 const router = useRouter()
+const realtimeStore = useRealtimeStore()
 const databasesStore = useDatabasesStore()
 const workspacesStore = useWorkspacesStore()
 const workspaceInvitationsStore = useWorkspaceInvitationsStore()
@@ -79,27 +79,26 @@ async function fetchData(workspaceId: string) {
 
 onMounted(async () => {
   const currentWorkspaceId = route.params.workspaceId as string
-  const workspaceSpace = await AblyInstance.spaces.get(utils.getSpaceId(currentWorkspaceId))
-  workspaceSpace.enter()
+  await realtimeStore.enterSpace(currentWorkspaceId)
 })
 
 onBeforeRouteUpdate(async (to, from) => {
   const toWorkspaceId = to.params.workspaceId as string
   const fromWorkspaceId = from.params.workspaceId as string
 
+  const toDatabaseId = to.params.databaseId
+  const fromDatabaseId = from.params.databaseId
+
   const isSameWorkspace = toWorkspaceId === fromWorkspaceId
-  if (isSameWorkspace) {
-    return
+  const isSameDatabase = toDatabaseId === fromDatabaseId
+
+  if (!isSameWorkspace) {
+    realtimeStore.enterSpace(toWorkspaceId)
+    realtimeStore.leaveSpace(fromWorkspaceId)
   }
 
-  if (typeof toWorkspaceId !== 'undefined' && toWorkspaceId !== null) {
-    const enterSpace = await AblyInstance.spaces.get(utils.getSpaceId(toWorkspaceId))
-    enterSpace.enter()
-  }
-
-  if (typeof fromWorkspaceId !== 'undefined' && fromWorkspaceId !== null) {
-    const leaveSpace = await AblyInstance.spaces.get(utils.getSpaceId(fromWorkspaceId))
-    leaveSpace.leave()
+  if (!isSameDatabase) {
+    realtimeStore.setSpaceLocation(toWorkspaceId, { databaseId: toDatabaseId })
   }
 })
 </script>

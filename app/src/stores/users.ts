@@ -43,6 +43,17 @@ export const useUsersStore = defineStore('users', () => {
     return users.value
   }
 
+  async function getOrFetch(id: IUser['id']) {
+    const user = get(id)
+
+    if (user) {
+      return user
+    }
+
+    await fetch(id)
+    return get(id)
+  }
+
   async function fetchMe(reset = false) {
     if (!me.value || reset) {
       const res = await api.users.retrieveMe()
@@ -102,6 +113,7 @@ export const useUsersStore = defineStore('users', () => {
     fetchAll,
     get,
     getAll,
+    getOrFetch,
     myPendingInvitations,
     $reset
   }
