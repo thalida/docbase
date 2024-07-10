@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref, defineProps, computed, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
+import { ref, defineProps, computed, watch } from 'vue'
 import type { Space } from '@ably/spaces'
-import type { IUser } from '@/types/users'
 import { useRealtimeStore } from '@/stores/realtime'
-import { useUsersStore } from '@/stores/users'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const props = defineProps<{
