@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import type { SpaceMember } from '@ably/spaces'
 
 // import Breadcrumb from 'primevue/breadcrumb'
 
@@ -47,10 +48,18 @@ watch(
   },
   { immediate: true }
 )
+
+function filterMembersByDatabase(members: SpaceMember[]) {
+  return members.filter((member) => {
+    const location = member.location
+    if (!location) return false
+    return (member.location as Record<string, any>).databaseId === currentDatabaseId.value
+  })
+}
 </script>
 
 <template>
-  <div>
+  <div v-if="workspace && database">
     <!-- <Breadcrumb :model="items" class="p-0 !bg-transparent">
       <template #item="{ item, props }">
         <RouterLink v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
@@ -65,7 +74,8 @@ watch(
         </span>
       </template>
     </Breadcrumb> -->
-    <div>{{ database?.name }} ({{ database?.id }})</div>
-    <div>{{ workspace?.name }} ({{ workspace?.id }})</div>
+    <MemberAvatarStack :workspaceId="workspace.id" :filter="filterMembersByDatabase" />
+    <div>{{ database.name }} ({{ database.id }})</div>
+    <div>{{ workspace.name }} ({{ workspace.id }})</div>
   </div>
 </template>
