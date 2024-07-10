@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
+import type { SpaceMember } from '@ably/spaces'
 
 import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
@@ -10,6 +11,7 @@ import UserAvatar from '@/components/ui/UserAvatar.vue'
 import CreateWorkspaceDialog from '@/components/dialogs/CreateWorkspaceDialog.vue'
 import EditWorkspaceDialog from '@/components/dialogs/EditWorkspaceDialog.vue'
 import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
+import MemberAvatarStack from '@/components/realtime/MemberAvatarStack.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
@@ -58,6 +60,14 @@ function handleCreateDatabase() {
 function handleGoToProfile() {
   router.replace({
     query: { profile: 'me' }
+  })
+}
+
+function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
+  return members.filter((member) => {
+    const location = member.location
+    if (!location) return false
+    return (member.location as Record<string, any>).databaseId === databaseId
   })
 }
 </script>
@@ -160,7 +170,10 @@ function handleGoToProfile() {
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
                 activeClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
               >
-                <!-- <AvatarStack :workspaceId="currentWorkspaceId" /> -->
+                <MemberAvatarStack
+                  :workspaceId="currentWorkspaceId"
+                  :filter="(members) => filterMembersByDatabase(members, database.id)"
+                />
                 <span class="truncate">{{ database.name }}</span>
               </RouterLink>
             </li>

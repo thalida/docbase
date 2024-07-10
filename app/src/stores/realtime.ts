@@ -4,7 +4,6 @@ import Spaces, { type LocationsEvents, type Space, type SpaceMember } from '@abl
 import Ably from 'ably'
 import api from '@/api'
 import { useUsersStore } from './users'
-import type { IUser } from '@/types/users'
 
 export const useRealtimeStore = defineStore('realtime', () => {
   const usersStore = useUsersStore()
@@ -145,10 +144,27 @@ export const useRealtimeStore = defineStore('realtime', () => {
         ) ?? []
       return
     }
+
+    console.log('Member updated:', member, spaceName, lastEvent)
   }
 
   async function _onSpaceLocationUpdate(location: LocationsEvents.UpdateEvent, spaceName: string) {
-    console.log('Location updated:', location, spaceName)
+    const space = await getSpace(spaceName)
+
+    if (!space) {
+      return
+    }
+
+    spaceMembers.value[spaceName] = spaceMembers.value[spaceName] || []
+    const member = location.member
+    const foundIndex = spaceMembers.value[spaceName].findIndex(
+      (m) => m.clientId === member.clientId && m.connectionId === member.connectionId
+    )
+    if (foundIndex > -1) {
+      spaceMembers.value[spaceName][foundIndex] = member
+    } else {
+      spaceMembers.value[spaceName].push(member)
+    }
   }
 
   return {

@@ -11,18 +11,20 @@ defineProps<{
 <template>
   <Avatar
     v-if="user?.avatar"
+    v-bind="$attrs"
     :image="user?.avatar"
     shape="circle"
     :class="{
-      'outline outline-2 outline-offset-1 outline-yellow-500': isMe
+      'border !border-yellow-500': isMe
     }"
   />
   <Avatar
     v-else
+    v-bind="$attrs"
     :label="user?.initials"
     shape="circle"
     :class="{
-      'outline outline-2 outline-offset-1 outline-yellow-500': isMe
+      'border !border-yellow-500': isMe
     }"
   />
 </template>

@@ -79,7 +79,11 @@ async function fetchData(workspaceId: string) {
 
 onMounted(async () => {
   const currentWorkspaceId = route.params.workspaceId as string
+  const currentDatabaseId = route.params.databaseId as string
   await realtimeStore.enterSpace(currentWorkspaceId)
+  if (currentDatabaseId) {
+    realtimeStore.setSpaceLocation(currentWorkspaceId, { databaseId: currentDatabaseId })
+  }
 })
 
 onBeforeRouteUpdate(async (to, from) => {
@@ -93,7 +97,7 @@ onBeforeRouteUpdate(async (to, from) => {
   const isSameDatabase = toDatabaseId === fromDatabaseId
 
   if (!isSameWorkspace) {
-    realtimeStore.enterSpace(toWorkspaceId)
+    await realtimeStore.enterSpace(toWorkspaceId)
     realtimeStore.leaveSpace(fromWorkspaceId)
   }
 

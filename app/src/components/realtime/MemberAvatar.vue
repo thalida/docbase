@@ -22,5 +22,5 @@ watch(
 </script>
 
 <template>
-  <UserAvatar :user="user" :isMe="isMe" />
+  <UserAvatar :user="user" :isMe="isMe" size="small" />
 </template>
