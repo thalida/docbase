@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 
 import { useDatabasesStore } from '@/stores/databases'
 import { useWorkspacesStore } from '@/stores/workspaces'
-import AvatarStack from '@/components/ui/AvatarStack.vue'
+import MemberAvatarStack from '@/components/realtime/MemberAvatarStack.vue'
 
 const route = useRoute()
 const workspacesStore = useWorkspacesStore()
@@ -25,7 +25,7 @@ watch(
 
 <template>
   <div>
-    <AvatarStack :workspaceId="currentWorkspaceId" />
+    <MemberAvatarStack :workspaceId="currentWorkspaceId" />
     {{ workspace?.name }} ({{ workspace?.id }})
     <div v-for="database in workspaceDBs" :key="database.id">
       {{ database.name }}

@@ -2,7 +2,7 @@
 import { ref, defineProps, computed, watch } from 'vue'
 import type { Space } from '@ably/spaces'
 import { useRealtimeStore } from '@/stores/realtime'
-import UserAvatar from '@/components/ui/UserAvatar.vue'
+import MemberAvatar from './MemberAvatar.vue'
 
 const props = defineProps<{
   workspaceId: string
@@ -10,7 +10,8 @@ const props = defineProps<{
 const realtimeStore = useRealtimeStore()
 
 const space = ref<Space>()
-const users = computed(() => realtimeStore.getUsersBySpace(space.value?.name ?? ''))
+const members = computed(() => realtimeStore.getMembersBySpace(space.value?.name ?? ''))
+const myMember = computed(() => realtimeStore.getSelfBySpace(space.value?.name ?? ''))
 
 watch(
   () => props.workspaceId,
@@ -23,8 +24,13 @@ watch(
 
 <template>
   <div>
-    <div v-for="user in users" :key="user.id">
-      <UserAvatar :user="user" />
-    </div>
+    <MemberAvatar
+      v-for="(member, index) in members"
+      :key="index"
+      :member="member"
+      :isMe="
+        member.clientId === myMember?.clientId && member.connectionId === myMember?.connectionId
+      "
+    />
   </div>
 </template>

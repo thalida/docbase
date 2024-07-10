@@ -12,21 +12,14 @@ export const useRealtimeStore = defineStore('realtime', () => {
   const spacesClient = ref<Spaces | null>(null)
   const spaces = ref<Record<string, Space>>({})
   const spaceMembers = ref<Record<string, SpaceMember[]>>({})
+  const mySpaceMembers = ref<Record<string, SpaceMember>>({})
 
   const getMembersBySpace = computed(() => (spaceName: string) => {
     return spaceMembers.value[spaceName] ?? []
   })
 
-  const getUsersBySpace = computed(() => (spaceName: string) => {
-    const members = spaceMembers.value[spaceName] ?? []
-    const users: IUser[] = []
-    for (const member of members) {
-      const user = usersStore.get(member.clientId)
-      if (user) {
-        users.push(user)
-      }
-    }
-    return users
+  const getSelfBySpace = computed(() => (spaceName: string) => {
+    return mySpaceMembers.value[spaceName]
   })
 
   async function connect() {
@@ -69,9 +62,13 @@ export const useRealtimeStore = defineStore('realtime', () => {
       return
     }
 
-    space.enter()
-
+    await space.enter()
     spaceMembers.value[space.name] = await space.members.getAll()
+
+    const self = await space.members.getSelf()
+    if (self) {
+      mySpaceMembers.value[space.name] = self
+    }
 
     _subscribe(space)
   }
@@ -83,6 +80,9 @@ export const useRealtimeStore = defineStore('realtime', () => {
     }
 
     space.leave()
+
+    delete mySpaceMembers.value[space.name]
+
     _unsubscribe(space)
   }
 
@@ -126,10 +126,11 @@ export const useRealtimeStore = defineStore('realtime', () => {
     const lastEvent = member.lastEvent
     if (lastEvent.name === 'enter') {
       await usersStore.getOrFetch(member.clientId)
+
       const foundIndex = spaceMembers.value[spaceName].findIndex(
-        (m) => m.clientId === member.clientId
+        (m) => m.clientId === member.clientId && m.connectionId === member.connectionId
       )
-      if (foundIndex > 0) {
+      if (foundIndex > -1) {
         spaceMembers.value[spaceName][foundIndex] = member
       } else {
         spaceMembers.value[spaceName].push(member)
@@ -139,7 +140,9 @@ export const useRealtimeStore = defineStore('realtime', () => {
 
     if (lastEvent.name === 'leave') {
       spaceMembers.value[spaceName] =
-        spaceMembers.value[spaceName]?.filter((m) => m.clientId !== member.clientId) ?? []
+        spaceMembers.value[spaceName]?.filter(
+          (m) => !(m.clientId === member.clientId && m.connectionId === member.connectionId)
+        ) ?? []
       return
     }
   }
@@ -156,6 +159,7 @@ export const useRealtimeStore = defineStore('realtime', () => {
 
     spaces,
     spaceMembers,
+    mySpaceMembers,
 
     getSpace,
     enterSpace,
@@ -163,6 +167,6 @@ export const useRealtimeStore = defineStore('realtime', () => {
     setSpaceLocation,
 
     getMembersBySpace,
-    getUsersBySpace
+    getSelfBySpace
   }
 })
