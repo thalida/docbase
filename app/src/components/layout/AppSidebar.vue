@@ -11,7 +11,6 @@ import UserAvatar from '@/components/ui/UserAvatar.vue'
 import CreateWorkspaceDialog from '@/components/dialogs/CreateWorkspaceDialog.vue'
 import EditWorkspaceDialog from '@/components/dialogs/EditWorkspaceDialog.vue'
 import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
-import MemberAvatarStack from '@/components/realtime/MemberAvatarStack.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
@@ -62,14 +61,6 @@ function handleGoToProfile() {
     query: { profile: 'me' }
   })
 }
-
-function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
-  return members.filter((member) => {
-    const location = member.location
-    if (!location) return false
-    return (member.location as Record<string, any>).databaseId === databaseId
-  })
-}
 </script>
 
 <template>
@@ -87,7 +78,7 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
       <ThemeSwitcher />
     </div>
     <nav class="flex flex-1 flex-col">
-      <ul role="list" class="flex flex-1 flex-col gap-y-7">
+      <ul role="list" class="flex flex-1 flex-col gap-y-4">
         <li>
           <div class="flex flex-row justify-between items-center">
             <div class="w-full flex-grow text-sm font-semibold leading-6 text-gray-400">
@@ -143,6 +134,15 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
           </div>
         </li>
         <li>
+          <RouterLink
+            :to="{ name: ROUTES.WORKSPACE, params: { workspaceId: currentWorkspaceId } }"
+            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+            exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+          >
+            <span>Overview</span>
+          </RouterLink>
+        </li>
+        <li>
           <div class="flex flex-row justify-between items-center">
             <div class="w-full flex-grow text-sm font-semibold leading-6 text-gray-400">
               Databases
@@ -170,10 +170,6 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
                 activeClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
               >
-                <MemberAvatarStack
-                  :workspaceId="currentWorkspaceId"
-                  :filter="(members) => filterMembersByDatabase(members, database.id)"
-                />
                 <span class="truncate">{{ database.name }}</span>
               </RouterLink>
             </li>
