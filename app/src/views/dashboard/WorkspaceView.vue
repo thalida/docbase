@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { SpaceMember } from '@ably/spaces'
 
+import { ROUTES } from '@/router'
 import { useDatabasesStore } from '@/stores/databases'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import MemberAvatarStack from '@/components/realtime/MemberAvatarStack.vue'
@@ -70,22 +71,32 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
     {{ workspace?.name }} ({{ workspace?.id }})
 
     <div class="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card v-for="database in workspaceDBs" :key="database.id">
-        <template #title>
-          <div class="flex flex-row justify-between items-center">
-            <span>{{ database.name }}</span>
-            <MemberAvatarStack
-              :workspaceId="currentWorkspaceId"
-              :filter="(members) => filterMembersByDatabase(members, database.id)"
-            />
-          </div>
-        </template>
-        <template #content>
-          <p class="m-0">
-            {{ database.description }}
-          </p>
-        </template>
-      </Card>
+      <RouterLink
+        v-for="database in workspaceDBs"
+        :key="database.id"
+        as="div"
+        :to="{
+          name: ROUTES.DATABASE,
+          params: { workspaceId: currentWorkspaceId, databaseId: database.id }
+        }"
+      >
+        <Card>
+          <template #title>
+            <div class="flex flex-row justify-between items-center">
+              <span>{{ database.name }}</span>
+              <MemberAvatarStack
+                :workspaceId="currentWorkspaceId"
+                :filter="(members) => filterMembersByDatabase(members, database.id)"
+              />
+            </div>
+          </template>
+          <template #content>
+            <p class="m-0">
+              {{ database.description }}
+            </p>
+          </template>
+        </Card>
+      </RouterLink>
     </div>
   </div>
 </template>

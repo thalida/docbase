@@ -139,7 +139,7 @@ function handleGoToProfile() {
             class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
             exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
           >
-            <span>Overview</span>
+            <span>Workspace Overview</span>
           </RouterLink>
         </li>
         <li>
