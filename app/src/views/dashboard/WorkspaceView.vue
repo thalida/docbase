@@ -46,7 +46,7 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
 
 <template>
   <div class="p-2">
-    <div class="card">
+    <!-- <div class="card">
       <Toolbar>
         <template #start>
           <Button icon="pi pi-plus" class="mr-2" severity="secondary" text />
@@ -65,7 +65,7 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
 
         <template #end> <SplitButton label="Save" :model="items"></SplitButton></template>
       </Toolbar>
-    </div>
+    </div> -->
 
     <MemberAvatarStack :workspaceId="currentWorkspaceId" />
     {{ workspace?.name }} ({{ workspace?.id }})

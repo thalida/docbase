@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
 import type { SpaceMember } from '@ably/spaces'
+import { XMarkIcon, Bars3Icon } from '@heroicons/vue/24/outline'
 
 import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
@@ -21,6 +22,7 @@ const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
 const databaseStore = useDatabasesStore()
 
+const isSidebarOpen = ref(true)
 const currentWorkspaceId = ref(route.params.workspaceId as string)
 const currentWorkspace = computed(() => workspacesStore.get(currentWorkspaceId.value))
 const workspaceDBs = computed(() => databaseStore.getAllByWorkspace(currentWorkspaceId.value))
@@ -65,19 +67,35 @@ function handleGoToProfile() {
 
 <template>
   <div
-    class="flex grow flex-col gap-y-5 overflow-y-auto bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
+    class="flex flex-col flex-shrink-0 gap-y-5 h-full overflow-y-auto md:relative bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
+    :class="{
+      fixed: isSidebarOpen,
+      'w-72': isSidebarOpen,
+      'w-auto': !isSidebarOpen
+    }"
   >
     <div class="flex flex-row justify-between h-16 shrink-0 items-center">
-      <div>
-        <img
-          class="h-8 w-auto"
-          src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-          alt="Your Company"
-        />
-      </div>
-      <ThemeSwitcher />
+      <ThemeSwitcher :class="{ hidden: !isSidebarOpen }" />
+      <button
+        type="button"
+        class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-400"
+        :class="{ hidden: !isSidebarOpen }"
+        @click="isSidebarOpen = false"
+      >
+        <span class="sr-only">Close sidebar</span>
+        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-400"
+        :class="{ hidden: isSidebarOpen }"
+        @click="isSidebarOpen = true"
+      >
+        <span class="sr-only">Open sidebar</span>
+        <Bars3Icon class="h-6 w-6" aria-hidden="true" />
+      </button>
     </div>
-    <nav class="flex flex-1 flex-col">
+    <nav class="flex flex-1 flex-col" :class="{ hidden: !isSidebarOpen }">
       <ul role="list" class="flex flex-1 flex-col gap-y-4">
         <li>
           <div class="flex flex-row justify-between items-center">

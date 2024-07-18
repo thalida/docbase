@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <main class="lg:pl-72">
+  <main>
     <slot />
   </main>
 </template>
