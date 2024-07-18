@@ -67,11 +67,11 @@ function handleGoToProfile() {
 
 <template>
   <div
-    class="flex flex-col flex-shrink-0 gap-y-5 h-full overflow-y-auto md:relative bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
+    class="flex flex-col flex-shrink-0 gap-y-5 h-full overflow-y-auto transition-[width] ease-in-out duration-150 md:relative bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
     :class="{
       fixed: isSidebarOpen,
       'w-72': isSidebarOpen,
-      'w-auto': !isSidebarOpen
+      'w-14': !isSidebarOpen
     }"
   >
     <div class="flex flex-row justify-between h-16 shrink-0 items-center">
@@ -95,7 +95,7 @@ function handleGoToProfile() {
         <Bars3Icon class="h-6 w-6" aria-hidden="true" />
       </button>
     </div>
-    <nav class="flex flex-1 flex-col" :class="{ hidden: !isSidebarOpen }">
+    <nav class="flex flex-1 flex-col w-64" :class="{ hidden: !isSidebarOpen }">
       <ul role="list" class="flex flex-1 flex-col gap-y-4">
         <li>
           <div class="flex flex-row justify-between items-center">
