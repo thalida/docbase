@@ -16,6 +16,7 @@ const props = defineProps<{
   showUserProfile: boolean
   profileForUser?: string
 }>()
+
 const route = useRoute()
 const router = useRouter()
 const realtimeStore = useRealtimeStore()
@@ -29,6 +30,7 @@ const currentWorkspaceId = ref<string | null | undefined>(
 )
 const showUserProfile = ref(props.showUserProfile)
 const userProfileId = ref(props.profileForUser === 'me' ? usersStore.me?.id : props.profileForUser)
+const isSidebarOpen = ref(true)
 
 watch(
   () => route.params.workspaceId as string,
@@ -101,20 +103,22 @@ onBeforeRouteUpdate(async (to, from) => {
     realtimeStore.setSpaceLocation(toWorkspaceId, { databaseId: toDatabaseId })
   }
 })
+
+function setIsSidebarOpen(state: boolean) {
+  isSidebarOpen.value = state
+}
 </script>
 
 <template>
   <div class="flex flex-row items-stretch h-full w-full">
-    <AppSidebar />
-    <div>
-      <AppMain>
-        <RouterView />
-      </AppMain>
-      <UserProfileDialog
-        v-model:visible="showUserProfile"
-        @update:visible="(state) => (showUserProfile = state)"
-        :userId="userProfileId"
-      />
-    </div>
+    <AppSidebar :isSidebarOpen="isSidebarOpen" @update:isSidebarOpen="setIsSidebarOpen" />
+    <AppMain :isSidebarOpen="isSidebarOpen" @update:isSidebarOpen="setIsSidebarOpen">
+      <RouterView />
+    </AppMain>
+    <UserProfileDialog
+      v-model:visible="showUserProfile"
+      @update:visible="(state) => (showUserProfile = state)"
+      :userId="userProfileId"
+    />
   </div>
 </template>

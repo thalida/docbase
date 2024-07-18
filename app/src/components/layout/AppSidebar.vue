@@ -3,7 +3,6 @@ import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
-import type { SpaceMember } from '@ably/spaces'
 import { XMarkIcon, Bars3Icon } from '@heroicons/vue/24/outline'
 
 import { ROUTES } from '@/router'
@@ -16,13 +15,17 @@ import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
 
+defineProps<{
+  isSidebarOpen: boolean
+}>()
+const emits = defineEmits(['update:isSidebarOpen'])
+
 const route = useRoute()
 const router = useRouter()
 const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
 const databaseStore = useDatabasesStore()
 
-const isSidebarOpen = ref(true)
 const currentWorkspaceId = ref(route.params.workspaceId as string)
 const currentWorkspace = computed(() => workspacesStore.get(currentWorkspaceId.value))
 const workspaceDBs = computed(() => databaseStore.getAllByWorkspace(currentWorkspaceId.value))
@@ -67,9 +70,8 @@ function handleGoToProfile() {
 
 <template>
   <div
-    class="flex flex-col flex-shrink-0 gap-y-5 h-full overflow-y-auto transition-[width] ease-in-out duration-150 md:relative bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
+    class="flex flex-col flex-shrink-0 flex-grow-0 gap-y-5 h-full overflow-y-auto transition-[width] ease-in-out duration-150 fixed top-0 left-0 md:relative bg-white border-r border-gray-200 px-4 pb-2 dark:bg-gray-900 dark:border-0 :ring-1 dark:ring-white/10"
     :class="{
-      fixed: isSidebarOpen,
       'w-72': isSidebarOpen,
       'w-14': !isSidebarOpen
     }"
@@ -80,7 +82,7 @@ function handleGoToProfile() {
         type="button"
         class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-400"
         :class="{ hidden: !isSidebarOpen }"
-        @click="isSidebarOpen = false"
+        @click="emits('update:isSidebarOpen', false)"
       >
         <span class="sr-only">Close sidebar</span>
         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
@@ -89,7 +91,7 @@ function handleGoToProfile() {
         type="button"
         class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-400"
         :class="{ hidden: isSidebarOpen }"
-        @click="isSidebarOpen = true"
+        @click="emits('update:isSidebarOpen', true)"
       >
         <span class="sr-only">Open sidebar</span>
         <Bars3Icon class="h-6 w-6" aria-hidden="true" />
