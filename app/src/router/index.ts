@@ -11,13 +11,14 @@ import AcceptInviteView from '@/views/AcceptInviteView.vue'
 
 export enum ROUTES {
   INDEX = 'index',
+
   WORKSPACE = 'workspace',
-  CREATE_WORKSPACE = 'createWorkspace',
-  ACCEPT_INVITE = 'acceptInvite',
+  WORKSPACE_ACCEPT_INVITE = 'acceptInvite',
+  WORKSPACE_SETTINGS = 'settings',
   DATABASE = 'database',
+
   LOGIN = 'login',
   LOGOUT = 'logout',
-  ABOUT = 'about',
   NOT_FOUND = 'NotFound'
 }
 
@@ -50,7 +51,7 @@ const router = createRouter({
     },
     {
       path: '/accept-invitation',
-      name: ROUTES.ACCEPT_INVITE,
+      name: ROUTES.WORKSPACE_ACCEPT_INVITE,
       component: AcceptInviteView,
       meta: {
         requiresAuth: true,
@@ -81,6 +82,11 @@ const router = createRouter({
         {
           path: 'db-:databaseId',
           name: ROUTES.DATABASE,
+          component: DatabaseView
+        },
+        {
+          path: 'settings',
+          name: ROUTES.WORKSPACE_SETTINGS,
           component: DatabaseView
         }
       ]

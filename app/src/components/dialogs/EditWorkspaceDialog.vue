@@ -111,7 +111,7 @@ async function handleCopyInvitationLink(invitationId: string) {
 
   const host = window.location.origin
   const route = router.resolve({
-    name: ROUTES.ACCEPT_INVITE,
+    name: ROUTES.WORKSPACE_ACCEPT_INVITE,
     query: { invitation: invitation.id }
   })
   const url = `${host}${route.href}`

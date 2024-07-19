@@ -17,7 +17,6 @@ watchEffect(async () => {
 
   const myWorkspaces = usersStore.me?.workspaces || []
   if (myWorkspaces.length === 0) {
-    router.replace({ name: ROUTES.CREATE_WORKSPACE })
     return
   }
 

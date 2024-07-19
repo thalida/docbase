@@ -46,6 +46,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
     is_default = serializers.SerializerMethodField()
     databases = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    invitations = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Workspace

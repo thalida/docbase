@@ -22,6 +22,10 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     }
 
     return Object.values(collection.value).sort((a, b) => {
+      if (a.is_default) {
+        return -1
+      }
+
       return a.name.localeCompare(b.name)
     })
   })

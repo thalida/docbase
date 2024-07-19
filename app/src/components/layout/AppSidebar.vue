@@ -2,8 +2,14 @@
 import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
-import { FolderPlusIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
-import { XMarkIcon, Bars3Icon } from '@heroicons/vue/24/outline'
+import {
+  FolderPlusIcon,
+  SquaresPlusIcon,
+  CheckIcon,
+  ChevronUpDownIcon,
+  XMarkIcon,
+  Bars3Icon
+} from '@heroicons/vue/24/outline'
 
 import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
@@ -32,6 +38,15 @@ const workspaceDBs = computed(() => databaseStore.getAllByWorkspace(currentWorks
 const showCreateWorkspaceDialog = ref(false)
 const showEditWorkspaceDialog = ref(false)
 const showCreateDatabaseDialog = ref(false)
+const workspacesMenu = ref()
+const workspaceMenuItems = computed(() => {
+  return workspacesStore.orderedCollection.map((workspace) => ({
+    label: workspace.name,
+    command: () => handleChangeWorkspace(workspace.id),
+    isDefault: workspace.is_default,
+    isSelected: workspace.id === currentWorkspaceId.value
+  }))
+})
 
 watch(
   () => route.params.workspaceId as string,
@@ -66,6 +81,10 @@ function handleGoToProfile() {
     query: { profile: 'me' }
   })
 }
+
+function toggleWorkspacesMenu(event: Event) {
+  workspacesMenu.value.toggle(event)
+}
 </script>
 
 <template>
@@ -79,92 +98,120 @@ function handleGoToProfile() {
       @click="emits('update:isSidebarOpen', false)"
     />
     <div
-      class="flex flex-col flex-shrink-0 flex-grow-0 gap-y-5 h-full px-4 pb-2 fixed top-0 left-0 overflow-y-auto transition-[width] ease-in-out duration-150 md:relative bg-white dark:bg-gray-900"
+      class="flex flex-col flex-shrink-0 flex-grow-0 h-full px-4 pb-2 fixed top-0 left-0 overflow-y-auto transition-[width] ease-in-out duration-150 md:relative bg-white dark:bg-gray-900"
       :class="{
         'w-72': isSidebarOpen,
         'w-14': !isSidebarOpen
       }"
     >
-      <div class="flex flex-row justify-between h-16 shrink-0 items-center">
-        <ThemeSwitcher :class="{ hidden: !isSidebarOpen }" />
-        <button
+      <div
+        class="flex justify-between py-4 shrink-0 items-center"
+        :class="{
+          'flex-row': isSidebarOpen,
+          'flex-col-reverse': !isSidebarOpen
+        }"
+      >
+        <div :class="{ hidden: !isSidebarOpen }">docbase</div>
+        <div :class="{ hidden: isSidebarOpen }">db</div>
+        <!-- <ThemeSwitcher :class="{ hidden: !isSidebarOpen }" /> -->
+        <Button
           type="button"
-          class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-400"
-          :class="{ hidden: !isSidebarOpen }"
-          @click="emits('update:isSidebarOpen', false)"
+          size="small"
+          text
+          :style="{
+            padding: 0,
+            width: '2rem',
+            height: '2rem'
+          }"
+          @click="emits('update:isSidebarOpen', !isSidebarOpen)"
         >
-          <span class="sr-only">Close sidebar</span>
-          <XMarkIcon class="h-6 w-6" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-400"
-          :class="{ hidden: isSidebarOpen }"
-          @click="emits('update:isSidebarOpen', true)"
-        >
-          <span class="sr-only">Open sidebar</span>
-          <Bars3Icon class="h-6 w-6" aria-hidden="true" />
-        </button>
+          <span class="sr-only">Toggle sidebar</span>
+          <Bars3Icon class="h-6 w-6" aria-hidden="true" v-if="!isSidebarOpen" />
+          <XMarkIcon class="h-6 w-6" aria-hidden="true" v-else-if="isSidebarOpen" />
+        </Button>
       </div>
       <nav class="flex flex-1 flex-col w-64" :class="{ hidden: !isSidebarOpen }">
         <ul role="list" class="flex flex-1 flex-col gap-y-4">
           <li>
-            <div class="flex flex-row justify-between items-center">
-              <div class="w-full flex-grow text-sm font-semibold leading-6 text-gray-400">
-                Workspaces
-              </div>
-              <Button
-                icon=""
-                text
-                v-tooltip.right="{ value: 'Create a workspace', showDelay: 300, hideDelay: 300 }"
-                aria-label="Create a workspace"
-                class="w-10 h-10"
-                @click="handleCreateWorkspace"
-              >
-                <span>
-                  <FolderPlusIcon class="h-5 w-5" aria-hidden="true" />
+            <Button
+              type="button"
+              size="normal"
+              severity="secondary"
+              outlined
+              class="w-full"
+              @click="toggleWorkspacesMenu"
+              aria-haspopup="true"
+              aria-controls="workspaces_menu"
+            >
+              <div class="flex flex-row items-center justify-between w-full flex-nowrap gap-2">
+                <span class="truncate">
+                  {{ currentWorkspace?.name || 'Workspaces' }}
                 </span>
-              </Button>
-            </div>
-            <div class="flex flex-row items-center justify-between gap-2 mt-2">
-              <Select
-                :modelValue="currentWorkspaceId"
-                @update:modelValue="handleChangeWorkspace"
-                :options="workspacesStore.orderedCollection"
-                optionValue="id"
-                optionLabel="name"
-                placeholder="Select a workspace"
-                :highlightOnSelect="false"
-                class="flex-grow min-w-0"
-              >
-                <template #option="slotProps">
-                  <div class="w-full flex flex-row items-center justify-between gap-4">
-                    <div>{{ slotProps.option.name }}</div>
-                    <div class="flex flex-row gap-2 items-center justify-end">
-                      <Tag
-                        v-if="slotProps.option.is_default"
-                        value="Default"
-                        severity="secondary"
-                      />
-                      <Tag
-                        v-if="slotProps.option.id === currentWorkspaceId"
-                        icon="pi pi-check"
-                        severity="success"
-                      />
-                    </div>
+                <ChevronUpDownIcon class="flex-shrink-0 h-4 w-4" />
+              </div>
+            </Button>
+            <Menu
+              ref="workspacesMenu"
+              id="workspaces_menu"
+              :model="workspaceMenuItems"
+              :popup="true"
+              :pt="{
+                list: {
+                  class: 'max-h-64 overflow-auto max-w-80'
+                }
+              }"
+            >
+              <template #start>
+                <div class="px-4 pt-3 pb-1">
+                  <span class="text-sm font-semibold leading-6 text-gray-400">
+                    Switch Workspace
+                  </span>
+                </div>
+              </template>
+              <template #item="{ item, props }">
+                <div
+                  class="flex flex-row items-center justify-between px-2 py-2 gap-2 cursor-pointer flex-nowrap"
+                  v-tooltip.bottom="{
+                    value: item.label,
+                    showDelay: 1000,
+                    pt: {
+                      text: 'text-xs'
+                    }
+                  }"
+                >
+                  <div class="flex flex-row flex-shrink items-center justify-start truncate gap-2">
+                    <span class="truncate">{{ item.label }}</span>
+                    <Tag
+                      v-if="item.isDefault"
+                      value="Default"
+                      severity="secondary"
+                      class="flex-shrink-0"
+                    />
                   </div>
-                </template>
-              </Select>
-              <Button
-                icon="pi pi-cog"
-                text
-                severity="secondary"
-                v-tooltip.right="{ value: 'Workspace Settings', showDelay: 300, hideDelay: 300 }"
-                aria-label="Workspace Settings"
-                class="flex-shrink-0 w-10 h-10"
-                @click="handleEditWorkspace"
-              />
-            </div>
+                  <div class="flex flex-row items-center justify-end gap-2">
+                    <CheckIcon
+                      v-if="item.isSelected"
+                      class="flex-shrink-0 h-5 w-5 text-green-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
+              </template>
+              <template #end>
+                <div>
+                  <div class="border-t border-gray-200 dark:border-gray-700"></div>
+                  <Button
+                    type="button"
+                    size="small"
+                    text
+                    icon="pi pi-plus"
+                    label="Create a workspace"
+                    class="w-full"
+                    @click="handleCreateWorkspace"
+                  />
+                </div>
+              </template>
+            </Menu>
           </li>
           <li>
             <RouterLink
@@ -172,7 +219,14 @@ function handleGoToProfile() {
               class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
               exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
             >
-              <span>Workspace Overview</span>
+              <span>Overview</span>
+            </RouterLink>
+            <RouterLink
+              :to="{ name: ROUTES.WORKSPACE_SETTINGS, params: { workspaceId: currentWorkspaceId } }"
+              class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+              exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+            >
+              <span>Settings</span>
             </RouterLink>
           </li>
           <li>

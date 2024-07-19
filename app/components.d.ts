@@ -11,7 +11,7 @@ declare module 'vue' {
     AppMain: typeof import('./src/components/layout/AppMain.vue')['default']
     AppSidebar: typeof import('./src/components/layout/AppSidebar.vue')['default']
     AutoComplete: typeof import('primevue/autocomplete')['default']
-    Avatar: typeof import('./src/components/realtime/Avatar.vue')['default']
+    Avatar: typeof import('primevue/avatar')['default']
     AvatarGroup: typeof import('primevue/avatargroup')['default']
     AvatarStac: typeof import('./src/components/ui/AvatarStac.vue')['default']
     AvatarStack: typeof import('./src/components/ui/AvatarStack.vue')['default']
