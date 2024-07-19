@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import type { SpaceMember } from '@ably/spaces'
 import { useUsersStore } from '@/stores/users'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
