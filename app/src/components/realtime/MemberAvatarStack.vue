@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Space } from '@ably/spaces'
 import type { SpaceMember } from '@ably/spaces'
 import { useRealtimeStore } from '@/stores/realtime'

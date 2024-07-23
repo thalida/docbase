@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useUIStore } from '@/stores/ui'
 import { $dt } from '@primevue/themes'
+
+const props = defineProps({
+  displayVariant: {
+    type: String,
+    default: 'icon',
+    validator: (value: string) => ['icon', 'text'].includes(value)
+  }
+})
 
 const uiStore = useUIStore()
 const palettePopover = ref()
@@ -11,6 +19,20 @@ const colorSchemeOptions = ref([
   { value: 'dark', label: 'Dark', icon: 'pi pi-moon' },
   { value: 'system', label: 'System', icon: 'pi pi-desktop' }
 ])
+const customStyles = computed(() => {
+  const styles: Record<string, string> = {}
+
+  if (props.displayVariant === 'icon') {
+    styles.padding = '0'
+    styles.width = '2rem'
+    styles.height = '2rem'
+  }
+
+  return styles
+})
+const label = computed(() => {
+  return uiStore.palette.charAt(0).toUpperCase() + uiStore.palette.slice(1)
+})
 
 function togglePalettePopover(event: Event) {
   palettePopover.value.toggle(event)
@@ -20,15 +42,15 @@ function togglePalettePopover(event: Event) {
 <template>
   <div>
     <Button
+      v-bind="$attrs"
       type="button"
       size="small"
       :icon="uiStore.colorScheme === 'light' ? 'pi pi-sun' : 'pi pi-moon'"
+      :label="displayVariant === 'icon' ? '' : label"
       outlined
       @click="togglePalettePopover"
       :style="{
-        padding: 0,
-        width: '2rem',
-        height: '2rem',
+        ...customStyles,
         backgroundColor: `var(--p-button-outlined-primary-hover-background)`
       }"
     />

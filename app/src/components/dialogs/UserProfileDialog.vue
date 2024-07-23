@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ROUTES } from '@/router'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
@@ -73,6 +74,10 @@ async function handleRefreshPendingInvitations() {
   await usersStore.fetchMe(true)
   workspaceInvitationsStore.fetchAll({ email: usersStore.me?.email })
 }
+
+function handleLogout() {
+  router.push({ name: ROUTES.LOGOUT })
+}
 </script>
 
 <template>
@@ -102,6 +107,13 @@ async function handleRefreshPendingInvitations() {
             <span class="text-xs text-surface-500 dark:text-surface-400">{{ user.email }}</span>
           </div>
         </div>
+        <Button
+          icon="pi pi-sign-out"
+          text
+          severity="danger"
+          aria-label="Sign out"
+          @click="handleLogout"
+        />
       </Panel>
       <Panel v-if="isMe" header="Pending Invitations" toggleable>
         <template #icons>

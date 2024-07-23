@@ -57,6 +57,7 @@ declare module 'vue' {
     UiAvatar: typeof import('./src/components/ui/UiAvatar.vue')['default']
     UserAvatar: typeof import('./src/components/ui/UserAvatar.vue')['default']
     UserProfileDialog: typeof import('./src/components/dialogs/UserProfileDialog.vue')['default']
+    WorkspaceAvatar: typeof import('./src/components/ui/WorkspaceAvatar.vue')['default']
     XAvatar: typeof import('./src/components/ui/XAvatar.vue')['default']
   }
   export interface ComponentCustomProperties {

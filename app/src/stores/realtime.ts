@@ -144,8 +144,6 @@ export const useRealtimeStore = defineStore('realtime', () => {
         ) ?? []
       return
     }
-
-    console.log('Member updated:', member, spaceName, lastEvent)
   }
 
   async function _onSpaceLocationUpdate(location: LocationsEvents.UpdateEvent, spaceName: string) {
