@@ -27,6 +27,7 @@ declare module 'vue' {
     CreateDatabaseDialog: typeof import('./src/components/dialogs/CreateDatabaseDialog.vue')['default']
     CreateWorkspaceDialog: typeof import('./src/components/dialogs/CreateWorkspaceDialog.vue')['default']
     Dialog: typeof import('primevue/dialog')['default']
+    Divider: typeof import('primevue/divider')['default']
     Drawer: typeof import('primevue/drawer')['default']
     EditWorkspaceDialog: typeof import('./src/components/dialogs/EditWorkspaceDialog.vue')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']

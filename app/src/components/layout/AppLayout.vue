@@ -30,7 +30,6 @@ const currentWorkspaceId = ref<string | null | undefined>(
 )
 const showUserProfile = ref(props.showUserProfile)
 const userProfileId = ref(props.profileForUser === 'me' ? usersStore.me?.id : props.profileForUser)
-const isSidebarOpen = ref(true)
 
 watch(
   () => route.params.workspaceId as string,
@@ -103,16 +102,12 @@ onBeforeRouteUpdate(async (to, from) => {
     realtimeStore.setSpaceLocation(toWorkspaceId, { databaseId: toDatabaseId })
   }
 })
-
-function setIsSidebarOpen(state: boolean) {
-  isSidebarOpen.value = state
-}
 </script>
 
 <template>
   <div class="flex flex-row items-stretch h-full w-full md:p-4">
-    <AppSidebar :isSidebarOpen="isSidebarOpen" @update:isSidebarOpen="setIsSidebarOpen" />
-    <AppMain :isSidebarOpen="isSidebarOpen" @update:isSidebarOpen="setIsSidebarOpen">
+    <AppSidebar />
+    <AppMain>
       <slot />
     </AppMain>
     <UserProfileDialog

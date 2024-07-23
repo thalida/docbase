@@ -45,7 +45,7 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
 </script>
 
 <template>
-  <div class="p-2">
+  <div class="w-full p-2">
     <!-- <div class="card">
       <Toolbar>
         <template #start>
@@ -68,7 +68,7 @@ function filterMembersByDatabase(members: SpaceMember[], databaseId: string) {
     </div> -->
 
     <MemberAvatarStack :workspaceId="currentWorkspaceId" />
-    {{ workspace?.name }} ({{ workspace?.id }})
+    <span class="break-words"> {{ workspace?.name }} ({{ workspace?.id }}) </span>
 
     <div class="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <RouterLink

@@ -20,11 +20,12 @@ export const useUIStore = defineStore('ui', () => {
 
   const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:theme`
   const PALETTE_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:palette`
+  const UI_SIDEBAR_STATE_KEY = `${LOCALSTOARGE_NAMESPACE}:sidebarOpenState`
+
   const supportedThemes = ['light', 'dark', 'system'] as const
   const defaultTheme = 'system'
   const theme = ref<Theme>(defaultTheme)
   const colorScheme = ref<ColorScheme>()
-
   const supportedPalettes = [
     'red',
     'orange',
@@ -50,6 +51,8 @@ export const useUIStore = defineStore('ui', () => {
   const defaultPalette = 'blue'
   const palette = ref(defaultPalette)
 
+  const isSidebarOpen = ref(true)
+
   const isReady = ref(false)
 
   async function setup() {
@@ -63,6 +66,14 @@ export const useUIStore = defineStore('ui', () => {
 
     const palette = (localStorage.getItem(PALETTE_STORAGE_KEY) as string) || defaultPalette
     setPalette(palette)
+
+    const isMobile = window.innerWidth < 768
+    if (isMobile) {
+      setIsSidebarOpen(false)
+    } else {
+      const sidebarOpenState = localStorage.getItem(UI_SIDEBAR_STATE_KEY)
+      setIsSidebarOpen(sidebarOpenState ? sidebarOpenState === 'true' : true)
+    }
 
     await authStore.silentLogin()
 
@@ -78,6 +89,15 @@ export const useUIStore = defineStore('ui', () => {
     }
 
     isReady.value = true
+  }
+
+  function setIsSidebarOpen(value: boolean) {
+    isSidebarOpen.value = value
+  }
+
+  function toggleSidebarStore() {
+    setIsSidebarOpen(!isSidebarOpen.value)
+    localStorage.setItem(UI_SIDEBAR_STATE_KEY, isSidebarOpen.value.toString())
   }
 
   function setTheme(newTheme: Theme) {
@@ -232,6 +252,10 @@ export const useUIStore = defineStore('ui', () => {
     setPalette,
     supportedThemes,
     supportedPalettes,
+
+    isSidebarOpen,
+    setIsSidebarOpen,
+    toggleSidebarStore,
 
     $resetAll
   }

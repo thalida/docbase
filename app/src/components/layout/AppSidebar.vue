@@ -6,12 +6,10 @@ import {
   SquaresPlusIcon,
   Squares2X2Icon,
   Cog6ToothIcon,
-  CheckCircleIcon,
   CheckIcon,
   ChevronUpDownIcon,
   XMarkIcon,
   Bars3Icon,
-  FolderPlusIcon,
   CircleStackIcon
 } from '@heroicons/vue/24/outline'
 
@@ -20,18 +18,14 @@ import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 import CreateWorkspaceDialog from '@/components/dialogs/CreateWorkspaceDialog.vue'
 import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
+import { useUIStore } from '@/stores/ui'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
-import type { MenuItem } from 'primevue/menuitem'
-
-defineProps<{
-  isSidebarOpen: boolean
-}>()
-const emits = defineEmits(['update:isSidebarOpen'])
 
 const route = useRoute()
 const router = useRouter()
+const uiStore = useUIStore()
 const usersStore = useUsersStore()
 const workspacesStore = useWorkspacesStore()
 const databaseStore = useDatabasesStore()
@@ -50,26 +44,6 @@ const workspaceMenuItems = computed(() => {
     isSelected: workspace.id === currentWorkspaceId.value,
     workspace
   }))
-})
-const databaseMenuItems = computed(() => {
-  return workspaceDBs.value.map((database) => ({
-    label: database.name,
-    command: () => {
-      router.push({
-        name: ROUTES.DATABASE,
-        params: { workspaceId: currentWorkspaceId.value, databaseId: database.id }
-      })
-    }
-  }))
-})
-const databaseMenuPanel = computed(() => {
-  return [
-    {
-      label: 'Databases',
-      icon: 'pi pi-file',
-      items: databaseMenuItems.value
-    }
-  ]
 })
 
 watch(
@@ -108,31 +82,31 @@ function toggleWorkspacesMenu(event: Event) {
     <div
       class="fixed top-0 left-0 w-full h-full md:hidden bg-slate-200/90 dark:bg-slate-800/90"
       :class="{
-        block: isSidebarOpen,
-        hidden: !isSidebarOpen
+        block: uiStore.isSidebarOpen,
+        hidden: !uiStore.isSidebarOpen
       }"
-      @click="emits('update:isSidebarOpen', false)"
+      @click="uiStore.setIsSidebarOpen(false)"
     />
     <div
       class="fixed top-0 left-0 md:relative flex flex-col flex-shrink-0 flex-grow-0 gap-4 h-full rounded-lg overflow-y-auto transition-all ease-in-out duration-300 bg-white dark:bg-gray-900"
       :class="{
-        'w-72': isSidebarOpen,
-        'w-16': !isSidebarOpen
+        'w-72': uiStore.isSidebarOpen,
+        'w-16': !uiStore.isSidebarOpen
       }"
     >
       <div
         class="flex justify-between shrink-0 items-center px-2"
         :class="{
-          'flex-row pt-2': isSidebarOpen,
-          'flex-col pt-4': !isSidebarOpen
+          'flex-row pt-2': uiStore.isSidebarOpen,
+          'flex-col pt-4': !uiStore.isSidebarOpen
         }"
       >
         <div
           :class="{
-            'px-3 py-2': isSidebarOpen
+            'px-3 py-2': uiStore.isSidebarOpen
           }"
         >
-          {{ isSidebarOpen ? 'docbase' : 'db' }}
+          {{ uiStore.isSidebarOpen ? 'docbase' : 'db' }}
         </div>
         <Button
           type="button"
@@ -141,14 +115,14 @@ function toggleWorkspacesMenu(event: Event) {
           text
           :class="[
             {
-              '!w-full': !isSidebarOpen,
-              '!p-2': isSidebarOpen
+              '!w-full': !uiStore.isSidebarOpen,
+              '!p-2': uiStore.isSidebarOpen
             }
           ]"
-          @click="emits('update:isSidebarOpen', !isSidebarOpen)"
+          @click="uiStore.toggleSidebarStore"
         >
           <span class="sr-only">Toggle sidebar</span>
-          <XMarkIcon v-if="isSidebarOpen" class="h-6 w-6" aria-hidden="true" />
+          <XMarkIcon v-if="uiStore.isSidebarOpen" class="h-6 w-6" aria-hidden="true" />
           <Bars3Icon v-else class="h-6 w-6" aria-hidden="true" />
         </Button>
       </div>
@@ -156,15 +130,15 @@ function toggleWorkspacesMenu(event: Event) {
         <ul role="list" class="flex flex-1 flex-col gap-2">
           <li
             :class="{
-              'px-3': isSidebarOpen
+              'px-3': uiStore.isSidebarOpen
             }"
           >
             <Button
               type="button"
               size="normal"
               severity="secondary"
-              :outlined="isSidebarOpen"
-              :text="!isSidebarOpen"
+              :outlined="uiStore.isSidebarOpen"
+              :text="!uiStore.isSidebarOpen"
               class="w-full !p-2 !rounded-lg"
               @click="toggleWorkspacesMenu"
               aria-haspopup="true"
@@ -173,25 +147,25 @@ function toggleWorkspacesMenu(event: Event) {
               <div
                 class="grow flex flex-row items-center flex-nowrap gap-4 w-full"
                 :class="{
-                  'justify-center': !isSidebarOpen,
-                  'justify-between': isSidebarOpen
+                  'justify-center': !uiStore.isSidebarOpen,
+                  'justify-between': uiStore.isSidebarOpen
                 }"
               >
                 <div
                   class="flex flex-row items-center gap-2 truncate w-full"
                   :class="{
-                    'justify-center': !isSidebarOpen,
-                    'justify-start': isSidebarOpen
+                    'justify-center': !uiStore.isSidebarOpen,
+                    'justify-start': uiStore.isSidebarOpen
                   }"
                 >
                   <WorkspaceAvatar v-if="currentWorkspace" :workspace="currentWorkspace" />
-                  <div v-if="isSidebarOpen" class="flex flex-row flex-shrink truncate">
+                  <div v-if="uiStore.isSidebarOpen" class="flex flex-row flex-shrink truncate">
                     <span class="truncate text-color">
                       {{ currentWorkspace?.name || 'Workspaces' }}
                     </span>
                   </div>
                 </div>
-                <ChevronUpDownIcon v-if="isSidebarOpen" class="flex-shrink-0 h-4 w-4" />
+                <ChevronUpDownIcon v-if="uiStore.isSidebarOpen" class="flex-shrink-0 h-4 w-4" />
               </div>
             </Button>
             <Menu
@@ -276,12 +250,12 @@ function toggleWorkspacesMenu(event: Event) {
               <div
                 class="flex flex-row gap-2 items-center grow"
                 :class="{
-                  'justify-start': isSidebarOpen,
-                  'justify-center': !isSidebarOpen
+                  'justify-start': uiStore.isSidebarOpen,
+                  'justify-center': !uiStore.isSidebarOpen
                 }"
               >
                 <Squares2X2Icon class="h-6 w-6" aria-hidden="true" />
-                <span v-if="isSidebarOpen">Overview</span>
+                <span v-if="uiStore.isSidebarOpen">Overview</span>
               </div>
             </Button>
             <Button
@@ -296,16 +270,19 @@ function toggleWorkspacesMenu(event: Event) {
               <div
                 class="flex flex-row gap-2 items-center grow"
                 :class="{
-                  'justify-start': isSidebarOpen,
-                  'justify-center': !isSidebarOpen
+                  'justify-start': uiStore.isSidebarOpen,
+                  'justify-center': !uiStore.isSidebarOpen
                 }"
               >
                 <Cog6ToothIcon class="h-6 w-6" aria-hidden="true" />
-                <span v-if="isSidebarOpen">Settings</span>
+                <span v-if="uiStore.isSidebarOpen">Settings</span>
               </div>
             </Button>
           </li>
-          <li v-if="isSidebarOpen" class="flex flex-col gap-2 mt-4">
+          <li>
+            <Divider />
+          </li>
+          <li v-if="uiStore.isSidebarOpen" class="flex flex-col gap-2">
             <div
               class="w-full flex-grow text-sm font-semibold leading-6 text-muted-color opacity-60 px-4"
             >
@@ -326,7 +303,7 @@ function toggleWorkspacesMenu(event: Event) {
                     params: { workspaceId: currentWorkspaceId, databaseId: database.id }
                   }"
                   :class="{
-                    'w-full': isSidebarOpen
+                    'w-full': uiStore.isSidebarOpen
                   }"
                 >
                   <div class="flex flex-row gap-2 items-center grow justify-start">
@@ -358,8 +335,8 @@ function toggleWorkspacesMenu(event: Event) {
             <div
               class="flex gap-2"
               :class="{
-                'flex-col': !isSidebarOpen,
-                'flex-row items-center justify-between': isSidebarOpen
+                'flex-col': !uiStore.isSidebarOpen,
+                'flex-row items-center justify-between': uiStore.isSidebarOpen
               }"
             >
               <Button
@@ -371,7 +348,7 @@ function toggleWorkspacesMenu(event: Event) {
               >
                 <UserAvatar :user="usersStore.me" />
                 <div
-                  v-if="isSidebarOpen"
+                  v-if="uiStore.isSidebarOpen"
                   aria-hidden="true"
                   class="flex flex-col items-start justify-center ml-2"
                 >
@@ -382,7 +359,7 @@ function toggleWorkspacesMenu(event: Event) {
               <ThemeSwitcher
                 displayVariant="icon"
                 :class="{
-                  '!w-full': !isSidebarOpen
+                  '!w-full': !uiStore.isSidebarOpen
                 }"
               />
             </div>
