@@ -47,12 +47,9 @@ function togglePalettePopover(event: Event) {
       size="small"
       :icon="uiStore.colorScheme === 'light' ? 'pi pi-sun' : 'pi pi-moon'"
       :label="displayVariant === 'icon' ? '' : label"
-      outlined
+      text
+      :class="['!p-2', {}]"
       @click="togglePalettePopover"
-      :style="{
-        ...customStyles,
-        backgroundColor: `var(--p-button-outlined-primary-hover-background)`
-      }"
     />
     <Popover ref="palettePopover">
       <div class="flex flex-col gap-4 items-center justify-start">

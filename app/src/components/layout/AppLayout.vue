@@ -110,7 +110,7 @@ function setIsSidebarOpen(state: boolean) {
 </script>
 
 <template>
-  <div class="flex flex-row items-stretch h-full w-full p-4">
+  <div class="flex flex-row items-stretch h-full w-full md:p-4">
     <AppSidebar :isSidebarOpen="isSidebarOpen" @update:isSidebarOpen="setIsSidebarOpen" />
     <AppMain :isSidebarOpen="isSidebarOpen" @update:isSidebarOpen="setIsSidebarOpen">
       <slot />
