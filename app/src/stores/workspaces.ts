@@ -83,7 +83,9 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       return 0
     })
 
-    const teamMembers = sortedMembers.map((member) => usersStore.get(member))
+    const teamMembers = sortedMembers
+      .map((member) => usersStore.get(member))
+      .filter((member) => member !== null)
     return teamMembers as IUser[]
   })
 

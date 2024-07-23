@@ -42,7 +42,10 @@ watch(
   { immediate: true }
 )
 
-function setup() {
+async function setup() {
+  await usersStore.fetchAll({
+    workspace: currentWorkspaceId.value
+  })
   form.value = {
     name: currentWorkspace.value?.name ?? '',
     is_default: currentWorkspace.value?.is_default ?? false
