@@ -3,7 +3,6 @@ import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import {
-  FolderPlusIcon,
   SquaresPlusIcon,
   Squares2X2Icon,
   Cog6ToothIcon,
@@ -17,7 +16,6 @@ import { ROUTES } from '@/router'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 import CreateWorkspaceDialog from '@/components/dialogs/CreateWorkspaceDialog.vue'
-import EditWorkspaceDialog from '@/components/dialogs/EditWorkspaceDialog.vue'
 import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
@@ -67,10 +65,6 @@ function handleCreateWorkspace() {
   showCreateWorkspaceDialog.value = true
 }
 
-function handleEditWorkspace() {
-  showEditWorkspaceDialog.value = true
-}
-
 function handleCreateDatabase() {
   showCreateDatabaseDialog.value = true
 }
@@ -97,7 +91,7 @@ function toggleWorkspacesMenu(event: Event) {
       @click="emits('update:isSidebarOpen', false)"
     />
     <div
-      class="flex flex-col flex-shrink-0 flex-grow-0 h-full pb-2 fixed top-0 left-0 overflow-y-auto transition-[width] ease-in-out duration-150 md:relative bg-white dark:bg-gray-900"
+      class="flex flex-col flex-shrink-0 flex-grow-0 h-full pb-2 fixed rounded-lg top-0 left-0 overflow-y-auto transition-[width] ease-in-out duration-150 md:relative bg-white dark:bg-gray-900"
       :class="{
         'w-72 px-4': isSidebarOpen,
         'w-14 px-1': !isSidebarOpen

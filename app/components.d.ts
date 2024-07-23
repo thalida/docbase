@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppHeader: typeof import('./src/components/layout/AppHeader.vue')['default']
+    AppLayout: typeof import('./src/components/layout/AppLayout.vue')['default']
     AppMain: typeof import('./src/components/layout/AppMain.vue')['default']
     AppSidebar: typeof import('./src/components/layout/AppSidebar.vue')['default']
     AutoComplete: typeof import('primevue/autocomplete')['default']
