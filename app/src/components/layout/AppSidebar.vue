@@ -129,7 +129,7 @@ function toggleWorkspacesMenu(event: Event) {
         </Button>
       </div>
       <nav class="flex flex-1 flex-col grow px-2 pb-2">
-        <ul role="list" class="flex flex-1 flex-col">
+        <ul role="list" class="flex flex-1 flex-col gap-2">
           <li
             :class="{
               'px-2': isSidebarOpen
