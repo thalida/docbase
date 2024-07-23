@@ -7,9 +7,12 @@ import {
   Squares2X2Icon,
   Cog6ToothIcon,
   CheckCircleIcon,
+  CheckIcon,
   ChevronUpDownIcon,
   XMarkIcon,
-  Bars3Icon
+  Bars3Icon,
+  FolderPlusIcon,
+  CircleStackIcon
 } from '@heroicons/vue/24/outline'
 
 import { ROUTES } from '@/router'
@@ -20,6 +23,7 @@ import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
 import { useUsersStore } from '@/stores/users'
 import { useWorkspacesStore } from '@/stores/workspaces'
 import { useDatabasesStore } from '@/stores/databases'
+import type { MenuItem } from 'primevue/menuitem'
 
 defineProps<{
   isSidebarOpen: boolean
@@ -46,6 +50,26 @@ const workspaceMenuItems = computed(() => {
     isSelected: workspace.id === currentWorkspaceId.value,
     workspace
   }))
+})
+const databaseMenuItems = computed(() => {
+  return workspaceDBs.value.map((database) => ({
+    label: database.name,
+    command: () => {
+      router.push({
+        name: ROUTES.DATABASE,
+        params: { workspaceId: currentWorkspaceId.value, databaseId: database.id }
+      })
+    }
+  }))
+})
+const databaseMenuPanel = computed(() => {
+  return [
+    {
+      label: 'Databases',
+      icon: 'pi pi-file',
+      items: databaseMenuItems.value
+    }
+  ]
 })
 
 watch(
@@ -105,7 +129,7 @@ function toggleWorkspacesMenu(event: Event) {
       >
         <div
           :class="{
-            'p-2': isSidebarOpen
+            'px-3 py-2': isSidebarOpen
           }"
         >
           {{ isSidebarOpen ? 'docbase' : 'db' }}
@@ -132,7 +156,7 @@ function toggleWorkspacesMenu(event: Event) {
         <ul role="list" class="flex flex-1 flex-col gap-2">
           <li
             :class="{
-              'px-2': isSidebarOpen
+              'px-3': isSidebarOpen
             }"
           >
             <Button
@@ -147,23 +171,25 @@ function toggleWorkspacesMenu(event: Event) {
               aria-controls="workspaces_menu"
             >
               <div
-                class="grow flex flex-row items-center flex-nowrap gap-4"
+                class="grow flex flex-row items-center flex-nowrap gap-4 w-full"
                 :class="{
                   'justify-center': !isSidebarOpen,
                   'justify-between': isSidebarOpen
                 }"
               >
                 <div
-                  class="flex flex-row items-center gap-2 truncate"
+                  class="flex flex-row items-center gap-2 truncate w-full"
                   :class="{
                     'justify-center': !isSidebarOpen,
                     'justify-start': isSidebarOpen
                   }"
                 >
                   <WorkspaceAvatar v-if="currentWorkspace" :workspace="currentWorkspace" />
-                  <span v-if="isSidebarOpen" class="truncate text-color">
-                    {{ currentWorkspace?.name || 'Workspaces' }}
-                  </span>
+                  <div v-if="isSidebarOpen" class="flex flex-row flex-shrink truncate">
+                    <span class="truncate text-color">
+                      {{ currentWorkspace?.name || 'Workspaces' }}
+                    </span>
+                  </div>
                 </div>
                 <ChevronUpDownIcon v-if="isSidebarOpen" class="flex-shrink-0 h-4 w-4" />
               </div>
@@ -199,7 +225,15 @@ function toggleWorkspacesMenu(event: Event) {
                 >
                   <div class="flex flex-row flex-shrink items-center justify-start truncate gap-2">
                     <WorkspaceAvatar :workspace="item.workspace" />
-                    <span class="truncate">{{ item.label }}</span>
+                    <span
+                      class="truncate"
+                      :class="{
+                        'text-color': item.isSelected,
+                        'text-muted-color': !item.isSelected
+                      }"
+                    >
+                      {{ item.label }}
+                    </span>
                     <Tag
                       v-if="item.isDefault"
                       value="Default"
@@ -208,7 +242,7 @@ function toggleWorkspacesMenu(event: Event) {
                     />
                   </div>
                   <div class="flex flex-row items-center justify-end gap-2">
-                    <CheckCircleIcon
+                    <CheckIcon
                       v-if="item.isSelected"
                       class="flex-shrink-0 h-5 w-5 text-green-400"
                       aria-hidden="true"
@@ -217,11 +251,10 @@ function toggleWorkspacesMenu(event: Event) {
                 </div>
               </template>
               <template #end>
-                <div>
-                  <div class="border-t border-gray-200 dark:border-gray-700"></div>
+                <div class="p-2">
                   <Button
                     type="button"
-                    text
+                    outlined
                     label="Create a workspace"
                     class="w-full"
                     @click="handleCreateWorkspace"
@@ -272,50 +305,54 @@ function toggleWorkspacesMenu(event: Event) {
               </div>
             </Button>
           </li>
-          <li v-if="isSidebarOpen">
-            <div class="flex flex-row justify-between items-center">
-              <div class="w-full flex-grow text-sm font-semibold leading-6 text-muted-color">
-                Databases
-              </div>
-              <Button
-                icon=""
-                text
-                v-tooltip.right="{ value: 'Create a database', showDelay: 300, hideDelay: 300 }"
-                aria-label="Create a database"
-                class="w-10 h-10"
-                @click="handleCreateDatabase"
-              >
-                <span>
-                  <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
-                </span>
-              </Button>
+          <li v-if="isSidebarOpen" class="flex flex-col gap-2 mt-4">
+            <div
+              class="w-full flex-grow text-sm font-semibold leading-6 text-muted-color opacity-60 px-4"
+            >
+              Databases
             </div>
-            <ul v-if="workspaceDBs.length > 0" role="list" class="-mx-2 mt-2 space-y-1">
+            <ul role="list">
               <li v-for="database in workspaceDBs" :key="database.id">
-                <RouterLink
+                <Button
+                  as="RouterLink"
+                  text
+                  :severity="
+                    route.name === ROUTES.DATABASE && route.params.databaseId === database.id
+                      ? 'primary'
+                      : 'secondary'
+                  "
                   :to="{
                     name: ROUTES.DATABASE,
                     params: { workspaceId: currentWorkspaceId, databaseId: database.id }
                   }"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                  activeClass="bg-gray-50 text-primary-600 dark:bg-gray-800"
+                  :class="{
+                    'w-full': isSidebarOpen
+                  }"
                 >
-                  <span class="truncate">{{ database.name }}</span>
-                </RouterLink>
+                  <div class="flex flex-row gap-2 items-center grow justify-start">
+                    <span class="truncate">{{ database.name }}</span>
+                  </div>
+                </Button>
+              </li>
+              <li
+                v-if="workspaceDBs.length === 0"
+                class="flex flex-row items-center justify-center px-3"
+              >
+                <span class="text-muted-color text-sm"> You don't have any databases yet. </span>
+              </li>
+              <li class="px-3">
+                <Button
+                  aria-label="Create a database"
+                  class="w-full gap-2 mt-4 p-4"
+                  @click="handleCreateDatabase"
+                  severity="secondary"
+                  outlined
+                >
+                  <CircleStackIcon class="h-5 w-5" aria-hidden="true" />
+                  <span>Create a database</span>
+                </Button>
               </li>
             </ul>
-            <div v-else>
-              <Button
-                aria-label="Create a database"
-                class="w-full gap-2 mt-4 p-4"
-                @click="handleCreateDatabase"
-              >
-                <span>
-                  <SquaresPlusIcon class="h-5 w-5" aria-hidden="true" />
-                </span>
-                <span>Create a database</span>
-              </Button>
-            </div>
           </li>
           <li class="mt-auto">
             <div

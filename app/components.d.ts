@@ -38,6 +38,7 @@ declare module 'vue' {
     MemberAvatarStack: typeof import('./src/components/realtime/MemberAvatarStack.vue')['default']
     Menu: typeof import('primevue/menu')['default']
     Panel: typeof import('primevue/panel')['default']
+    PanelMenu: typeof import('primevue/panelmenu')['default']
     Popover: typeof import('primevue/popover')['default']
     ProfileView: typeof import('./src/components/dialogs/ProfileView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
