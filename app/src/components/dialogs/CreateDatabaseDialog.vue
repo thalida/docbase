@@ -20,7 +20,7 @@ function handleSave() {
     dismissableMask
     :draggable="false"
   >
-    <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span>
+    <span class="text-color block mb-8">Update your information.</span>
     <div class="flex items-center gap-4 mb-4">
       <label for="username" class="font-semibold w-24">Username</label>
       <InputText id="username" class="flex-auto" autocomplete="off" />

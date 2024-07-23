@@ -136,7 +136,7 @@ function toggleWorkspacesMenu(event: Event) {
               <RouterLink
                 :to="{ name: ROUTES.WORKSPACE, params: { workspaceId: currentWorkspaceId } }"
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+                exactActiveClass="bg-gray-50 text-primary-600 dark:bg-gray-800"
               >
                 <Squares2X2Icon class="h-6 w-6" aria-hidden="true" />
               </RouterLink>
@@ -146,7 +146,7 @@ function toggleWorkspacesMenu(event: Event) {
                   params: { workspaceId: currentWorkspaceId }
                 }"
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+                exactActiveClass="bg-gray-50 text-primary-600 dark:bg-gray-800"
               >
                 <Cog6ToothIcon class="h-6 w-6" aria-hidden="true" />
               </RouterLink>
@@ -204,7 +204,7 @@ function toggleWorkspacesMenu(event: Event) {
                 <div class="flex flex-row items-center justify-between w-full flex-nowrap gap-4">
                   <div class="flex flex-row items-center justify-start gap-2 truncate">
                     <WorkspaceAvatar v-if="currentWorkspace" :workspace="currentWorkspace" />
-                    <span class="truncate text-gray-900 dark:text-white">
+                    <span class="truncate text-color">
                       {{ currentWorkspace?.name || 'Workspaces' }}
                     </span>
                   </div>
@@ -224,7 +224,7 @@ function toggleWorkspacesMenu(event: Event) {
               >
                 <template #start>
                   <div class="px-4 pt-3 pb-1">
-                    <span class="text-sm font-semibold leading-6 text-gray-400">
+                    <span class="text-sm font-semibold leading-6 text-muted-color">
                       Switch Workspace
                     </span>
                   </div>
@@ -282,7 +282,7 @@ function toggleWorkspacesMenu(event: Event) {
               <RouterLink
                 :to="{ name: ROUTES.WORKSPACE, params: { workspaceId: currentWorkspaceId } }"
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+                exactActiveClass="bg-gray-50 text-primary-600 dark:bg-gray-800"
               >
                 <Squares2X2Icon class="h-6 w-6" aria-hidden="true" />
                 <span>Overview</span>
@@ -293,7 +293,7 @@ function toggleWorkspacesMenu(event: Event) {
                   params: { workspaceId: currentWorkspaceId }
                 }"
                 class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                exactActiveClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+                exactActiveClass="bg-gray-50 text-primary-600 dark:bg-gray-800"
               >
                 <Cog6ToothIcon class="h-6 w-6" aria-hidden="true" />
                 <span>Settings</span>
@@ -301,7 +301,7 @@ function toggleWorkspacesMenu(event: Event) {
             </li>
             <li>
               <div class="flex flex-row justify-between items-center">
-                <div class="w-full flex-grow text-sm font-semibold leading-6 text-gray-400">
+                <div class="w-full flex-grow text-sm font-semibold leading-6 text-muted-color">
                   Databases
                 </div>
                 <Button
@@ -325,7 +325,7 @@ function toggleWorkspacesMenu(event: Event) {
                       params: { workspaceId: currentWorkspaceId, databaseId: database.id }
                     }"
                     class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                    activeClass="bg-gray-50 text-indigo-600 dark:bg-gray-800 dark:text-white"
+                    activeClass="bg-gray-50 text-primary-600 dark:bg-gray-800"
                   >
                     <span class="truncate">{{ database.name }}</span>
                   </RouterLink>
@@ -369,11 +369,6 @@ function toggleWorkspacesMenu(event: Event) {
     <CreateWorkspaceDialog
       v-model:visible="showCreateWorkspaceDialog"
       @update:visible="(state) => (showCreateWorkspaceDialog = state)"
-    />
-    <EditWorkspaceDialog
-      :workspaceId="currentWorkspaceId"
-      v-model:visible="showEditWorkspaceDialog"
-      @update:visible="(state) => (showEditWorkspaceDialog = state)"
     />
     <CreateDatabaseDialog
       v-model:visible="showCreateDatabaseDialog"

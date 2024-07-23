@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, watchEffect } from 'vue'
+import { watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { ROUTES } from '@/router'

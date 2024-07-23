@@ -6,6 +6,7 @@ import IndexView from '@/views/IndexView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import LogoutView from '@/views/auth/LogoutView.vue'
 import WorkspaceView from '@/views/dashboard/WorkspaceView.vue'
+import WorkspaceSettingsView from '@/views/dashboard/WorkspaceSettingsView.vue'
 import DatabaseView from '@/views/dashboard/DatabaseView.vue'
 import AcceptInviteView from '@/views/AcceptInviteView.vue'
 
@@ -80,13 +81,13 @@ const router = createRouter({
           component: WorkspaceView
         },
         {
-          path: 'db-:databaseId',
-          name: ROUTES.DATABASE,
-          component: DatabaseView
-        },
-        {
           path: 'settings',
           name: ROUTES.WORKSPACE_SETTINGS,
+          component: WorkspaceSettingsView
+        },
+        {
+          path: 'db-:databaseId',
+          name: ROUTES.DATABASE,
           component: DatabaseView
         }
       ]

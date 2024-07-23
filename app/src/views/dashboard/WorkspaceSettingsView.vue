@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useUsersStore } from '@/stores/users'
@@ -9,16 +9,18 @@ import { useWorkspaceInvitationsStore } from '@/stores/workspaceInvitations'
 import type { IWorkspaceUpdateRequest } from '@/types/workspaces'
 import { ROUTES } from '@/router'
 
-const props = defineProps<{ visible: boolean; workspaceId: string }>()
-const emits = defineEmits(['update:visible'])
+const route = useRoute()
+const workspacesStore = useWorkspacesStore()
+
+const currentWorkspaceId = ref<string>(route.params.workspaceId as string)
+
 const router = useRouter()
 const confirm = useConfirm()
 const usersStore = useUsersStore()
-const workspacesStore = useWorkspacesStore()
 const workspaceInvitationsStore = useWorkspaceInvitationsStore()
-const currentWorkspace = computed(() => workspacesStore.get(props.workspaceId))
-const teamMembers = computed(() => workspacesStore.getMembers(props.workspaceId))
-const invitations = computed(() => workspacesStore.getPendingInvitations(props.workspaceId))
+const currentWorkspace = computed(() => workspacesStore.get(currentWorkspaceId.value))
+const teamMembers = computed(() => workspacesStore.getMembers(currentWorkspaceId.value))
+const invitations = computed(() => workspacesStore.getPendingInvitations(currentWorkspaceId.value))
 
 const isSubmitting = ref(false)
 const isDeleting = ref(false)
@@ -33,22 +35,11 @@ const inviteFormErrors = ref<Record<string, string[]>>({})
 const toast = useToast()
 
 watch(
-  () => props.workspaceId,
+  () => currentWorkspaceId.value,
   () => {
     setup()
   },
   { immediate: true }
-)
-
-watch(
-  () => props.visible,
-  (visible) => {
-    if (visible) {
-      setup()
-    } else {
-      reset()
-    }
-  }
 )
 
 function setup() {
@@ -89,7 +80,7 @@ async function handleInvite() {
   inviteFormErrors.value = {}
   try {
     await workspaceInvitationsStore.create({
-      workspace: props.workspaceId,
+      workspace: currentWorkspaceId.value,
       ...inviteForm.value
     })
     inviteForm.value.email = ''
@@ -127,15 +118,13 @@ async function handleCopyInvitationLink(invitationId: string) {
 
 function handleCancel() {
   reset()
-  emits('update:visible', false)
 }
 
 async function handleSubmit() {
   isSubmitting.value = true
   try {
-    await workspacesStore.update(props.workspaceId, form.value)
+    await workspacesStore.update(currentWorkspaceId.value, form.value)
     reset()
-    emits('update:visible', false)
   } catch (e: any) {
     errors.value = e.response.data
   } finally {
@@ -146,9 +135,8 @@ async function handleSubmit() {
 async function handleDelete() {
   isDeleting.value = true
   try {
-    await workspacesStore.destroy(props.workspaceId)
+    await workspacesStore.destroy(currentWorkspaceId.value)
     reset()
-    emits('update:visible', false)
     router.push({ name: ROUTES.INDEX })
   } catch (e: any) {
     errors.value = e.response?.data
@@ -156,28 +144,10 @@ async function handleDelete() {
     isDeleting.value = false
   }
 }
-
-function onVisibleChange(visible: boolean) {
-  if (!visible) {
-    reset()
-  }
-
-  emits('update:visible', visible)
-}
 </script>
 
 <template>
-  <Dialog
-    v-if="typeof currentWorkspace !== 'undefined' && currentWorkspace !== null"
-    modal
-    v-bind="$attrs"
-    :visible="props.visible"
-    header="Workspace Settings"
-    @update:visible="onVisibleChange"
-    :style="{ width: '50%', minWidth: '25rem' }"
-    dismissableMask
-    :draggable="false"
-  >
+  <div v-if="currentWorkspace">
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
         <label for="edit-workspace-dialog__field-name" class="font-semibold"> Name </label>
@@ -241,7 +211,7 @@ function onVisibleChange(visible: boolean) {
                   <UserAvatar :user="member" class="w-8 h-8" />
                   <div class="flex flex-col items-start justify-center">
                     <span> {{ member.display_name }}</span>
-                    <span class="text-xs text-muted-color">{{ member.email }}</span>
+                    <span class="text-xs text-muted-color0">{{ member.email }}</span>
                   </div>
                   <Tag v-if="currentWorkspace.owner === member.id" value="Owner" severity="info" />
                   <Tag v-if="usersStore.me?.id === member.id" value="You" severity="secondary" />
@@ -339,14 +309,13 @@ function onVisibleChange(visible: boolean) {
     </div>
     <div class="flex justify-between items-center gap-2 mt-8">
       <div class="flex justify-start items-center gap-2">
-        <Button type="button" severity="secondary" label="Cancel" @click="handleCancel" />
         <Button
           v-if="currentWorkspace.is_owner"
           type="button"
           label="Delete"
           icon="pi pi-trash"
           severity="danger"
-          @click="confirmDelete()"
+          @click="confirmDelete"
           :loading="isDeleting"
         />
       </div>
@@ -358,6 +327,6 @@ function onVisibleChange(visible: boolean) {
         :loading="isSubmitting"
       />
     </div>
-  </Dialog>
+  </div>
   <ConfirmDialog />
 </template>

@@ -104,7 +104,7 @@ function handleLogout() {
           <UserAvatar :user="user" />
           <div class="flex flex-col">
             <span>{{ user.display_name }}</span>
-            <span class="text-xs text-surface-500 dark:text-surface-400">{{ user.email }}</span>
+            <span class="text-xs text-muted-color">{{ user.email }}</span>
           </div>
         </div>
         <Button
@@ -125,7 +125,7 @@ function handleLogout() {
             @click="handleRefreshPendingInvitations"
           />
         </template>
-        <div v-if="myPendingInvitations.length === 0" class="text-center italic text-gray-500">
+        <div v-if="myPendingInvitations.length === 0" class="text-center italic text-muted-color">
           No pending invitations
         </div>
         <div v-if="invitationErrors">

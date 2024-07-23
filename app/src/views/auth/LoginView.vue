@@ -35,7 +35,7 @@ async function handleGoogleLogin() {
 </script>
 
 <template>
-  <main class="flex flex-col min-h-full flex-1 md:flex-row text-slate-900 dark:text-white">
+  <main class="flex flex-col min-h-full flex-1 md:flex-row text-color">
     <div
       class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24"
     >
@@ -46,9 +46,7 @@ async function handleGoogleLogin() {
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
             alt="Your Company"
           />
-          <h2
-            class="mt-8 text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-white"
-          >
+          <h2 class="mt-8 text-2xl font-bold leading-9 tracking-tight text-color">
             Sign in to your account
           </h2>
         </div>
