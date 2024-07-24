@@ -26,7 +26,7 @@ function togglePalettePopover(event: Event) {
       @click="togglePalettePopover"
     />
     <Popover ref="palettePopover">
-      <div class="flex flex-col gap-4 items-center justify-start">
+      <div class="flex flex-col items-center justify-start">
         <SelectButton
           :modelValue="uiStore.theme"
           :options="colorSchemeOptions"
@@ -42,7 +42,7 @@ function togglePalettePopover(event: Event) {
             <span>{{ slotProps.option.label }}</span>
           </template>
         </SelectButton>
-        <div class="flex flex-grow items-stretch justify-center gap-6 mb-4">
+        <div class="flex flex-grow items-stretch justify-center gap-6 mt-4 mb-0">
           <div class="flex flex-col gap-2">
             <span class="text-sm font-semibold leading-6 text-muted-color">Primary</span>
             <div class="grid grid-cols-5 grid-flow-row gap-2 items-center">
@@ -108,6 +108,16 @@ function togglePalettePopover(event: Event) {
               />
             </div>
           </div>
+        </div>
+        <div class="w-full flex flex-row items-center justify-end">
+          <Button
+            type="button"
+            size="small"
+            label="Reset"
+            icon="pi pi-refresh"
+            text
+            @click="uiStore.resetTheme"
+          />
         </div>
       </div>
     </Popover>

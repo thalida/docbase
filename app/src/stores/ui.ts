@@ -275,6 +275,16 @@ export const useUIStore = defineStore('ui', () => {
     })
   }
 
+  function resetTheme() {
+    setTheme(defaultTheme)
+    setPalette(defaultPalette)
+    setSurface(defaultSurface)
+
+    localStorage.removeItem(THEME_STORAGE_KEY)
+    localStorage.removeItem(PALETTE_STORAGE_KEY)
+    localStorage.removeItem(SURFACE_STORAGE_KEY)
+  }
+
   function $resetAll() {
     databasesStore.$reset()
     workspacesStore.$reset()
@@ -296,6 +306,8 @@ export const useUIStore = defineStore('ui', () => {
     surface,
     setSurface,
     supportedSurfaces,
+
+    resetTheme,
 
     isSidebarOpen,
     setIsSidebarOpen,
