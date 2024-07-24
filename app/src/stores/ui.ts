@@ -162,6 +162,20 @@ export const useUIStore = defineStore('ui', () => {
         },
         colorScheme: {
           light: {
+            surface: {
+              0: '#ffffff',
+              50: '{slate.50}',
+              100: '{slate.100}',
+              200: '{slate.200}',
+              300: '{slate.300}',
+              400: '{slate.400}',
+              500: '{slate.500}',
+              600: '{slate.600}',
+              700: '{slate.700}',
+              800: '{slate.800}',
+              900: '{slate.900}',
+              950: '{slate.950}'
+            },
             primary: {
               color: '{zinc.950}',
               inverseColor: '#ffffff',
@@ -176,6 +190,20 @@ export const useUIStore = defineStore('ui', () => {
             }
           },
           dark: {
+            surface: {
+              0: '#ffffff',
+              50: '{slate.50}',
+              100: '{slate.100}',
+              200: '{slate.200}',
+              300: '{slate.300}',
+              400: '{slate.400}',
+              500: '{slate.500}',
+              600: '{slate.600}',
+              700: '{slate.700}',
+              800: '{slate.800}',
+              900: '{slate.900}',
+              950: '{slate.950}'
+            },
             primary: {
               color: '{zinc.50}',
               inverseColor: '{zinc.950}',
@@ -196,6 +224,20 @@ export const useUIStore = defineStore('ui', () => {
         primary: primevuePalette(`{${newPalette}}`),
         colorScheme: {
           light: {
+            surface: {
+              0: '#ffffff',
+              50: '{slate.50}',
+              100: '{slate.100}',
+              200: '{slate.200}',
+              300: '{slate.300}',
+              400: '{slate.400}',
+              500: '{slate.500}',
+              600: '{slate.600}',
+              700: '{slate.700}',
+              800: '{slate.800}',
+              900: '{slate.900}',
+              950: '{slate.950}'
+            },
             primary: {
               color: '{primary.500}',
               contrastColor: '#ffffff',
@@ -210,6 +252,20 @@ export const useUIStore = defineStore('ui', () => {
             }
           },
           dark: {
+            surface: {
+              0: '#ffffff',
+              50: '{slate.50}',
+              100: '{slate.100}',
+              200: '{slate.200}',
+              300: '{slate.300}',
+              400: '{slate.400}',
+              500: '{slate.500}',
+              600: '{slate.600}',
+              700: '{slate.700}',
+              800: '{slate.800}',
+              900: '{slate.900}',
+              950: '{slate.950}'
+            },
             primary: {
               color: '{primary.400}',
               contrastColor: '{surface.900}',

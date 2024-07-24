@@ -10,6 +10,7 @@ import {
   ChevronUpDownIcon,
   XMarkIcon,
   Bars3Icon,
+  PlusIcon,
   CircleStackIcon
 } from '@heroicons/vue/24/outline'
 
@@ -88,7 +89,7 @@ function toggleWorkspacesMenu(event: Event) {
       @click="uiStore.setIsSidebarOpen(false)"
     />
     <div
-      class="fixed top-0 left-0 md:relative flex flex-col flex-shrink-0 flex-grow-0 gap-4 h-full rounded-lg overflow-y-auto transition-all ease-in-out duration-300 bg-white dark:bg-gray-900"
+      class="fixed top-0 left-0 md:relative flex flex-col flex-shrink-0 flex-grow-0 gap-4 h-full rounded-lg overflow-y-auto transition-all ease-in-out duration-300 bg-surface-0 dark:bg-surface-900"
       :class="{
         'w-72': uiStore.isSidebarOpen,
         'w-16': !uiStore.isSidebarOpen
@@ -282,13 +283,18 @@ function toggleWorkspacesMenu(event: Event) {
           <li>
             <Divider />
           </li>
-          <li v-if="uiStore.isSidebarOpen" class="flex flex-col gap-2">
+          <li class="flex flex-col gap-2">
             <div
-              class="w-full flex-grow text-sm font-semibold leading-6 text-muted-color opacity-60 px-4"
+              class="w-full flex-grow flex flex-row items-center justify-start gap-2 text-sm font-semibold leading-6 text-muted-color opacity-50"
+              :class="{
+                'px-4': uiStore.isSidebarOpen,
+                'justify-center': !uiStore.isSidebarOpen
+              }"
             >
-              Databases
+              <CircleStackIcon class="h-6 w-6" aria-hidden="true" />
+              <span v-if="uiStore.isSidebarOpen">Databases</span>
             </div>
-            <ul role="list">
+            <ul v-if="uiStore.isSidebarOpen" role="list">
               <li v-for="database in workspaceDBs" :key="database.id">
                 <Button
                   as="RouterLink"
@@ -311,32 +317,39 @@ function toggleWorkspacesMenu(event: Event) {
                   </div>
                 </Button>
               </li>
-              <li
-                v-if="workspaceDBs.length === 0"
-                class="flex flex-row items-center justify-center px-3"
-              >
-                <span class="text-muted-color text-sm"> You don't have any databases yet. </span>
-              </li>
-              <li class="px-3">
-                <Button
-                  aria-label="Create a database"
-                  class="w-full gap-2 mt-4 p-4"
-                  @click="handleCreateDatabase"
-                  severity="secondary"
-                  outlined
-                >
-                  <CircleStackIcon class="h-5 w-5" aria-hidden="true" />
-                  <span>Create a database</span>
-                </Button>
-              </li>
             </ul>
+            <div
+              v-if="workspaceDBs.length === 0 && uiStore.isSidebarOpen"
+              class="flex flex-row items-center justify-center px-3"
+            >
+              <span class="text-muted-color text-sm"> You don't have any databases yet. </span>
+            </div>
+            <div
+              :class="{
+                'px-3': uiStore.isSidebarOpen
+              }"
+            >
+              <Button
+                aria-label="Create a database"
+                class="w-full gap-2 mt-4 p-4"
+                @click="handleCreateDatabase"
+                severity="secondary"
+                outlined
+              >
+                <div class="relative flex flex-row items-center justify-center">
+                  <PlusIcon class="h-3 w-3" aria-hidden="true" />
+                  <CircleStackIcon class="h-5 w-5" aria-hidden="true" />
+                </div>
+                <span v-if="uiStore.isSidebarOpen">Create a database</span>
+              </Button>
+            </div>
           </li>
           <li class="mt-auto">
             <div
-              class="flex gap-2"
+              class="flex"
               :class="{
-                'flex-col': !uiStore.isSidebarOpen,
-                'flex-row items-center justify-between': uiStore.isSidebarOpen
+                'flex-col gap-0': !uiStore.isSidebarOpen,
+                'flex-row items-center justify-between gap-2': uiStore.isSidebarOpen
               }"
             >
               <Button
