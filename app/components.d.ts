@@ -9,6 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppHeader: typeof import('./src/components/layout/AppHeader.vue')['default']
     AppLayout: typeof import('./src/components/layout/AppLayout.vue')['default']
+    AppLogo: typeof import('./src/components/AppLogo.vue')['default']
+    AppLogoNew: typeof import('./src/components/AppLogoNew.vue')['default']
     AppMain: typeof import('./src/components/layout/AppMain.vue')['default']
     AppSidebar: typeof import('./src/components/layout/AppSidebar.vue')['default']
     AutoComplete: typeof import('primevue/autocomplete')['default']
@@ -53,7 +55,7 @@ declare module 'vue' {
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
     Tag: typeof import('primevue/tag')['default']
-    ThemeSwitcher: typeof import('./src/components/ThemeSwitcher.vue')['default']
+    ThemeSwitcher: typeof import('./src/components/ui/ThemeSwitcher.vue')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     Toolbar: typeof import('primevue/toolbar')['default']

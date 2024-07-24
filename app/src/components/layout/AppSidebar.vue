@@ -15,7 +15,8 @@ import {
 } from '@heroicons/vue/24/outline'
 
 import { ROUTES } from '@/router'
-import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
+import AppLogo from '@/components/AppLogo.vue'
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
 import UserAvatar from '@/components/ui/UserAvatar.vue'
 import CreateWorkspaceDialog from '@/components/dialogs/CreateWorkspaceDialog.vue'
 import CreateDatabaseDialog from '@/components/dialogs/CreateDatabaseDialog.vue'
@@ -102,13 +103,12 @@ function toggleWorkspacesMenu(event: Event) {
           'flex-col pt-4': !uiStore.isSidebarOpen
         }"
       >
-        <div
+        <AppLogo
+          :displayFormat="uiStore.isSidebarOpen ? 'full' : 'short'"
           :class="{
             'px-3 py-2': uiStore.isSidebarOpen
           }"
-        >
-          {{ uiStore.isSidebarOpen ? 'docbase' : 'db' }}
-        </div>
+        />
         <Button
           type="button"
           size="small"
