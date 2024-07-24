@@ -81,7 +81,7 @@ function toggleWorkspacesMenu(event: Event) {
 <template>
   <div>
     <div
-      class="fixed top-0 left-0 w-full h-full md:hidden bg-slate-200/90 dark:bg-slate-800/90"
+      class="fixed top-0 left-0 w-full h-full md:hidden bg-surface-200/90 dark:bg-surface-800/90"
       :class="{
         block: uiStore.isSidebarOpen,
         hidden: !uiStore.isSidebarOpen
@@ -287,7 +287,7 @@ function toggleWorkspacesMenu(event: Event) {
             <div
               class="w-full flex-grow flex flex-row items-center justify-start gap-2 text-sm font-semibold leading-6 text-muted-color opacity-50"
               :class="{
-                'px-4': uiStore.isSidebarOpen,
+                'px-3': uiStore.isSidebarOpen,
                 'justify-center': !uiStore.isSidebarOpen
               }"
             >

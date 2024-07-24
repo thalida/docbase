@@ -20,6 +20,7 @@ export const useUIStore = defineStore('ui', () => {
 
   const THEME_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:theme`
   const PALETTE_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:palette`
+  const SURFACE_STORAGE_KEY = `${LOCALSTOARGE_NAMESPACE}:surface`
   const UI_SIDEBAR_STATE_KEY = `${LOCALSTOARGE_NAMESPACE}:sidebarOpenState`
 
   const supportedThemes = ['light', 'dark', 'system'] as const
@@ -44,12 +45,15 @@ export const useUIStore = defineStore('ui', () => {
     'fuchsia',
     'pink',
     'rose',
-    'slate',
-    'stone',
+    // 'slate',
+    // 'stone',
     'contrast'
   ]
+  const supportedSurfaces = ['slate', 'gray', 'zinc', 'neutral', 'stone']
   const defaultPalette = 'blue'
+  const defaultSurface = 'slate'
   const palette = ref(defaultPalette)
+  const surface = ref(defaultSurface)
 
   const isSidebarOpen = ref(true)
 
@@ -66,6 +70,9 @@ export const useUIStore = defineStore('ui', () => {
 
     const palette = (localStorage.getItem(PALETTE_STORAGE_KEY) as string) || defaultPalette
     setPalette(palette)
+
+    const surface = (localStorage.getItem(SURFACE_STORAGE_KEY) as string) || defaultSurface
+    setSurface(surface)
 
     const isMobile = window.innerWidth < 768
     if (isMobile) {
@@ -135,6 +142,18 @@ export const useUIStore = defineStore('ui', () => {
     setTheme('system')
   }
 
+  function setSurface(newSurface: string) {
+    const isValid = supportedSurfaces.includes(newSurface)
+
+    if (!isValid) {
+      newSurface = defaultSurface
+    }
+
+    surface.value = newSurface
+    localStorage.setItem(SURFACE_STORAGE_KEY, surface.value)
+    setPreset()
+  }
+
   function setPalette(newPalette: string) {
     const isValid = supportedPalettes.includes(newPalette)
 
@@ -143,9 +162,28 @@ export const useUIStore = defineStore('ui', () => {
     }
 
     palette.value = newPalette
+    localStorage.setItem(PALETTE_STORAGE_KEY, palette.value)
+    setPreset()
+  }
+
+  function setPreset() {
+    const surfaceConfig = {
+      0: '#ffffff',
+      50: `{${surface.value}.50}`,
+      100: `{${surface.value}.100}`,
+      200: `{${surface.value}.200}`,
+      300: `{${surface.value}.300}`,
+      400: `{${surface.value}.400}`,
+      500: `{${surface.value}.500}`,
+      600: `{${surface.value}.600}`,
+      700: `{${surface.value}.700}`,
+      800: `{${surface.value}.800}`,
+      900: `{${surface.value}.900}`,
+      950: `{${surface.value}.950}`
+    }
 
     let paletteConfig = {}
-    if (newPalette === 'contrast') {
+    if (palette.value === 'contrast') {
       paletteConfig = {
         primary: {
           50: '{zinc.50}',
@@ -162,23 +200,10 @@ export const useUIStore = defineStore('ui', () => {
         },
         colorScheme: {
           light: {
-            surface: {
-              0: '#ffffff',
-              50: '{slate.50}',
-              100: '{slate.100}',
-              200: '{slate.200}',
-              300: '{slate.300}',
-              400: '{slate.400}',
-              500: '{slate.500}',
-              600: '{slate.600}',
-              700: '{slate.700}',
-              800: '{slate.800}',
-              900: '{slate.900}',
-              950: '{slate.950}'
-            },
+            surface: surfaceConfig,
             primary: {
               color: '{zinc.950}',
-              inverseColor: '#ffffff',
+              contrastColor: '#ffffff',
               hoverColor: '{zinc.900}',
               activeColor: '{zinc.800}'
             },
@@ -190,23 +215,10 @@ export const useUIStore = defineStore('ui', () => {
             }
           },
           dark: {
-            surface: {
-              0: '#ffffff',
-              50: '{slate.50}',
-              100: '{slate.100}',
-              200: '{slate.200}',
-              300: '{slate.300}',
-              400: '{slate.400}',
-              500: '{slate.500}',
-              600: '{slate.600}',
-              700: '{slate.700}',
-              800: '{slate.800}',
-              900: '{slate.900}',
-              950: '{slate.950}'
-            },
+            surface: surfaceConfig,
             primary: {
               color: '{zinc.50}',
-              inverseColor: '{zinc.950}',
+              contrastColor: '{zinc.950}',
               hoverColor: '{zinc.100}',
               activeColor: '{zinc.200}'
             },
@@ -221,23 +233,10 @@ export const useUIStore = defineStore('ui', () => {
       }
     } else {
       paletteConfig = {
-        primary: primevuePalette(`{${newPalette}}`),
+        primary: primevuePalette(`{${palette.value}}`),
         colorScheme: {
           light: {
-            surface: {
-              0: '#ffffff',
-              50: '{slate.50}',
-              100: '{slate.100}',
-              200: '{slate.200}',
-              300: '{slate.300}',
-              400: '{slate.400}',
-              500: '{slate.500}',
-              600: '{slate.600}',
-              700: '{slate.700}',
-              800: '{slate.800}',
-              900: '{slate.900}',
-              950: '{slate.950}'
-            },
+            surface: surfaceConfig,
             primary: {
               color: '{primary.500}',
               contrastColor: '#ffffff',
@@ -252,20 +251,7 @@ export const useUIStore = defineStore('ui', () => {
             }
           },
           dark: {
-            surface: {
-              0: '#ffffff',
-              50: '{slate.50}',
-              100: '{slate.100}',
-              200: '{slate.200}',
-              300: '{slate.300}',
-              400: '{slate.400}',
-              500: '{slate.500}',
-              600: '{slate.600}',
-              700: '{slate.700}',
-              800: '{slate.800}',
-              900: '{slate.900}',
-              950: '{slate.950}'
-            },
+            surface: surfaceConfig,
             primary: {
               color: '{primary.400}',
               contrastColor: '{surface.900}',
@@ -287,7 +273,6 @@ export const useUIStore = defineStore('ui', () => {
         ...paletteConfig
       }
     })
-    localStorage.setItem(PALETTE_STORAGE_KEY, palette.value)
   }
 
   function $resetAll() {
@@ -301,13 +286,16 @@ export const useUIStore = defineStore('ui', () => {
     isReady,
     setup,
 
+    colorScheme,
     theme,
     setTheme,
-    colorScheme,
+    supportedThemes,
     palette,
     setPalette,
-    supportedThemes,
     supportedPalettes,
+    surface,
+    setSurface,
+    supportedSurfaces,
 
     isSidebarOpen,
     setIsSidebarOpen,
